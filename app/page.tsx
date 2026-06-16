@@ -3,7 +3,8 @@
 import { ChangeEvent, FormEvent, useMemo, useState } from "react";
 
 const API_BASE = process.env.NEXT_PUBLIC_API_BASE ?? "http://127.0.0.1:8080";
-const PRODUCT_UPLOAD_URL = `${API_BASE}/api/v1/keyword-jobs/upload-download`;
+const EXCEL_DOWNLOAD_URL = `${API_BASE}/api/v1/keyword-jobs/upload-download`;
+const IMAGE_ZIP_DOWNLOAD_URL = `${API_BASE}/api/v1/keyword-jobs/images/download-zip`;
 const CATEGORY_UPLOAD_URL = `${API_BASE}/api/v1/admin/naver-categories/upload`;
 
 type RequestState = "idle" | "ready" | "uploading" | "success" | "error";
@@ -22,11 +23,33 @@ type CategoryUploadResponse = {
   code?: string;
 };
 
+type SaveFilePickerOptions = {
+  suggestedName?: string;
+  types?: Array<{
+    description: string;
+    accept: Record<string, string[]>;
+  }>;
+};
+
+type FileSystemWritableFileStream = WritableStream & {
+  write: (data: Blob) => Promise<void>;
+  close: () => Promise<void>;
+};
+
+type FileSystemFileHandle = {
+  createWritable: () => Promise<FileSystemWritableFileStream>;
+};
+
+type WindowWithSavePicker = Window & {
+  showSaveFilePicker?: (options?: SaveFilePickerOptions) => Promise<FileSystemFileHandle>;
+};
+
 export default function Home() {
   const [productFile, setProductFile] = useState<File | null>(null);
-  const [productStatus, setProductStatus] = useState<RequestState>("idle");
-  const [productMessage, setProductMessage] = useState("상품 엑셀 파일을 업로드하면 결과 파일이 자동 다운로드됩니다.");
-  const [imageOutputDir, setImageOutputDir] = useState("");
+  const [excelStatus, setExcelStatus] = useState<RequestState>("idle");
+  const [excelMessage, setExcelMessage] = useState("상품 엑셀 파일을 선택한 뒤 결과 엑셀을 저장하세요.");
+  const [imageStatus, setImageStatus] = useState<RequestState>("idle");
+  const [imageMessage, setImageMessage] = useState("이미지는 ZIP 파일로 저장됩니다.");
 
   const [categoryFile, setCategoryFile] = useState<File | null>(null);
   const [categoryStatus, setCategoryStatus] = useState<RequestState>("idle");
@@ -39,8 +62,10 @@ export default function Home() {
   function handleProductFileChange(event: ChangeEvent<HTMLInputElement>) {
     const selectedFile = event.target.files?.[0] ?? null;
     setProductFile(selectedFile);
-    setProductStatus(selectedFile ? "ready" : "idle");
-    setProductMessage(selectedFile ? "상품 엑셀 파일이 선택되었습니다." : "상품 엑셀 파일을 선택하세요.");
+    setExcelStatus(selectedFile ? "ready" : "idle");
+    setImageStatus(selectedFile ? "ready" : "idle");
+    setExcelMessage(selectedFile ? "상품 엑셀 파일이 선택되었습니다." : "상품 엑셀 파일을 선택하세요.");
+    setImageMessage(selectedFile ? "이미지 ZIP을 저장할 수 있습니다." : "상품 엑셀 파일을 선택하세요.");
   }
 
   function handleCategoryFileChange(event: ChangeEvent<HTMLInputElement>) {
@@ -51,12 +76,22 @@ export default function Home() {
     setCategoryMessage(selectedFile ? "네이버 카테고리 파일이 선택되었습니다." : "네이버 카테고리 파일을 선택하세요.");
   }
 
-  async function handleProductSubmit(event: FormEvent<HTMLFormElement>) {
+  async function handleExcelSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
 
     if (!productFile) {
-      setProductStatus("error");
-      setProductMessage("업로드할 상품 엑셀 파일을 선택해주세요.");
+      setExcelStatus("error");
+      setExcelMessage("업로드할 상품 엑셀 파일을 선택해주세요.");
+      return;
+    }
+
+    const fallbackFilename = `keyword_result_${productFile.name}`;
+    const saveHandle = await chooseSaveHandle(fallbackFilename, "Excel workbook", {
+      "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet": [".xlsx"],
+    });
+    if (saveHandle === "cancelled") {
+      setExcelStatus("ready");
+      setExcelMessage("저장 위치 선택이 취소되었습니다.");
       return;
     }
 
@@ -65,13 +100,12 @@ export default function Home() {
     formData.append("productNameColumn", "상품명");
     formData.append("categoryColumn", "");
     formData.append("keywordCount", "30");
-    formData.append("imageOutputDir", imageOutputDir);
 
-    setProductStatus("uploading");
-    setProductMessage("엑셀 파일을 채우고 목록이미지1 이미지를 저장하는 중입니다...");
+    setExcelStatus("uploading");
+    setExcelMessage("엑셀 파일을 채우는 중입니다...");
 
     try {
-      const response = await fetch(PRODUCT_UPLOAD_URL, {
+      const response = await fetch(EXCEL_DOWNLOAD_URL, {
         method: "POST",
         body: formData,
       });
@@ -81,17 +115,73 @@ export default function Home() {
       }
 
       const blob = await response.blob();
-      const filename = parseFilename(response.headers.get("Content-Disposition")) ?? `keyword_result_${productFile.name}`;
-      downloadBlob(blob, filename);
-      setProductStatus("success");
-      setProductMessage(
-        imageOutputDir.trim()
-          ? `완료되었습니다. 결과 엑셀 다운로드가 시작되고 이미지는 ${imageOutputDir}에 저장됩니다.`
-          : "완료되었습니다. 결과 엑셀 다운로드가 시작되고 이미지는 백엔드 uploads/product-images에 저장됩니다.",
-      );
+      const responseFilename = parseFilename(response.headers.get("Content-Disposition")) ?? fallbackFilename;
+
+      if (saveHandle) {
+        await saveBlobToHandle(blob, saveHandle);
+      } else {
+        downloadBlob(blob, responseFilename);
+      }
+
+      setExcelStatus("success");
+      setExcelMessage(saveHandle ? "선택한 위치에 결과 엑셀이 저장되었습니다." : "브라우저 다운로드 폴더에 결과 엑셀이 저장되었습니다.");
     } catch (error) {
-      setProductStatus("error");
-      setProductMessage(error instanceof Error ? error.message : "처리 중 오류가 발생했습니다.");
+      setExcelStatus("error");
+      setExcelMessage(error instanceof Error ? error.message : "엑셀 저장 중 오류가 발생했습니다.");
+    }
+  }
+
+  async function handleImageSubmit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+
+    if (!productFile) {
+      setImageStatus("error");
+      setImageMessage("이미지를 저장할 상품 엑셀 파일을 선택해주세요.");
+      return;
+    }
+
+    const fallbackFilename = `product_images_${removeExcelExtension(productFile.name)}.zip`;
+    const saveHandle = await chooseSaveHandle(fallbackFilename, "ZIP archive", {
+      "application/zip": [".zip"],
+    });
+    if (saveHandle === "cancelled") {
+      setImageStatus("ready");
+      setImageMessage("저장 위치 선택이 취소되었습니다.");
+      return;
+    }
+
+    const formData = new FormData();
+    formData.append("file", productFile);
+
+    setImageStatus("uploading");
+    setImageMessage("목록이미지1 URL의 이미지를 ZIP으로 묶는 중입니다...");
+
+    try {
+      const response = await fetch(IMAGE_ZIP_DOWNLOAD_URL, {
+        method: "POST",
+        body: formData,
+      });
+
+      if (!response.ok) {
+        throw new Error(await readErrorMessage(response));
+      }
+
+      const blob = await response.blob();
+      const responseFilename = parseFilename(response.headers.get("Content-Disposition")) ?? fallbackFilename;
+      const savedCount = response.headers.get("X-Saved-Image-Count") ?? "0";
+      const failedCount = response.headers.get("X-Failed-Image-Count") ?? "0";
+
+      if (saveHandle) {
+        await saveBlobToHandle(blob, saveHandle);
+      } else {
+        downloadBlob(blob, responseFilename);
+      }
+
+      setImageStatus("success");
+      setImageMessage(`이미지 ZIP 저장 완료: 성공 ${Number(savedCount).toLocaleString()}개, 실패/건너뜀 ${Number(failedCount).toLocaleString()}개`);
+    } catch (error) {
+      setImageStatus("error");
+      setImageMessage(error instanceof Error ? error.message : "이미지 ZIP 저장 중 오류가 발생했습니다.");
     }
   }
 
@@ -141,8 +231,7 @@ export default function Home() {
               카테고리 기준을 갱신하고 상품 엑셀을 자동 완성합니다
             </h1>
             <p className="text-base leading-7 text-slate-600">
-              네이버 카테고리 리스트를 먼저 업로드한 뒤, 상품 엑셀을 올리면 L열 키워드와 T열 마이카테가 채워진 결과 파일을 받을 수 있습니다.
-              목록이미지1 URL의 이미지도 지정한 폴더에 저장합니다.
+              네이버 카테고리 리스트를 먼저 업로드한 뒤 상품 엑셀을 올려 결과 엑셀 저장과 이미지 ZIP 저장을 각각 실행할 수 있습니다.
             </p>
           </div>
         </section>
@@ -153,13 +242,15 @@ export default function Home() {
             title="네이버 카테고리 리스트 업로드"
             description="카테고리코드, 1차카테, 2차카테, 3차카테, 4차카테 컬럼을 가진 엑셀 파일을 업로드합니다."
             fileLabel={categoryFileLabel}
-            buttonText="카테고리 기준 갱신"
-            loadingText="갱신 중..."
             status={categoryStatus}
             message={categoryMessage}
             onFileChange={handleCategoryFileChange}
-            onSubmit={handleCategorySubmit}
           >
+            <form className="grid gap-5" onSubmit={handleCategorySubmit}>
+              <ActionButton disabled={categoryStatus === "uploading"} loading={categoryStatus === "uploading"}>
+                {categoryStatus === "uploading" ? "갱신 중..." : "카테고리 기준 갱신"}
+              </ActionButton>
+            </form>
             {categoryResult && (
               <div className="grid gap-2 rounded-md bg-teal-50 p-4 text-sm text-teal-950">
                 <ResultRow label="버전" value={String(categoryResult.versionId)} />
@@ -172,29 +263,32 @@ export default function Home() {
           <UploadCard
             eyebrow="Step 2"
             title="상품 엑셀 업로드"
-            description="input.xlsx 형식의 상품 엑셀을 업로드하면 결과 파일이 자동으로 다운로드됩니다."
+            description="같은 상품 엑셀 파일로 결과 엑셀 저장과 목록이미지1 이미지 ZIP 저장을 따로 실행합니다."
             fileLabel={productFileLabel}
-            buttonText="엑셀 채우고 다운로드"
-            loadingText="처리 중..."
-            status={productStatus}
-            message={productMessage}
+            status={excelStatus === "uploading" ? excelStatus : imageStatus === "uploading" ? imageStatus : excelStatus}
+            message=""
             onFileChange={handleProductFileChange}
-            onSubmit={handleProductSubmit}
           >
-            <label className="grid gap-2 text-sm font-extrabold text-slate-700">
-              이미지 저장 폴더
-              <input
-                className="h-11 rounded-md border border-slate-300 px-3 outline-none transition focus:border-teal-700 focus:ring-2 focus:ring-teal-100"
-                placeholder="비워두면 be/uploads/product-images"
-                value={imageOutputDir}
-                onChange={(event) => setImageOutputDir(event.target.value)}
-              />
-            </label>
+            <div className="grid gap-3 sm:grid-cols-2">
+              <form className="grid gap-2" onSubmit={handleExcelSubmit}>
+                <ActionButton disabled={excelStatus === "uploading"} loading={excelStatus === "uploading"}>
+                  {excelStatus === "uploading" ? "엑셀 저장 중..." : "결과 엑셀 저장"}
+                </ActionButton>
+                <p className={statusClassName(excelStatus)}>{excelMessage}</p>
+              </form>
+
+              <form className="grid gap-2" onSubmit={handleImageSubmit}>
+                <ActionButton disabled={imageStatus === "uploading"} loading={imageStatus === "uploading"}>
+                  {imageStatus === "uploading" ? "ZIP 저장 중..." : "이미지 ZIP 저장"}
+                </ActionButton>
+                <p className={statusClassName(imageStatus)}>{imageMessage}</p>
+              </form>
+            </div>
 
             <div className="grid gap-2 text-sm text-slate-700">
-              <Feature text="상품명 컬럼은 '상품명'으로 고정" />
-              <Feature text="키워드는 L열, 마이카테는 T열에 입력" />
-              <Feature text="목록이미지1 URL 이미지를 상품코드 파일명으로 저장" />
+              <Feature text="결과 엑셀 저장은 키워드 L열, 마이카테 T열만 처리" />
+              <Feature text="이미지 ZIP 저장은 목록이미지1 URL만 처리" />
+              <Feature text="저장 위치 선택을 지원하지 않는 브라우저는 기본 다운로드 폴더 사용" />
             </div>
           </UploadCard>
         </section>
@@ -208,25 +302,19 @@ function UploadCard({
   title,
   description,
   fileLabel,
-  buttonText,
-  loadingText,
   status,
   message,
   children,
   onFileChange,
-  onSubmit,
 }: {
   eyebrow: string;
   title: string;
   description: string;
   fileLabel: string;
-  buttonText: string;
-  loadingText: string;
   status: RequestState;
   message: string;
   children: React.ReactNode;
   onFileChange: (event: ChangeEvent<HTMLInputElement>) => void;
-  onSubmit: (event: FormEvent<HTMLFormElement>) => void;
 }) {
   return (
     <section className="grid gap-5 rounded-lg border border-slate-200 bg-white p-6 shadow-[0_14px_40px_rgba(23,33,38,0.08)]">
@@ -236,26 +324,29 @@ function UploadCard({
         <p className="mt-2 text-sm leading-6 text-slate-600">{description}</p>
       </div>
 
-      <form className="grid gap-5" onSubmit={onSubmit}>
-        <label className="grid cursor-pointer gap-3 rounded-lg border border-dashed border-slate-300 bg-slate-50 p-5 transition hover:border-teal-700 hover:bg-teal-50/40">
-          <span className="text-sm font-extrabold text-slate-700">엑셀 파일</span>
-          <span className="min-h-6 break-all text-sm text-slate-600">{fileLabel}</span>
-          <input className="sr-only" type="file" accept=".xlsx,.xls" onChange={onFileChange} />
-        </label>
+      <label className="grid cursor-pointer gap-3 rounded-lg border border-dashed border-slate-300 bg-slate-50 p-5 transition hover:border-teal-700 hover:bg-teal-50/40">
+        <span className="text-sm font-extrabold text-slate-700">엑셀 파일</span>
+        <span className="min-h-6 break-all text-sm text-slate-600">{fileLabel}</span>
+        <input className="sr-only" type="file" accept=".xlsx,.xls" onChange={onFileChange} />
+      </label>
 
-        {children}
+      {children}
 
-        <button
-          className="h-12 w-fit rounded-md bg-teal-700 px-5 font-extrabold text-white transition hover:bg-teal-800 disabled:cursor-wait disabled:bg-slate-400"
-          disabled={status === "uploading"}
-          type="submit"
-        >
-          {status === "uploading" ? loadingText : buttonText}
-        </button>
-
-        <p className={statusClassName(status)}>{message}</p>
-      </form>
+      {message && <p className={statusClassName(status)}>{message}</p>}
     </section>
+  );
+}
+
+function ActionButton({ children, disabled, loading }: { children: React.ReactNode; disabled: boolean; loading: boolean }) {
+  return (
+    <button
+      className="h-12 w-fit rounded-md bg-teal-700 px-5 font-extrabold text-white transition hover:bg-teal-800 disabled:cursor-wait disabled:bg-slate-400"
+      disabled={disabled}
+      type="submit"
+    >
+      {children}
+      <span className="sr-only">{loading ? "loading" : ""}</span>
+    </button>
   );
 }
 
@@ -279,9 +370,43 @@ function ResultRow({ label, value }: { label: string; value: string }) {
 
 function labelForFile(file: File | null) {
   if (!file) {
-    return "xlsx 또는 xls 파일을 선택하세요";
+    return "xlsx 또는 xls 파일을 선택하세요.";
   }
   return `${file.name} (${formatBytes(file.size)})`;
+}
+
+async function chooseSaveHandle(
+  suggestedName: string,
+  description: string,
+  accept: Record<string, string[]>,
+): Promise<FileSystemFileHandle | null | "cancelled"> {
+  const savePicker = (window as WindowWithSavePicker).showSaveFilePicker;
+  if (!savePicker) {
+    return null;
+  }
+
+  try {
+    return await savePicker({
+      suggestedName,
+      types: [
+        {
+          description,
+          accept,
+        },
+      ],
+    });
+  } catch (error) {
+    if (error instanceof DOMException && error.name === "AbortError") {
+      return "cancelled";
+    }
+    throw error;
+  }
+}
+
+async function saveBlobToHandle(blob: Blob, fileHandle: FileSystemFileHandle) {
+  const writable = await fileHandle.createWritable();
+  await writable.write(blob);
+  await writable.close();
 }
 
 async function readErrorMessage(response: Response) {
@@ -316,6 +441,10 @@ function downloadBlob(blob: Blob, filename: string) {
   link.click();
   link.remove();
   URL.revokeObjectURL(url);
+}
+
+function removeExcelExtension(filename: string) {
+  return filename.replace(/\.(xlsx|xls)$/i, "");
 }
 
 function formatBytes(bytes: number) {
