@@ -26,6 +26,7 @@ export default function Home() {
   const [productFile, setProductFile] = useState<File | null>(null);
   const [productStatus, setProductStatus] = useState<RequestState>("idle");
   const [productMessage, setProductMessage] = useState("상품 엑셀 파일을 업로드하면 결과 파일이 자동 다운로드됩니다.");
+  const [imageOutputDir, setImageOutputDir] = useState("");
 
   const [categoryFile, setCategoryFile] = useState<File | null>(null);
   const [categoryStatus, setCategoryStatus] = useState<RequestState>("idle");
@@ -64,9 +65,10 @@ export default function Home() {
     formData.append("productNameColumn", "상품명");
     formData.append("categoryColumn", "");
     formData.append("keywordCount", "30");
+    formData.append("imageOutputDir", imageOutputDir);
 
     setProductStatus("uploading");
-    setProductMessage("백엔드에서 엑셀 파일을 채우는 중입니다...");
+    setProductMessage("엑셀 파일을 채우고 목록이미지1 이미지를 저장하는 중입니다...");
 
     try {
       const response = await fetch(PRODUCT_UPLOAD_URL, {
@@ -82,7 +84,11 @@ export default function Home() {
       const filename = parseFilename(response.headers.get("Content-Disposition")) ?? `keyword_result_${productFile.name}`;
       downloadBlob(blob, filename);
       setProductStatus("success");
-      setProductMessage("완료되었습니다. 결과 엑셀 다운로드가 시작됩니다.");
+      setProductMessage(
+        imageOutputDir.trim()
+          ? `완료되었습니다. 결과 엑셀 다운로드가 시작되고 이미지는 ${imageOutputDir}에 저장됩니다.`
+          : "완료되었습니다. 결과 엑셀 다운로드가 시작되고 이미지는 백엔드 uploads/product-images에 저장됩니다.",
+      );
     } catch (error) {
       setProductStatus("error");
       setProductMessage(error instanceof Error ? error.message : "처리 중 오류가 발생했습니다.");
@@ -136,6 +142,7 @@ export default function Home() {
             </h1>
             <p className="text-base leading-7 text-slate-600">
               네이버 카테고리 리스트를 먼저 업로드한 뒤, 상품 엑셀을 올리면 L열 키워드와 T열 마이카테가 채워진 결과 파일을 받을 수 있습니다.
+              목록이미지1 URL의 이미지도 지정한 폴더에 저장합니다.
             </p>
           </div>
         </section>
@@ -174,10 +181,20 @@ export default function Home() {
             onFileChange={handleProductFileChange}
             onSubmit={handleProductSubmit}
           >
+            <label className="grid gap-2 text-sm font-extrabold text-slate-700">
+              이미지 저장 폴더
+              <input
+                className="h-11 rounded-md border border-slate-300 px-3 outline-none transition focus:border-teal-700 focus:ring-2 focus:ring-teal-100"
+                placeholder="비워두면 be/uploads/product-images"
+                value={imageOutputDir}
+                onChange={(event) => setImageOutputDir(event.target.value)}
+              />
+            </label>
+
             <div className="grid gap-2 text-sm text-slate-700">
               <Feature text="상품명 컬럼은 '상품명'으로 고정" />
               <Feature text="키워드는 L열, 마이카테는 T열에 입력" />
-              <Feature text="키워드 개수는 기본 30개" />
+              <Feature text="목록이미지1 URL 이미지를 상품코드 파일명으로 저장" />
             </div>
           </UploadCard>
         </section>
