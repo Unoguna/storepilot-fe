@@ -23,7 +23,6 @@ export type MyCategoryMappingUploadResult = {
   rowCount: number;
   mappingCount: number;
   matchedCount: number;
-  uploadedFilePath: string;
   message: string;
 };
 

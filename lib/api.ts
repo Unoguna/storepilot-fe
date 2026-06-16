@@ -7,12 +7,13 @@ const IMAGE_ZIP_DOWNLOAD_URL = `${API_BASE}/api/v1/keyword-jobs/images/download-
 const CATEGORY_UPLOAD_URL = `${API_BASE}/api/v1/admin/naver-categories/upload`;
 const MY_CATEGORY_MAPPING_UPLOAD_URL = `${API_BASE}/api/v1/admin/my-category-mappings/upload`;
 
-export async function downloadFilledExcel(file: File) {
+export async function downloadFilledExcel(file: File, userKey: string) {
   const formData = new FormData();
   formData.append("file", file);
   formData.append("productNameColumn", "\uC0C1\uD488\uBA85");
   formData.append("categoryColumn", "");
   formData.append("keywordCount", "30");
+  formData.append("userKey", userKey);
 
   const response = await fetch(EXCEL_DOWNLOAD_URL, {
     method: "POST",

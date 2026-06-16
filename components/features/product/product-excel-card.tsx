@@ -12,6 +12,7 @@ import { RequestState } from "@/types/store-pilot";
 
 export function ProductExcelCard() {
   const [productFile, setProductFile] = useState<File | null>(null);
+  const [userKey, setUserKey] = useState("");
   const [excelStatus, setExcelStatus] = useState<RequestState>("idle");
   const [excelMessage, setExcelMessage] = useState("상품 엑셀 파일을 선택한 뒤 결과 엑셀을 저장하세요.");
   const [imageStatus, setImageStatus] = useState<RequestState>("idle");
@@ -37,6 +38,12 @@ export function ProductExcelCard() {
       return;
     }
 
+    if (!userKey.trim()) {
+      setExcelStatus("error");
+      setExcelMessage("T열 마이카테고리를 찾으려면 사용자 식별자를 입력해주세요.");
+      return;
+    }
+
     const fallbackFilename = `keyword_result_${productFile.name}`;
     const saveHandle = await chooseSaveHandle(fallbackFilename, "Excel workbook", {
       "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet": [".xlsx"],
@@ -48,10 +55,10 @@ export function ProductExcelCard() {
     }
 
     setExcelStatus("uploading");
-    setExcelMessage("엑셀 파일을 채우는 중입니다...");
+    setExcelMessage("상품명으로 네이버 카테고리를 찾고 T열 마이카테고리를 채우는 중입니다...");
 
     try {
-      const response = await downloadFilledExcel(productFile);
+      const response = await downloadFilledExcel(productFile, userKey.trim());
       const blob = await response.blob();
       const responseFilename = parseFilename(response.headers.get("Content-Disposition")) ?? fallbackFilename;
 
@@ -114,14 +121,24 @@ export function ProductExcelCard() {
 
   return (
     <UploadCard
-      eyebrow="Step 2"
+      eyebrow="Step 3"
       title="상품 엑셀 업로드"
-      description="같은 상품 엑셀 파일로 결과 엑셀 저장과 목록이미지1 이미지 ZIP 저장을 따로 실행합니다."
+      description="상품명으로 네이버 카테고리를 찾고, 사용자별 매칭표에서 해당 마이카테고리를 찾아 T열에 씁니다."
       fileLabel={productFileLabel}
       status={excelStatus === "uploading" ? excelStatus : imageStatus === "uploading" ? imageStatus : excelStatus}
       message=""
       onFileChange={handleProductFileChange}
     >
+      <label className="grid gap-2 text-sm font-extrabold text-slate-700">
+        사용자 식별자
+        <input
+          className="h-11 rounded-md border border-slate-300 px-3 font-medium outline-none transition focus:border-teal-700 focus:ring-2 focus:ring-teal-100"
+          placeholder="예: user-a"
+          value={userKey}
+          onChange={(event) => setUserKey(event.target.value)}
+        />
+      </label>
+
       <div className="grid gap-3 sm:grid-cols-2">
         <form className="grid gap-2" onSubmit={handleExcelSubmit}>
           <ActionButton disabled={excelStatus === "uploading"} loading={excelStatus === "uploading"}>
@@ -139,9 +156,9 @@ export function ProductExcelCard() {
       </div>
 
       <div className="grid gap-2 text-sm text-slate-700">
-        <Feature text="결과 엑셀 저장은 키워드 L열, 마이카테 T열만 처리" />
-        <Feature text="이미지 ZIP 저장은 목록이미지1 URL만 처리" />
-        <Feature text="저장 위치 선택을 지원하지 않는 브라우저는 기본 다운로드 폴더 사용" />
+        <Feature text="네이버 카테고리 직접 매칭 후 실패한 경우 AI 임베딩 검색 사용" />
+        <Feature text="추천된 네이버 카테고리에 해당하는 사용자 마이카테고리를 T열에 작성" />
+        <Feature text="이미지 ZIP 저장은 목록이미지1 URL만 별도로 처리" />
       </div>
     </UploadCard>
   );
