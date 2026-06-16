@@ -1,15 +1,16 @@
-import { CategoryUploadResponse } from "@/types/store-pilot";
+import { CategoryUploadResponse, MyCategoryMappingUploadResponse } from "@/types/store-pilot";
 
 const API_BASE = process.env.NEXT_PUBLIC_API_BASE ?? "http://127.0.0.1:8080";
 
 const EXCEL_DOWNLOAD_URL = `${API_BASE}/api/v1/keyword-jobs/upload-download`;
 const IMAGE_ZIP_DOWNLOAD_URL = `${API_BASE}/api/v1/keyword-jobs/images/download-zip`;
 const CATEGORY_UPLOAD_URL = `${API_BASE}/api/v1/admin/naver-categories/upload`;
+const MY_CATEGORY_MAPPING_UPLOAD_URL = `${API_BASE}/api/v1/admin/my-category-mappings/upload`;
 
 export async function downloadFilledExcel(file: File) {
   const formData = new FormData();
   formData.append("file", file);
-  formData.append("productNameColumn", "상품명");
+  formData.append("productNameColumn", "\uC0C1\uD488\uBA85");
   formData.append("categoryColumn", "");
   formData.append("keywordCount", "30");
 
@@ -55,6 +56,23 @@ export async function uploadCategoryFile(file: File) {
   }
 
   return (await response.json()) as CategoryUploadResponse;
+}
+
+export async function uploadMyCategoryMappingFile(file: File, userKey: string) {
+  const formData = new FormData();
+  formData.append("file", file);
+  formData.append("userKey", userKey);
+
+  const response = await fetch(MY_CATEGORY_MAPPING_UPLOAD_URL, {
+    method: "POST",
+    body: formData,
+  });
+
+  if (!response.ok) {
+    throw new Error(await readErrorMessage(response));
+  }
+
+  return (await response.json()) as MyCategoryMappingUploadResponse;
 }
 
 async function readErrorMessage(response: Response) {

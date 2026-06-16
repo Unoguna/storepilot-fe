@@ -16,6 +16,24 @@ export type CategoryUploadResponse = {
   code?: string;
 };
 
+export type MyCategoryMappingUploadResult = {
+  versionId: number;
+  userKey: string;
+  sourceFilename: string;
+  rowCount: number;
+  mappingCount: number;
+  matchedCount: number;
+  uploadedFilePath: string;
+  message: string;
+};
+
+export type MyCategoryMappingUploadResponse = {
+  success: boolean;
+  data?: MyCategoryMappingUploadResult;
+  message?: string;
+  code?: string;
+};
+
 export type FileSystemWritableFileStream = WritableStream & {
   write: (data: Blob) => Promise<void>;
   close: () => Promise<void>;
