@@ -5,15 +5,24 @@ import { ActionButton } from "@/components/ui/action-button";
 import { Feature } from "@/components/ui/feature";
 import { UploadCard } from "@/components/ui/upload-card";
 import { statusClassName } from "@/components/ui/upload-status";
-import { downloadFilledExcel, downloadImageZip } from "@/lib/api";
+import {
+  createCategoryJob,
+  downloadCategoryJobResult,
+  downloadImageZip,
+  getCategoryJobStatus,
+} from "@/lib/api";
 import { chooseSaveHandle, downloadBlob, parseFilename, saveBlobToHandle } from "@/lib/file-download";
 import { labelForFile, removeExcelExtension } from "@/lib/format";
-import { RequestState } from "@/types/store-pilot";
+import { CategoryJobProgress, RequestState } from "@/types/store-pilot";
+
+const STATUS_POLL_INTERVAL_MS = 1000;
 
 export function ProductExcelCard() {
   const [productFile, setProductFile] = useState<File | null>(null);
+  const [userKey, setUserKey] = useState("");
   const [excelStatus, setExcelStatus] = useState<RequestState>("idle");
   const [excelMessage, setExcelMessage] = useState("상품 엑셀 파일을 선택한 뒤 결과 엑셀을 저장하세요.");
+  const [jobProgress, setJobProgress] = useState<CategoryJobProgress | null>(null);
   const [imageStatus, setImageStatus] = useState<RequestState>("idle");
   const [imageMessage, setImageMessage] = useState("이미지는 ZIP 파일로 저장됩니다.");
 
@@ -23,6 +32,7 @@ export function ProductExcelCard() {
     const selectedFile = event.target.files?.[0] ?? null;
     setProductFile(selectedFile);
     setExcelStatus(selectedFile ? "ready" : "idle");
+    setJobProgress(null);
     setImageStatus(selectedFile ? "ready" : "idle");
     setExcelMessage(selectedFile ? "상품 엑셀 파일이 선택되었습니다." : "상품 엑셀 파일을 선택하세요.");
     setImageMessage(selectedFile ? "이미지 ZIP을 저장할 수 있습니다." : "상품 엑셀 파일을 선택하세요.");
@@ -37,6 +47,12 @@ export function ProductExcelCard() {
       return;
     }
 
+    if (!userKey.trim()) {
+      setExcelStatus("error");
+      setExcelMessage("T열 마이카테고리를 찾으려면 사용자 식별자를 입력해주세요.");
+      return;
+    }
+
     const fallbackFilename = `keyword_result_${productFile.name}`;
     const saveHandle = await chooseSaveHandle(fallbackFilename, "Excel workbook", {
       "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet": [".xlsx"],
@@ -48,10 +64,36 @@ export function ProductExcelCard() {
     }
 
     setExcelStatus("uploading");
-    setExcelMessage("엑셀 파일을 채우는 중입니다...");
+    setJobProgress(null);
+    setExcelMessage("카테고리 찾기 작업을 등록하는 중입니다...");
 
     try {
-      const response = await downloadFilledExcel(productFile);
+      const createBody = await createCategoryJob(productFile, userKey.trim());
+      if (!createBody.data) {
+        throw new Error(createBody.message ?? "카테고리 찾기 작업을 등록하지 못했습니다.");
+      }
+
+      const jobId = createBody.data.jobId;
+      while (true) {
+        const statusBody = await getCategoryJobStatus(jobId);
+        if (!statusBody.data) {
+          throw new Error(statusBody.message ?? "작업 상태를 확인하지 못했습니다.");
+        }
+
+        const progress = statusBody.data;
+        setJobProgress(progress);
+        setExcelMessage(progress.message);
+
+        if (progress.status === "FAILED") {
+          throw new Error(progress.message || "카테고리 찾기 작업에 실패했습니다.");
+        }
+        if (progress.status === "COMPLETED") {
+          break;
+        }
+        await new Promise((resolve) => window.setTimeout(resolve, STATUS_POLL_INTERVAL_MS));
+      }
+
+      const response = await downloadCategoryJobResult(jobId);
       const blob = await response.blob();
       const responseFilename = parseFilename(response.headers.get("Content-Disposition")) ?? fallbackFilename;
 
@@ -114,20 +156,54 @@ export function ProductExcelCard() {
 
   return (
     <UploadCard
-      eyebrow="Step 2"
+      eyebrow="Step 4"
       title="상품 엑셀 업로드"
-      description="같은 상품 엑셀 파일로 결과 엑셀 저장과 목록이미지1 이미지 ZIP 저장을 따로 실행합니다."
+      description="상품명으로 네이버 카테고리를 찾고, 사용자별 매칭표에서 해당 마이카테고리를 찾아 T열에 씁니다."
       fileLabel={productFileLabel}
       status={excelStatus === "uploading" ? excelStatus : imageStatus === "uploading" ? imageStatus : excelStatus}
       message=""
       onFileChange={handleProductFileChange}
     >
+      <label className="grid gap-2 text-sm font-extrabold text-slate-700">
+        사용자 식별자
+        <input
+          className="h-11 rounded-md border border-slate-300 px-3 font-medium outline-none transition focus:border-teal-700 focus:ring-2 focus:ring-teal-100"
+          placeholder="예: user-a"
+          value={userKey}
+          onChange={(event) => setUserKey(event.target.value)}
+        />
+      </label>
+
       <div className="grid gap-3 sm:grid-cols-2">
         <form className="grid gap-2" onSubmit={handleExcelSubmit}>
           <ActionButton disabled={excelStatus === "uploading"} loading={excelStatus === "uploading"}>
-            {excelStatus === "uploading" ? "엑셀 저장 중..." : "결과 엑셀 저장"}
+            {excelStatus === "uploading" ? "카테고리 찾는 중..." : "결과 엑셀 저장"}
           </ActionButton>
           <p className={statusClassName(excelStatus)}>{excelMessage}</p>
+          {jobProgress && (
+            <div className="grid gap-2 rounded-md border border-slate-200 bg-slate-50 p-3">
+              <div className="flex items-center justify-between gap-3 text-xs font-bold text-slate-600">
+                <span>{jobProgress.stage}</span>
+                <span>{jobProgress.progress}%</span>
+              </div>
+              <div
+                aria-label="카테고리 찾기 진행률"
+                aria-valuemax={100}
+                aria-valuemin={0}
+                aria-valuenow={jobProgress.progress}
+                className="h-2 overflow-hidden rounded-full bg-slate-200"
+                role="progressbar"
+              >
+                <div
+                  className="h-full bg-teal-700 transition-[width] duration-300"
+                  style={{ width: `${jobProgress.progress}%` }}
+                />
+              </div>
+              <p className="text-xs font-semibold text-slate-500">
+                {jobProgress.processedCount.toLocaleString()} / {jobProgress.totalCount.toLocaleString()}개 처리
+              </p>
+            </div>
+          )}
         </form>
 
         <form className="grid gap-2" onSubmit={handleImageSubmit}>
@@ -139,9 +215,9 @@ export function ProductExcelCard() {
       </div>
 
       <div className="grid gap-2 text-sm text-slate-700">
-        <Feature text="결과 엑셀 저장은 키워드 L열, 마이카테 T열만 처리" />
-        <Feature text="이미지 ZIP 저장은 목록이미지1 URL만 처리" />
-        <Feature text="저장 위치 선택을 지원하지 않는 브라우저는 기본 다운로드 폴더 사용" />
+        <Feature text="네이버 카테고리 직접 매칭 후 실패한 경우 AI 임베딩 검색 사용" />
+        <Feature text="추천된 네이버 카테고리에 해당하는 사용자 마이카테고리를 T열에 작성" />
+        <Feature text="이미지 ZIP 저장은 목록이미지1 URL만 별도로 처리" />
       </div>
     </UploadCard>
   );

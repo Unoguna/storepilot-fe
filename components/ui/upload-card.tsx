@@ -9,6 +9,8 @@ export function UploadCard({
   fileLabel,
   status,
   message,
+  accept = ".xlsx,.xls",
+  multiple = false,
   children,
   onFileChange,
 }: {
@@ -18,6 +20,8 @@ export function UploadCard({
   fileLabel: string;
   status: RequestState;
   message: string;
+  accept?: string;
+  multiple?: boolean;
   children: React.ReactNode;
   onFileChange: (event: ChangeEvent<HTMLInputElement>) => void;
 }) {
@@ -32,7 +36,7 @@ export function UploadCard({
       <label className="grid cursor-pointer gap-3 rounded-lg border border-dashed border-slate-300 bg-slate-50 p-5 transition hover:border-teal-700 hover:bg-teal-50/40">
         <span className="text-sm font-extrabold text-slate-700">엑셀 파일</span>
         <span className="min-h-6 break-all text-sm text-slate-600">{fileLabel}</span>
-        <input className="sr-only" type="file" accept=".xlsx,.xls" onChange={onFileChange} />
+        <input className="sr-only" type="file" accept={accept} multiple={multiple} onChange={onFileChange} />
       </label>
 
       {children}
