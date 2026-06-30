@@ -13,7 +13,7 @@ export function TrainingProductUploadCard() {
   const [userKey, setUserKey] = useState("");
   const [status, setStatus] = useState<RequestState>("idle");
   const [message, setMessage] = useState(
-    "D열 상품명과 T열 마이카테고리를 읽어 사용자별 유사 상품 검색 인덱스를 갱신합니다.",
+    "D열 상품명과 T열 마이카테고리를 읽고 네이버 카테고리로 변환해 공용 검색 인덱스를 갱신합니다.",
   );
   const [result, setResult] = useState<TrainingProductUploadResult | null>(null);
 
@@ -64,7 +64,7 @@ export function TrainingProductUploadCard() {
     <UploadCard
       eyebrow="Step 3"
       title="기존 상품 엑셀 업로드"
-      description="상품명 D열과 마이카테고리 T열이 있는 엑셀 파일을 여러 개 선택해 유사 상품 검색 데이터를 갱신합니다."
+      description="T열 마이카테고리를 해당 사용자의 매핑표로 네이버 카테고리 코드로 변환해 공용 유사 상품 검색 데이터를 갱신합니다."
       fileLabel={fileLabel}
       status={status}
       message={message}
@@ -92,7 +92,9 @@ export function TrainingProductUploadCard() {
         <div className="grid gap-2 rounded-md bg-teal-50 p-4 text-sm text-teal-950">
           <ResultRow label="사용자" value={result.userKey} />
           <ResultRow label="업로드 파일" value={`${result.sourceCount.toLocaleString()}개`} />
+          <ResultRow label="원본 상품 행" value={`${result.sourceRowCount.toLocaleString()}개`} />
           <ResultRow label="유효 상품 행" value={`${result.validRowCount.toLocaleString()}개`} />
+          <ResultRow label="매핑 없는 행" value={`${result.unmappedRowCount.toLocaleString()}개`} />
           <ResultRow label="인덱싱 상품" value={`${result.indexedProductCount.toLocaleString()}개`} />
           <ResultRow label="중복 행" value={`${result.duplicateRowCount.toLocaleString()}개`} />
           <ResultRow label="카테고리 충돌" value={`${result.conflictingTitleCount.toLocaleString()}개`} />

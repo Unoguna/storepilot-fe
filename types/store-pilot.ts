@@ -36,7 +36,9 @@ export type MyCategoryMappingUploadResponse = {
 export type TrainingProductUploadResult = {
   userKey: string;
   sourceCount: number;
+  sourceRowCount: number;
   validRowCount: number;
+  unmappedRowCount: number;
   indexedProductCount: number;
   duplicateRowCount: number;
   conflictingTitleCount: number;
