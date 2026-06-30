@@ -5,16 +5,24 @@ import { ActionButton } from "@/components/ui/action-button";
 import { Feature } from "@/components/ui/feature";
 import { UploadCard } from "@/components/ui/upload-card";
 import { statusClassName } from "@/components/ui/upload-status";
-import { downloadFilledExcel, downloadImageZip } from "@/lib/api";
+import {
+  createCategoryJob,
+  downloadCategoryJobResult,
+  downloadImageZip,
+  getCategoryJobStatus,
+} from "@/lib/api";
 import { chooseSaveHandle, downloadBlob, parseFilename, saveBlobToHandle } from "@/lib/file-download";
 import { labelForFile, removeExcelExtension } from "@/lib/format";
-import { RequestState } from "@/types/store-pilot";
+import { CategoryJobProgress, RequestState } from "@/types/store-pilot";
+
+const STATUS_POLL_INTERVAL_MS = 1000;
 
 export function ProductExcelCard() {
   const [productFile, setProductFile] = useState<File | null>(null);
   const [userKey, setUserKey] = useState("");
   const [excelStatus, setExcelStatus] = useState<RequestState>("idle");
   const [excelMessage, setExcelMessage] = useState("상품 엑셀 파일을 선택한 뒤 결과 엑셀을 저장하세요.");
+  const [jobProgress, setJobProgress] = useState<CategoryJobProgress | null>(null);
   const [imageStatus, setImageStatus] = useState<RequestState>("idle");
   const [imageMessage, setImageMessage] = useState("이미지는 ZIP 파일로 저장됩니다.");
 
@@ -24,6 +32,7 @@ export function ProductExcelCard() {
     const selectedFile = event.target.files?.[0] ?? null;
     setProductFile(selectedFile);
     setExcelStatus(selectedFile ? "ready" : "idle");
+    setJobProgress(null);
     setImageStatus(selectedFile ? "ready" : "idle");
     setExcelMessage(selectedFile ? "상품 엑셀 파일이 선택되었습니다." : "상품 엑셀 파일을 선택하세요.");
     setImageMessage(selectedFile ? "이미지 ZIP을 저장할 수 있습니다." : "상품 엑셀 파일을 선택하세요.");
@@ -55,10 +64,36 @@ export function ProductExcelCard() {
     }
 
     setExcelStatus("uploading");
-    setExcelMessage("상품명으로 네이버 카테고리를 찾고 T열 마이카테고리를 채우는 중입니다...");
+    setJobProgress(null);
+    setExcelMessage("카테고리 찾기 작업을 등록하는 중입니다...");
 
     try {
-      const response = await downloadFilledExcel(productFile, userKey.trim());
+      const createBody = await createCategoryJob(productFile, userKey.trim());
+      if (!createBody.data) {
+        throw new Error(createBody.message ?? "카테고리 찾기 작업을 등록하지 못했습니다.");
+      }
+
+      const jobId = createBody.data.jobId;
+      while (true) {
+        const statusBody = await getCategoryJobStatus(jobId);
+        if (!statusBody.data) {
+          throw new Error(statusBody.message ?? "작업 상태를 확인하지 못했습니다.");
+        }
+
+        const progress = statusBody.data;
+        setJobProgress(progress);
+        setExcelMessage(progress.message);
+
+        if (progress.status === "FAILED") {
+          throw new Error(progress.message || "카테고리 찾기 작업에 실패했습니다.");
+        }
+        if (progress.status === "COMPLETED") {
+          break;
+        }
+        await new Promise((resolve) => window.setTimeout(resolve, STATUS_POLL_INTERVAL_MS));
+      }
+
+      const response = await downloadCategoryJobResult(jobId);
       const blob = await response.blob();
       const responseFilename = parseFilename(response.headers.get("Content-Disposition")) ?? fallbackFilename;
 
@@ -142,9 +177,33 @@ export function ProductExcelCard() {
       <div className="grid gap-3 sm:grid-cols-2">
         <form className="grid gap-2" onSubmit={handleExcelSubmit}>
           <ActionButton disabled={excelStatus === "uploading"} loading={excelStatus === "uploading"}>
-            {excelStatus === "uploading" ? "엑셀 저장 중..." : "결과 엑셀 저장"}
+            {excelStatus === "uploading" ? "카테고리 찾는 중..." : "결과 엑셀 저장"}
           </ActionButton>
           <p className={statusClassName(excelStatus)}>{excelMessage}</p>
+          {jobProgress && (
+            <div className="grid gap-2 rounded-md border border-slate-200 bg-slate-50 p-3">
+              <div className="flex items-center justify-between gap-3 text-xs font-bold text-slate-600">
+                <span>{jobProgress.stage}</span>
+                <span>{jobProgress.progress}%</span>
+              </div>
+              <div
+                aria-label="카테고리 찾기 진행률"
+                aria-valuemax={100}
+                aria-valuemin={0}
+                aria-valuenow={jobProgress.progress}
+                className="h-2 overflow-hidden rounded-full bg-slate-200"
+                role="progressbar"
+              >
+                <div
+                  className="h-full bg-teal-700 transition-[width] duration-300"
+                  style={{ width: `${jobProgress.progress}%` }}
+                />
+              </div>
+              <p className="text-xs font-semibold text-slate-500">
+                {jobProgress.processedCount.toLocaleString()} / {jobProgress.totalCount.toLocaleString()}개 처리
+              </p>
+            </div>
+          )}
         </form>
 
         <form className="grid gap-2" onSubmit={handleImageSubmit}>

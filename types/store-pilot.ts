@@ -1,5 +1,37 @@
 export type RequestState = "idle" | "ready" | "uploading" | "success" | "error";
 
+export type CategoryJobStatus = "PENDING" | "PROCESSING" | "COMPLETED" | "FAILED";
+
+export type CategoryJobCreateResult = {
+  jobId: number;
+  status: CategoryJobStatus;
+  message: string;
+};
+
+export type CategoryJobProgress = {
+  jobId: number;
+  status: CategoryJobStatus;
+  totalCount: number;
+  processedCount: number;
+  progress: number;
+  stage: string;
+  message: string;
+};
+
+export type CategoryJobCreateResponse = {
+  success: boolean;
+  data?: CategoryJobCreateResult;
+  message?: string;
+  code?: string;
+};
+
+export type CategoryJobStatusResponse = {
+  success: boolean;
+  data?: CategoryJobProgress;
+  message?: string;
+  code?: string;
+};
+
 export type CategoryUploadResult = {
   versionId: number;
   sourceFilename: string;
