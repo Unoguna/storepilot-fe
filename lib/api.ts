@@ -1,4 +1,8 @@
-import { CategoryUploadResponse, MyCategoryMappingUploadResponse } from "@/types/store-pilot";
+import {
+  CategoryUploadResponse,
+  MyCategoryMappingUploadResponse,
+  TrainingProductUploadResponse,
+} from "@/types/store-pilot";
 
 const API_BASE = process.env.NEXT_PUBLIC_API_BASE ?? "http://127.0.0.1:8080";
 
@@ -6,6 +10,7 @@ const EXCEL_DOWNLOAD_URL = `${API_BASE}/api/v1/keyword-jobs/upload-download`;
 const IMAGE_ZIP_DOWNLOAD_URL = `${API_BASE}/api/v1/keyword-jobs/images/download-zip`;
 const CATEGORY_UPLOAD_URL = `${API_BASE}/api/v1/admin/naver-categories/upload`;
 const MY_CATEGORY_MAPPING_UPLOAD_URL = `${API_BASE}/api/v1/admin/my-category-mappings/upload`;
+const TRAINING_PRODUCT_UPLOAD_URL = `${API_BASE}/api/v1/admin/training-products/rebuild`;
 
 export async function downloadFilledExcel(file: File, userKey: string) {
   const formData = new FormData();
@@ -74,6 +79,23 @@ export async function uploadMyCategoryMappingFile(file: File, userKey: string) {
   }
 
   return (await response.json()) as MyCategoryMappingUploadResponse;
+}
+
+export async function uploadTrainingProductFiles(files: File[], userKey: string) {
+  const formData = new FormData();
+  formData.append("userKey", userKey);
+  files.forEach((file) => formData.append("files", file));
+
+  const response = await fetch(TRAINING_PRODUCT_UPLOAD_URL, {
+    method: "POST",
+    body: formData,
+  });
+
+  if (!response.ok) {
+    throw new Error(await readErrorMessage(response));
+  }
+
+  return (await response.json()) as TrainingProductUploadResponse;
 }
 
 async function readErrorMessage(response: Response) {

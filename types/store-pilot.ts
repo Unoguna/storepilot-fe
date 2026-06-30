@@ -33,6 +33,23 @@ export type MyCategoryMappingUploadResponse = {
   code?: string;
 };
 
+export type TrainingProductUploadResult = {
+  userKey: string;
+  sourceCount: number;
+  validRowCount: number;
+  indexedProductCount: number;
+  duplicateRowCount: number;
+  conflictingTitleCount: number;
+  message: string;
+};
+
+export type TrainingProductUploadResponse = {
+  success: boolean;
+  data?: TrainingProductUploadResult;
+  message?: string;
+  code?: string;
+};
+
 export type FileSystemWritableFileStream = WritableStream & {
   write: (data: Blob) => Promise<void>;
   close: () => Promise<void>;

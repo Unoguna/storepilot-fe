@@ -121,7 +121,7 @@ export function ProductExcelCard() {
 
   return (
     <UploadCard
-      eyebrow="Step 3"
+      eyebrow="Step 4"
       title="상품 엑셀 업로드"
       description="상품명으로 네이버 카테고리를 찾고, 사용자별 매칭표에서 해당 마이카테고리를 찾아 T열에 씁니다."
       fileLabel={productFileLabel}
