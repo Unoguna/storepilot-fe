@@ -16,6 +16,8 @@ export type CategoryJobProgress = {
   progress: number;
   stage: string;
   message: string;
+  categoryElapsedMillis: number | null;
+  keywordElapsedMillis: number | null;
 };
 
 export type CategoryJobCreateResponse = {

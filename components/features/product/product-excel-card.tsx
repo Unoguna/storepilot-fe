@@ -17,6 +17,21 @@ import { CategoryJobProgress, RequestState } from "@/types/store-pilot";
 
 const STATUS_POLL_INTERVAL_MS = 1000;
 
+function formatElapsedTime(milliseconds: number | null) {
+  if (milliseconds === null) {
+    return "측정 중";
+  }
+
+  const seconds = milliseconds / 1000;
+  if (seconds < 60) {
+    return `${seconds.toFixed(1)}초`;
+  }
+
+  const minutes = Math.floor(seconds / 60);
+  const remainingSeconds = Math.floor(seconds % 60);
+  return `${minutes}분 ${remainingSeconds}초`;
+}
+
 export function ProductExcelCard() {
   const [productFile, setProductFile] = useState<File | null>(null);
   const [userKey, setUserKey] = useState("");
@@ -202,6 +217,20 @@ export function ProductExcelCard() {
               <p className="text-xs font-semibold text-slate-500">
                 {jobProgress.processedCount.toLocaleString()} / {jobProgress.totalCount.toLocaleString()}개 처리
               </p>
+              <dl className="grid grid-cols-2 gap-x-4 gap-y-1 border-t border-slate-200 pt-2 text-xs">
+                <div className="flex min-w-0 items-center justify-between gap-2">
+                  <dt className="truncate font-semibold text-slate-500">카테고리 분류</dt>
+                  <dd className="shrink-0 font-bold text-slate-700">
+                    {formatElapsedTime(jobProgress.categoryElapsedMillis)}
+                  </dd>
+                </div>
+                <div className="flex min-w-0 items-center justify-between gap-2">
+                  <dt className="truncate font-semibold text-slate-500">키워드 생성</dt>
+                  <dd className="shrink-0 font-bold text-slate-700">
+                    {formatElapsedTime(jobProgress.keywordElapsedMillis)}
+                  </dd>
+                </div>
+              </dl>
             </div>
           )}
         </form>
