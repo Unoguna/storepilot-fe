@@ -1,16 +1,16 @@
 export type RequestState = "idle" | "ready" | "uploading" | "success" | "error";
 
-export type CategoryJobStatus = "PENDING" | "PROCESSING" | "COMPLETED" | "FAILED";
+export type ProductExcelJobStatus = "PENDING" | "PROCESSING" | "COMPLETED" | "FAILED";
 
-export type CategoryJobCreateResult = {
+export type ProductExcelJobCreateResult = {
   jobId: number;
-  status: CategoryJobStatus;
+  status: ProductExcelJobStatus;
   message: string;
 };
 
-export type CategoryJobProgress = {
+export type ProductExcelJobProgress = {
   jobId: number;
-  status: CategoryJobStatus;
+  status: ProductExcelJobStatus;
   totalCount: number;
   processedCount: number;
   progress: number;
@@ -20,16 +20,16 @@ export type CategoryJobProgress = {
   keywordElapsedMillis: number | null;
 };
 
-export type CategoryJobCreateResponse = {
+export type ProductExcelJobCreateResponse = {
   success: boolean;
-  data?: CategoryJobCreateResult;
+  data?: ProductExcelJobCreateResult;
   message?: string;
   code?: string;
 };
 
-export type CategoryJobStatusResponse = {
+export type ProductExcelJobStatusResponse = {
   success: boolean;
-  data?: CategoryJobProgress;
+  data?: ProductExcelJobProgress;
   message?: string;
   code?: string;
 };

@@ -6,14 +6,14 @@ import { Feature } from "@/components/ui/feature";
 import { UploadCard } from "@/components/ui/upload-card";
 import { statusClassName } from "@/components/ui/upload-status";
 import {
-  createCategoryJob,
-  downloadCategoryJobResult,
   downloadImageZip,
-  getCategoryJobStatus,
+  createProductExcelJob,
+  downloadProductExcelJobResult,
+  getProductExcelJobStatus,
 } from "@/lib/api";
 import { chooseSaveHandle, downloadBlob, parseFilename, saveBlobToHandle } from "@/lib/file-download";
 import { labelForFile, removeExcelExtension } from "@/lib/format";
-import { CategoryJobProgress, RequestState } from "@/types/store-pilot";
+import { ProductExcelJobProgress, RequestState } from "@/types/store-pilot";
 
 const STATUS_POLL_INTERVAL_MS = 1000;
 
@@ -37,7 +37,7 @@ export function ProductExcelCard() {
   const [userKey, setUserKey] = useState("");
   const [excelStatus, setExcelStatus] = useState<RequestState>("idle");
   const [excelMessage, setExcelMessage] = useState("상품 엑셀 파일을 선택한 뒤 결과 엑셀을 저장하세요.");
-  const [jobProgress, setJobProgress] = useState<CategoryJobProgress | null>(null);
+  const [jobProgress, setJobProgress] = useState<ProductExcelJobProgress | null>(null);
   const [imageStatus, setImageStatus] = useState<RequestState>("idle");
   const [imageMessage, setImageMessage] = useState("이미지는 ZIP 파일로 저장됩니다.");
 
@@ -83,14 +83,14 @@ export function ProductExcelCard() {
     setExcelMessage("카테고리 찾기 작업을 등록하는 중입니다...");
 
     try {
-      const createBody = await createCategoryJob(productFile, userKey.trim());
+      const createBody = await createProductExcelJob(productFile, userKey.trim());
       if (!createBody.data) {
         throw new Error(createBody.message ?? "카테고리 찾기 작업을 등록하지 못했습니다.");
       }
 
       const jobId = createBody.data.jobId;
       while (true) {
-        const statusBody = await getCategoryJobStatus(jobId);
+        const statusBody = await getProductExcelJobStatus(jobId);
         if (!statusBody.data) {
           throw new Error(statusBody.message ?? "작업 상태를 확인하지 못했습니다.");
         }
@@ -108,7 +108,7 @@ export function ProductExcelCard() {
         await new Promise((resolve) => window.setTimeout(resolve, STATUS_POLL_INTERVAL_MS));
       }
 
-      const response = await downloadCategoryJobResult(jobId);
+      const response = await downloadProductExcelJobResult(jobId);
       const blob = await response.blob();
       const responseFilename = parseFilename(response.headers.get("Content-Disposition")) ?? fallbackFilename;
 
