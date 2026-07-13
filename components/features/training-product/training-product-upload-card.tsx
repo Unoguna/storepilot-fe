@@ -74,7 +74,6 @@ export function TrainingProductUploadCard() {
 
       {result && (
         <div className="grid gap-2 rounded-md bg-teal-50 p-4 text-sm text-teal-950">
-          <ResultRow label="사용자" value={result.userKey} />
           <ResultRow label="업로드 파일" value={`${result.sourceCount.toLocaleString()}개`} />
           <ResultRow label="원본 상품 행" value={`${result.sourceRowCount.toLocaleString()}개`} />
           <ResultRow label="유효 상품 행" value={`${result.validRowCount.toLocaleString()}개`} />

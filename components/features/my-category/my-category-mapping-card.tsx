@@ -69,7 +69,6 @@ export function MyCategoryMappingCard() {
       {mappingResult && (
         <div className="grid gap-2 rounded-md bg-teal-50 p-4 text-sm text-teal-950">
           <ResultRow label="버전" value={String(mappingResult.versionId)} />
-          <ResultRow label="사용자" value={mappingResult.userKey} />
           <ResultRow label="매핑 수" value={`${mappingResult.mappingCount.toLocaleString()}개`} />
           <ResultRow label="자동 연결" value={`${mappingResult.matchedCount.toLocaleString()}개`} />
         </div>

@@ -5,7 +5,6 @@ export type ProductExcelJobStatus = "PENDING" | "PROCESSING" | "COMPLETED" | "FA
 export type AuthUser = {
   id: number;
   email: string;
-  userKey: string;
 };
 
 export type AuthResult = {
@@ -76,7 +75,7 @@ export type CategoryUploadResponse = {
 
 export type MyCategoryMappingUploadResult = {
   versionId: number;
-  userKey: string;
+  userId: number;
   sourceFilename: string;
   rowCount: number;
   mappingCount: number;
@@ -92,7 +91,7 @@ export type MyCategoryMappingUploadResponse = {
 };
 
 export type TrainingProductUploadResult = {
-  userKey: string;
+  userId: number;
   sourceCount: number;
   sourceRowCount: number;
   validRowCount: number;

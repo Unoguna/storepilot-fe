@@ -10,7 +10,6 @@ export function AuthPanel({ onAuthenticated }: { onAuthenticated: (user: AuthUse
   const [mode, setMode] = useState<AuthMode>("login");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [userKey, setUserKey] = useState("");
   const [status, setStatus] = useState<RequestState>("idle");
   const [message, setMessage] = useState("계정으로 로그인하면 StorePilot 작업 도구를 사용할 수 있습니다.");
 
@@ -23,7 +22,7 @@ export function AuthPanel({ onAuthenticated }: { onAuthenticated: (user: AuthUse
       const body =
         mode === "login"
           ? await login(email.trim(), password)
-          : await signup(email.trim(), password, userKey.trim());
+          : await signup(email.trim(), password);
       if (!body.data) {
         throw new Error(body.message ?? "인증 응답을 확인하지 못했습니다.");
       }
@@ -42,7 +41,7 @@ export function AuthPanel({ onAuthenticated }: { onAuthenticated: (user: AuthUse
     setMessage(
       nextMode === "login"
         ? "계정으로 로그인하면 StorePilot 작업 도구를 사용할 수 있습니다."
-        : "사용자 식별자는 마이카테고리 매핑과 상품 처리에 자동으로 사용됩니다.",
+        : "이메일과 비밀번호로 StorePilot 계정을 만듭니다.",
     );
   }
 
@@ -105,19 +104,6 @@ export function AuthPanel({ onAuthenticated }: { onAuthenticated: (user: AuthUse
                 onChange={(event) => setPassword(event.target.value)}
               />
             </label>
-
-            {mode === "signup" && (
-              <label className="grid gap-2 text-sm font-extrabold text-slate-700">
-                사용자 식별자
-                <input
-                  autoComplete="username"
-                  className="h-11 rounded-md border border-slate-300 px-3 font-medium outline-none transition focus:border-teal-700 focus:ring-2 focus:ring-teal-100"
-                  placeholder="예: uno1969"
-                  value={userKey}
-                  onChange={(event) => setUserKey(event.target.value)}
-                />
-              </label>
-            )}
 
             <button
               className="h-12 w-fit rounded-md bg-teal-700 px-5 font-extrabold text-white transition hover:bg-teal-800 disabled:cursor-wait disabled:bg-slate-400"
