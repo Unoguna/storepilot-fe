@@ -10,7 +10,6 @@ import {
 
 const API_BASE = resolveApiBase();
 
-const EXCEL_DOWNLOAD_URL = `${API_BASE}/api/v1/keyword-jobs/upload-download`;
 const PRODUCT_EXCEL_JOB_URL = `${API_BASE}/api/v1/product-excel-jobs`;
 const IMAGE_ZIP_DOWNLOAD_URL = `${API_BASE}/api/v1/keyword-jobs/images/download-zip`;
 const CATEGORY_UPLOAD_URL = `${API_BASE}/api/v1/admin/naver-categories/upload`;
@@ -62,26 +61,6 @@ export async function logout() {
   if (!response.ok) {
     throw new Error(await readErrorMessage(response));
   }
-}
-
-export async function downloadFilledExcel(file: File, userKey: string) {
-  const formData = new FormData();
-  formData.append("file", file);
-  formData.append("productNameColumn", "\uC0C1\uD488\uBA85");
-  formData.append("categoryColumn", "");
-  formData.append("keywordCount", "30");
-  formData.append("userKey", userKey);
-
-  const response = await fetchWithAuth(EXCEL_DOWNLOAD_URL, {
-    method: "POST",
-    body: formData,
-  });
-
-  if (!response.ok) {
-    throw new Error(await readErrorMessage(response));
-  }
-
-  return response;
 }
 
 export async function createProductExcelJob(file: File) {
