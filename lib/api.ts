@@ -11,7 +11,7 @@ import {
 const API_BASE = resolveApiBase();
 
 const PRODUCT_EXCEL_JOB_URL = `${API_BASE}/api/v1/product-excel-jobs`;
-const IMAGE_ZIP_DOWNLOAD_URL = `${API_BASE}/api/v1/keyword-jobs/images/download-zip`;
+const IMAGE_ZIP_DOWNLOAD_URL = `${API_BASE}/api/v1/product-excel-jobs/images/download-zip`;
 const CATEGORY_UPLOAD_URL = `${API_BASE}/api/v1/admin/naver-categories/upload`;
 const MY_CATEGORY_MAPPING_UPLOAD_URL = `${API_BASE}/api/v1/admin/my-category-mappings/upload`;
 const TRAINING_PRODUCT_UPLOAD_URL = `${API_BASE}/api/v1/admin/training-products/rebuild`;
