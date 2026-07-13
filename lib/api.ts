@@ -8,7 +8,7 @@ import {
   TrainingProductUploadResponse,
 } from "@/types/store-pilot";
 
-const API_BASE = process.env.NEXT_PUBLIC_API_BASE ?? "http://localhost:8080";
+const API_BASE = resolveApiBase();
 
 const EXCEL_DOWNLOAD_URL = `${API_BASE}/api/v1/keyword-jobs/upload-download`;
 const PRODUCT_EXCEL_JOB_URL = `${API_BASE}/api/v1/product-excel-jobs`;
@@ -185,7 +185,7 @@ async function fetchWithAuth(input: RequestInfo | URL, init: RequestInit = {}, r
     ...init,
     credentials: "include",
   });
-  if (response.status !== 401 || !retry) {
+  if ((response.status !== 401 && response.status !== 403) || !retry) {
     return response;
   }
 
@@ -197,6 +197,16 @@ async function fetchWithAuth(input: RequestInfo | URL, init: RequestInit = {}, r
     return response;
   }
   return fetchWithAuth(input, init, false);
+}
+
+function resolveApiBase() {
+  if (process.env.NEXT_PUBLIC_API_BASE) {
+    return process.env.NEXT_PUBLIC_API_BASE;
+  }
+  if (typeof window !== "undefined") {
+    return `http://${window.location.hostname}:8080`;
+  }
+  return "http://localhost:8080";
 }
 
 async function readErrorMessage(response: Response) {
