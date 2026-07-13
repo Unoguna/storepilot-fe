@@ -32,7 +32,7 @@ function formatElapsedTime(milliseconds: number | null) {
   return `${minutes}분 ${remainingSeconds}초`;
 }
 
-export function ProductExcelCard({ defaultUserKey }: { defaultUserKey?: string }) {
+export function ProductExcelCard() {
   const [productFile, setProductFile] = useState<File | null>(null);
   const [excelStatus, setExcelStatus] = useState<RequestState>("idle");
   const [excelMessage, setExcelMessage] = useState("상품 엑셀 파일을 선택한 뒤 결과 엑셀을 저장하세요.");
@@ -172,8 +172,6 @@ export function ProductExcelCard({ defaultUserKey }: { defaultUserKey?: string }
       message=""
       onFileChange={handleProductFileChange}
     >
-      <p className="text-sm font-semibold text-slate-600">로그인 사용자: {defaultUserKey}</p>
-
       <div className="grid gap-3 sm:grid-cols-2">
         <form className="grid gap-2" onSubmit={handleExcelSubmit}>
           <ActionButton disabled={excelStatus === "uploading"} loading={excelStatus === "uploading"}>

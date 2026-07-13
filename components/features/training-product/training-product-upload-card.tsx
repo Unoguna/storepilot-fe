@@ -8,7 +8,7 @@ import { uploadTrainingProductFiles } from "@/lib/api";
 import { labelForFiles } from "@/lib/format";
 import { RequestState, TrainingProductUploadResult } from "@/types/store-pilot";
 
-export function TrainingProductUploadCard({ defaultUserKey }: { defaultUserKey?: string }) {
+export function TrainingProductUploadCard() {
   const [files, setFiles] = useState<File[]>([]);
   const [status, setStatus] = useState<RequestState>("idle");
   const [message, setMessage] = useState(
@@ -67,8 +67,6 @@ export function TrainingProductUploadCard({ defaultUserKey }: { defaultUserKey?:
       onFileChange={handleFileChange}
     >
       <form className="grid gap-5" onSubmit={handleSubmit}>
-        <p className="text-sm font-semibold text-slate-600">로그인 사용자: {defaultUserKey}</p>
-
         <ActionButton disabled={status === "uploading"} loading={status === "uploading"}>
           {status === "uploading" ? "인덱스 생성 중..." : "기존 상품 인덱스 갱신"}
         </ActionButton>

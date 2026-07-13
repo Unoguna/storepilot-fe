@@ -61,7 +61,6 @@ export function AuthenticatedHome() {
             </div>
             <div className="grid justify-items-start gap-2 rounded-md border border-slate-200 bg-white px-4 py-3 shadow-sm sm:justify-items-end">
               <p className="text-sm font-bold text-slate-700">{user.email}</p>
-              <p className="text-xs font-semibold text-slate-500">사용자 식별자: {user.userKey}</p>
               <button
                 className="h-9 rounded-md border border-slate-300 px-3 text-sm font-extrabold text-slate-700 transition hover:border-teal-700 hover:text-teal-800"
                 onClick={handleLogout}
@@ -78,9 +77,9 @@ export function AuthenticatedHome() {
 
         <section className="grid gap-5 lg:grid-cols-2">
           <CategoryUploadCard />
-          <MyCategoryMappingCard defaultUserKey={user.userKey} />
-          <TrainingProductUploadCard defaultUserKey={user.userKey} />
-          <ProductExcelCard defaultUserKey={user.userKey} />
+          <MyCategoryMappingCard />
+          <TrainingProductUploadCard />
+          <ProductExcelCard />
         </section>
       </div>
     </main>

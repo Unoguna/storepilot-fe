@@ -8,7 +8,7 @@ import { uploadMyCategoryMappingFile } from "@/lib/api";
 import { labelForFile } from "@/lib/format";
 import { MyCategoryMappingUploadResult, RequestState } from "@/types/store-pilot";
 
-export function MyCategoryMappingCard({ defaultUserKey }: { defaultUserKey?: string }) {
+export function MyCategoryMappingCard() {
   const [mappingFile, setMappingFile] = useState<File | null>(null);
   const [mappingStatus, setMappingStatus] = useState<RequestState>("idle");
   const [mappingMessage, setMappingMessage] = useState(
@@ -61,8 +61,6 @@ export function MyCategoryMappingCard({ defaultUserKey }: { defaultUserKey?: str
       onFileChange={handleMappingFileChange}
     >
       <form className="grid gap-5" onSubmit={handleMappingSubmit}>
-        <p className="text-sm font-semibold text-slate-600">로그인 사용자: {defaultUserKey}</p>
-
         <ActionButton disabled={mappingStatus === "uploading"} loading={mappingStatus === "uploading"}>
           {mappingStatus === "uploading" ? "저장 중..." : "마이카테 매칭 저장"}
         </ActionButton>
