@@ -8,9 +8,8 @@ import { uploadMyCategoryMappingFile } from "@/lib/api";
 import { labelForFile } from "@/lib/format";
 import { MyCategoryMappingUploadResult, RequestState } from "@/types/store-pilot";
 
-export function MyCategoryMappingCard() {
+export function MyCategoryMappingCard({ defaultUserKey }: { defaultUserKey?: string }) {
   const [mappingFile, setMappingFile] = useState<File | null>(null);
-  const [userKey, setUserKey] = useState("");
   const [mappingStatus, setMappingStatus] = useState<RequestState>("idle");
   const [mappingMessage, setMappingMessage] = useState(
     "사용자별 마이카테고리 A열과 네이버 카테고리 H열을 1:1로 매칭합니다.",
@@ -30,12 +29,6 @@ export function MyCategoryMappingCard() {
   async function handleMappingSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
 
-    if (!userKey.trim()) {
-      setMappingStatus("error");
-      setMappingMessage("사용자 식별자를 입력해주세요.");
-      return;
-    }
-
     if (!mappingFile) {
       setMappingStatus("error");
       setMappingMessage("업로드할 마이카테고리 매칭 엑셀 파일을 선택해주세요.");
@@ -47,7 +40,7 @@ export function MyCategoryMappingCard() {
     setMappingMessage("마이카테고리와 네이버 카테고리 매칭을 저장하는 중입니다...");
 
     try {
-      const body = await uploadMyCategoryMappingFile(mappingFile, userKey.trim());
+      const body = await uploadMyCategoryMappingFile(mappingFile);
       setMappingResult(body.data ?? null);
       setMappingStatus("success");
       setMappingMessage(body.message ?? "마이카테고리 매칭 데이터가 저장되었습니다.");
@@ -68,15 +61,7 @@ export function MyCategoryMappingCard() {
       onFileChange={handleMappingFileChange}
     >
       <form className="grid gap-5" onSubmit={handleMappingSubmit}>
-        <label className="grid gap-2 text-sm font-extrabold text-slate-700">
-          사용자 식별자
-          <input
-            className="h-11 rounded-md border border-slate-300 px-3 font-medium outline-none transition focus:border-teal-700 focus:ring-2 focus:ring-teal-100"
-            placeholder="예: user-a"
-            value={userKey}
-            onChange={(event) => setUserKey(event.target.value)}
-          />
-        </label>
+        <p className="text-sm font-semibold text-slate-600">로그인 사용자: {defaultUserKey}</p>
 
         <ActionButton disabled={mappingStatus === "uploading"} loading={mappingStatus === "uploading"}>
           {mappingStatus === "uploading" ? "저장 중..." : "마이카테 매칭 저장"}

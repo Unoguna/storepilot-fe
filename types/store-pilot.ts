@@ -2,6 +2,30 @@ export type RequestState = "idle" | "ready" | "uploading" | "success" | "error";
 
 export type ProductExcelJobStatus = "PENDING" | "PROCESSING" | "COMPLETED" | "FAILED";
 
+export type AuthUser = {
+  id: number;
+  email: string;
+  userKey: string;
+};
+
+export type AuthResult = {
+  user: AuthUser;
+};
+
+export type AuthResponse = {
+  success: boolean;
+  data?: AuthResult;
+  message?: string;
+  code?: string;
+};
+
+export type AuthUserResponse = {
+  success: boolean;
+  data?: AuthUser;
+  message?: string;
+  code?: string;
+};
+
 export type ProductExcelJobCreateResult = {
   jobId: number;
   status: ProductExcelJobStatus;

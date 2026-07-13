@@ -32,9 +32,8 @@ function formatElapsedTime(milliseconds: number | null) {
   return `${minutes}분 ${remainingSeconds}초`;
 }
 
-export function ProductExcelCard() {
+export function ProductExcelCard({ defaultUserKey }: { defaultUserKey?: string }) {
   const [productFile, setProductFile] = useState<File | null>(null);
-  const [userKey, setUserKey] = useState("");
   const [excelStatus, setExcelStatus] = useState<RequestState>("idle");
   const [excelMessage, setExcelMessage] = useState("상품 엑셀 파일을 선택한 뒤 결과 엑셀을 저장하세요.");
   const [jobProgress, setJobProgress] = useState<ProductExcelJobProgress | null>(null);
@@ -62,12 +61,6 @@ export function ProductExcelCard() {
       return;
     }
 
-    if (!userKey.trim()) {
-      setExcelStatus("error");
-      setExcelMessage("T열 마이카테고리를 찾으려면 사용자 식별자를 입력해주세요.");
-      return;
-    }
-
     const fallbackFilename = `keyword_result_${productFile.name}`;
     const saveHandle = await chooseSaveHandle(fallbackFilename, "Excel workbook", {
       "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet": [".xlsx"],
@@ -83,7 +76,7 @@ export function ProductExcelCard() {
     setExcelMessage("카테고리 찾기 작업을 등록하는 중입니다...");
 
     try {
-      const createBody = await createProductExcelJob(productFile, userKey.trim());
+      const createBody = await createProductExcelJob(productFile);
       if (!createBody.data) {
         throw new Error(createBody.message ?? "카테고리 찾기 작업을 등록하지 못했습니다.");
       }
@@ -179,15 +172,7 @@ export function ProductExcelCard() {
       message=""
       onFileChange={handleProductFileChange}
     >
-      <label className="grid gap-2 text-sm font-extrabold text-slate-700">
-        사용자 식별자
-        <input
-          className="h-11 rounded-md border border-slate-300 px-3 font-medium outline-none transition focus:border-teal-700 focus:ring-2 focus:ring-teal-100"
-          placeholder="예: user-a"
-          value={userKey}
-          onChange={(event) => setUserKey(event.target.value)}
-        />
-      </label>
+      <p className="text-sm font-semibold text-slate-600">로그인 사용자: {defaultUserKey}</p>
 
       <div className="grid gap-3 sm:grid-cols-2">
         <form className="grid gap-2" onSubmit={handleExcelSubmit}>

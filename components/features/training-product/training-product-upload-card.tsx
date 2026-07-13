@@ -8,9 +8,8 @@ import { uploadTrainingProductFiles } from "@/lib/api";
 import { labelForFiles } from "@/lib/format";
 import { RequestState, TrainingProductUploadResult } from "@/types/store-pilot";
 
-export function TrainingProductUploadCard() {
+export function TrainingProductUploadCard({ defaultUserKey }: { defaultUserKey?: string }) {
   const [files, setFiles] = useState<File[]>([]);
-  const [userKey, setUserKey] = useState("");
   const [status, setStatus] = useState<RequestState>("idle");
   const [message, setMessage] = useState(
     "D열 상품명과 T열 마이카테고리를 읽고 네이버 카테고리로 변환해 공용 검색 인덱스를 갱신합니다.",
@@ -34,11 +33,6 @@ export function TrainingProductUploadCard() {
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
 
-    if (!userKey.trim()) {
-      setStatus("error");
-      setMessage("마이카테고리 매핑을 찾을 사용자 식별자를 입력해주세요.");
-      return;
-    }
     if (files.length === 0) {
       setStatus("error");
       setMessage("업로드할 기존 상품 엑셀 파일을 선택해주세요.");
@@ -50,7 +44,7 @@ export function TrainingProductUploadCard() {
     setMessage("기존 상품을 임베딩하고 유사 상품 검색 인덱스를 다시 만드는 중입니다...");
 
     try {
-      const body = await uploadTrainingProductFiles(files, userKey.trim());
+      const body = await uploadTrainingProductFiles(files);
       setResult(body.data ?? null);
       setStatus("success");
       setMessage(body.message ?? "기존 상품 검색 인덱스가 갱신되었습니다.");
@@ -73,15 +67,7 @@ export function TrainingProductUploadCard() {
       onFileChange={handleFileChange}
     >
       <form className="grid gap-5" onSubmit={handleSubmit}>
-        <label className="grid gap-2 text-sm font-extrabold text-slate-700">
-          사용자 식별자
-          <input
-            className="h-11 rounded-md border border-slate-300 px-3 font-medium outline-none transition focus:border-teal-700 focus:ring-2 focus:ring-teal-100"
-            placeholder="예: uno1969"
-            value={userKey}
-            onChange={(event) => setUserKey(event.target.value)}
-          />
-        </label>
+        <p className="text-sm font-semibold text-slate-600">로그인 사용자: {defaultUserKey}</p>
 
         <ActionButton disabled={status === "uploading"} loading={status === "uploading"}>
           {status === "uploading" ? "인덱스 생성 중..." : "기존 상품 인덱스 갱신"}
