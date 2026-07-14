@@ -10,6 +10,7 @@ export function AuthPanel({ onAuthenticated }: { onAuthenticated: (user: AuthUse
   const [mode, setMode] = useState<AuthMode>("login");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [passwordConfirm, setPasswordConfirm] = useState("");
   const [status, setStatus] = useState<RequestState>("idle");
   const [message, setMessage] = useState("계정으로 로그인하면 StorePilot 작업 도구를 사용할 수 있습니다.");
 
@@ -19,10 +20,13 @@ export function AuthPanel({ onAuthenticated }: { onAuthenticated: (user: AuthUse
     setMessage(mode === "login" ? "로그인하는 중입니다..." : "계정을 만드는 중입니다...");
 
     try {
+      if (mode === "signup" && password !== passwordConfirm) {
+        throw new Error("비밀번호 확인이 일치하지 않습니다.");
+      }
       const body =
         mode === "login"
           ? await login(email.trim(), password)
-          : await signup(email.trim(), password);
+          : await signup(email.trim(), password, passwordConfirm);
       if (!body.data) {
         throw new Error(body.message ?? "인증 응답을 확인하지 못했습니다.");
       }
@@ -37,6 +41,7 @@ export function AuthPanel({ onAuthenticated }: { onAuthenticated: (user: AuthUse
 
   function switchMode(nextMode: AuthMode) {
     setMode(nextMode);
+    setPasswordConfirm("");
     setStatus("idle");
     setMessage(
       nextMode === "login"
@@ -104,6 +109,20 @@ export function AuthPanel({ onAuthenticated }: { onAuthenticated: (user: AuthUse
                 onChange={(event) => setPassword(event.target.value)}
               />
             </label>
+
+            {mode === "signup" && (
+              <label className="grid gap-2 text-sm font-extrabold text-slate-700">
+                비밀번호 확인
+                <input
+                  autoComplete="new-password"
+                  className="h-11 rounded-md border border-slate-300 px-3 font-medium outline-none transition focus:border-teal-700 focus:ring-2 focus:ring-teal-100"
+                  placeholder="비밀번호를 다시 입력"
+                  type="password"
+                  value={passwordConfirm}
+                  onChange={(event) => setPasswordConfirm(event.target.value)}
+                />
+              </label>
+            )}
 
             <button
               className="h-12 w-fit rounded-md bg-teal-700 px-5 font-extrabold text-white transition hover:bg-teal-800 disabled:cursor-wait disabled:bg-slate-400"

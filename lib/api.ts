@@ -17,12 +17,12 @@ const MY_CATEGORY_MAPPING_UPLOAD_URL = `${API_BASE}/api/v1/admin/my-category-map
 const TRAINING_PRODUCT_UPLOAD_URL = `${API_BASE}/api/v1/admin/training-products/rebuild`;
 const AUTH_URL = `${API_BASE}/api/v1/auth`;
 
-export async function signup(email: string, password: string) {
+export async function signup(email: string, password: string, passwordConfirm: string) {
   const response = await fetch(`${AUTH_URL}/signup`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     credentials: "include",
-    body: JSON.stringify({ email, password }),
+    body: JSON.stringify({ email, password, passwordConfirm }),
   });
   if (!response.ok) {
     throw new Error(await readErrorMessage(response));
