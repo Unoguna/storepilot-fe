@@ -5,6 +5,7 @@ export type ProductExcelJobStatus = "PENDING" | "PROCESSING" | "COMPLETED" | "FA
 export type AuthUser = {
   id: number;
   email: string;
+  role: "USER" | "ADMIN";
 };
 
 export type AuthResult = {

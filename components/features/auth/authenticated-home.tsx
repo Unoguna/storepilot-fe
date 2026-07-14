@@ -48,6 +48,8 @@ export function AuthenticatedHome() {
     return <AuthPanel onAuthenticated={setUser} />;
   }
 
+  const isAdmin = user.role === "ADMIN";
+
   return (
     <main className="min-h-screen bg-[#f5f7f6] px-4 py-8 text-[#172126] sm:px-6 lg:px-8">
       <div className="mx-auto grid max-w-7xl gap-8">
@@ -76,9 +78,9 @@ export function AuthenticatedHome() {
         </section>
 
         <section className="grid gap-5 lg:grid-cols-2">
-          <CategoryUploadCard />
+          {isAdmin && <CategoryUploadCard />}
           <MyCategoryMappingCard />
-          <TrainingProductUploadCard />
+          {isAdmin && <TrainingProductUploadCard />}
           <ProductExcelCard />
         </section>
       </div>
