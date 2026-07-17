@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { CategoryUploadCard } from "@/components/features/category/category-upload-card";
 import { MyCategoryMappingCard } from "@/components/features/my-category/my-category-mapping-card";
 import { ProductExcelCard } from "@/components/features/product/product-excel-card";
@@ -12,6 +12,8 @@ import { AuthUser } from "@/types/store-pilot";
 export function AuthenticatedHome() {
   const [user, setUser] = useState<AuthUser | null>(null);
   const [loading, setLoading] = useState(true);
+  const [accountMenuOpen, setAccountMenuOpen] = useState(false);
+  const accountMenuRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
     async function restoreSession() {
@@ -28,10 +30,32 @@ export function AuthenticatedHome() {
     restoreSession();
   }, []);
 
+  useEffect(() => {
+    function handlePointerDown(event: PointerEvent) {
+      if (!accountMenuRef.current?.contains(event.target as Node)) {
+        setAccountMenuOpen(false);
+      }
+    }
+
+    function handleKeyDown(event: KeyboardEvent) {
+      if (event.key === "Escape") {
+        setAccountMenuOpen(false);
+      }
+    }
+
+    document.addEventListener("pointerdown", handlePointerDown);
+    document.addEventListener("keydown", handleKeyDown);
+    return () => {
+      document.removeEventListener("pointerdown", handlePointerDown);
+      document.removeEventListener("keydown", handleKeyDown);
+    };
+  }, []);
+
   async function handleLogout() {
     try {
       await logout();
     } finally {
+      setAccountMenuOpen(false);
       setUser(null);
     }
   }
@@ -60,15 +84,39 @@ export function AuthenticatedHome() {
                 StorePilot
               </h1>
             </div>
-            <div className="grid justify-items-start gap-2 rounded-md border border-slate-200 bg-white px-4 py-3 shadow-sm sm:justify-items-end">
-              <p className="text-sm font-bold text-slate-700">{user.email}</p>
+            <div className="relative" ref={accountMenuRef}>
               <button
-                className="h-9 rounded-md border border-slate-300 px-3 text-sm font-extrabold text-slate-700 transition hover:border-teal-700 hover:text-teal-800"
-                onClick={handleLogout}
+                aria-expanded={accountMenuOpen}
+                aria-haspopup="menu"
+                className="flex min-h-11 items-center gap-2 rounded-md border border-slate-200 bg-white px-4 py-2 text-sm font-bold text-slate-700 shadow-sm transition hover:border-teal-700 hover:text-teal-800"
+                onClick={() => setAccountMenuOpen((open) => !open)}
                 type="button"
               >
-                로그아웃
+                <span className="max-w-56 truncate">{user.email}</span>
+                <span className="text-xs text-slate-400">▾</span>
               </button>
+
+              {accountMenuOpen && (
+                <div
+                  className="absolute right-0 z-20 mt-2 grid min-w-64 gap-1 rounded-md border border-slate-200 bg-white p-2 shadow-[0_18px_45px_rgba(23,33,38,0.16)]"
+                  role="menu"
+                >
+                  <div className="border-b border-slate-100 px-3 py-2">
+                    <p className="truncate text-sm font-bold text-slate-800">{user.email}</p>
+                    <p className="mt-1 text-xs font-semibold text-slate-500">
+                      {isAdmin ? "관리자" : "사용자"}
+                    </p>
+                  </div>
+                  <button
+                    className="h-10 rounded-md px-3 text-left text-sm font-extrabold text-slate-700 transition hover:bg-slate-100 hover:text-teal-800"
+                    onClick={handleLogout}
+                    role="menuitem"
+                    type="button"
+                  >
+                    로그아웃
+                  </button>
+                </div>
+              )}
             </div>
           </div>
         </section>
