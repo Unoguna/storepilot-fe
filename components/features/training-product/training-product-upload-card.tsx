@@ -11,9 +11,7 @@ import { RequestState, TrainingProductUploadResult } from "@/types/store-pilot";
 export function TrainingProductUploadCard() {
   const [files, setFiles] = useState<File[]>([]);
   const [status, setStatus] = useState<RequestState>("idle");
-  const [message, setMessage] = useState(
-    "D열 상품명과 T열 마이카테고리를 읽고 네이버 카테고리로 변환해 공용 검색 인덱스를 갱신합니다.",
-  );
+  const [message, setMessage] = useState("");
   const [result, setResult] = useState<TrainingProductUploadResult | null>(null);
 
   const fileLabel = useMemo(() => labelForFiles(files), [files]);
@@ -58,7 +56,6 @@ export function TrainingProductUploadCard() {
     <UploadCard
       eyebrow="Step 3"
       title="기존 상품 엑셀 업로드"
-      description="T열 마이카테고리를 해당 사용자의 매핑표로 네이버 카테고리 코드로 변환해 공용 유사 상품 검색 데이터를 갱신합니다."
       fileLabel={fileLabel}
       status={status}
       message={message}

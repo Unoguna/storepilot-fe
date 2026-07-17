@@ -16,7 +16,7 @@ export function UploadCard({
 }: {
   eyebrow: string;
   title: string;
-  description: string;
+  description?: string;
   fileLabel: string;
   status: RequestState;
   message: string;
@@ -30,7 +30,7 @@ export function UploadCard({
       <div>
         <p className="text-xs font-bold uppercase tracking-normal text-slate-500">{eyebrow}</p>
         <h2 className="mt-1 text-xl font-black">{title}</h2>
-        <p className="mt-2 text-sm leading-6 text-slate-600">{description}</p>
+        {description && <p className="mt-2 text-sm leading-6 text-slate-600">{description}</p>}
       </div>
 
       <label className="grid cursor-pointer gap-3 rounded-lg border border-dashed border-slate-300 bg-slate-50 p-5 transition hover:border-teal-700 hover:bg-teal-50/40">

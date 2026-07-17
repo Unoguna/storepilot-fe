@@ -56,9 +56,8 @@ export function AuthenticatedHome() {
         <section className="grid gap-4">
           <div className="flex flex-wrap items-start justify-between gap-4">
             <div className="grid gap-4">
-              <p className="text-sm font-extrabold uppercase tracking-normal text-teal-700">StorePilot MVP</p>
               <h1 className="max-w-3xl text-3xl font-black leading-tight tracking-normal sm:text-4xl">
-                카테고리 기준을 갱신하고 상품 엑셀을 자동 완성합니다
+                StorePilot
               </h1>
             </div>
             <div className="grid justify-items-start gap-2 rounded-md border border-slate-200 bg-white px-4 py-3 shadow-sm sm:justify-items-end">
@@ -72,9 +71,6 @@ export function AuthenticatedHome() {
               </button>
             </div>
           </div>
-          <p className="max-w-3xl text-base leading-7 text-slate-600">
-            네이버 카테고리, 사용자별 마이카테고리 매칭, 기존 상품 학습 데이터, 상품 엑셀 처리를 순서대로 실행할 수 있습니다.
-          </p>
         </section>
 
         <section className="grid gap-5 lg:grid-cols-2">
