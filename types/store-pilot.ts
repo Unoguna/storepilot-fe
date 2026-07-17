@@ -91,6 +91,27 @@ export type MyCategoryMappingUploadResponse = {
   code?: string;
 };
 
+export type MyCategoryMappingItem = {
+  id: number;
+  myCategoryCode: string;
+  naverCategoryValue: string;
+  naverCategoryId: number;
+  naverCategoryCode: string;
+  naverCategoryFullPath: string;
+};
+
+export type MyCategoryMappingListResult = {
+  mappingCount: number;
+  mappings: MyCategoryMappingItem[];
+};
+
+export type MyCategoryMappingListResponse = {
+  success: boolean;
+  data?: MyCategoryMappingListResult;
+  message?: string;
+  code?: string;
+};
+
 export type TrainingProductUploadResult = {
   userId: number;
   sourceCount: number;

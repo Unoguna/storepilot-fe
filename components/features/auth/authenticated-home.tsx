@@ -3,16 +3,20 @@
 import { useEffect, useRef, useState } from "react";
 import { CategoryUploadCard } from "@/components/features/category/category-upload-card";
 import { MyCategoryMappingCard } from "@/components/features/my-category/my-category-mapping-card";
+import { MyCategoryMappingListPage } from "@/components/features/my-category/my-category-mapping-list-page";
 import { ProductExcelCard } from "@/components/features/product/product-excel-card";
 import { TrainingProductUploadCard } from "@/components/features/training-product/training-product-upload-card";
 import { AuthPanel } from "@/components/features/auth/auth-panel";
 import { getCurrentUser, logout } from "@/lib/api";
 import { AuthUser } from "@/types/store-pilot";
 
+type HomeView = "dashboard" | "my-category-mappings";
+
 export function AuthenticatedHome() {
   const [user, setUser] = useState<AuthUser | null>(null);
   const [loading, setLoading] = useState(true);
   const [accountMenuOpen, setAccountMenuOpen] = useState(false);
+  const [view, setView] = useState<HomeView>("dashboard");
   const accountMenuRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
@@ -56,6 +60,7 @@ export function AuthenticatedHome() {
       await logout();
     } finally {
       setAccountMenuOpen(false);
+      setView("dashboard");
       setUser(null);
     }
   }
@@ -109,6 +114,17 @@ export function AuthenticatedHome() {
                   </div>
                   <button
                     className="h-10 rounded-md px-3 text-left text-sm font-extrabold text-slate-700 transition hover:bg-slate-100 hover:text-teal-800"
+                    onClick={() => {
+                      setView("my-category-mappings");
+                      setAccountMenuOpen(false);
+                    }}
+                    role="menuitem"
+                    type="button"
+                  >
+                    마이카테고리 조회
+                  </button>
+                  <button
+                    className="h-10 rounded-md px-3 text-left text-sm font-extrabold text-slate-700 transition hover:bg-slate-100 hover:text-teal-800"
                     onClick={handleLogout}
                     role="menuitem"
                     type="button"
@@ -122,10 +138,16 @@ export function AuthenticatedHome() {
         </section>
 
         <section className="grid gap-5 lg:grid-cols-2">
-          {isAdmin && <CategoryUploadCard />}
-          <MyCategoryMappingCard />
-          {isAdmin && <TrainingProductUploadCard />}
-          <ProductExcelCard />
+          {view === "my-category-mappings" ? (
+            <MyCategoryMappingListPage onBack={() => setView("dashboard")} />
+          ) : (
+            <>
+              {isAdmin && <CategoryUploadCard />}
+              <MyCategoryMappingCard />
+              {isAdmin && <TrainingProductUploadCard />}
+              <ProductExcelCard />
+            </>
+          )}
         </section>
       </div>
     </main>
