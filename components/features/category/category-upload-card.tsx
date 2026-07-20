@@ -11,7 +11,7 @@ import { CategoryUploadResult, RequestState } from "@/types/store-pilot";
 export function CategoryUploadCard() {
   const [categoryFile, setCategoryFile] = useState<File | null>(null);
   const [categoryStatus, setCategoryStatus] = useState<RequestState>("idle");
-  const [categoryMessage, setCategoryMessage] = useState("네이버 카테고리 리스트 엑셀을 먼저 업로드해 기준 데이터를 갱신하세요.");
+  const [categoryMessage, setCategoryMessage] = useState("");
   const [categoryResult, setCategoryResult] = useState<CategoryUploadResult | null>(null);
 
   const categoryFileLabel = useMemo(() => labelForFile(categoryFile), [categoryFile]);
@@ -50,9 +50,7 @@ export function CategoryUploadCard() {
 
   return (
     <UploadCard
-      eyebrow="Step 1"
       title="네이버 카테고리 리스트 업로드"
-      description="카테고리코드, 1차카테, 2차카테, 3차카테, 4차카테 컬럼을 가진 엑셀 파일을 업로드합니다."
       fileLabel={categoryFileLabel}
       status={categoryStatus}
       message={categoryMessage}

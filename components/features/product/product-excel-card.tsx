@@ -2,7 +2,6 @@
 
 import { ChangeEvent, FormEvent, useMemo, useState } from "react";
 import { ActionButton } from "@/components/ui/action-button";
-import { Feature } from "@/components/ui/feature";
 import { UploadCard } from "@/components/ui/upload-card";
 import { statusClassName } from "@/components/ui/upload-status";
 import {
@@ -35,10 +34,10 @@ function formatElapsedTime(milliseconds: number | null) {
 export function ProductExcelCard() {
   const [productFile, setProductFile] = useState<File | null>(null);
   const [excelStatus, setExcelStatus] = useState<RequestState>("idle");
-  const [excelMessage, setExcelMessage] = useState("상품 엑셀 파일을 선택한 뒤 결과 엑셀을 저장하세요.");
+  const [excelMessage, setExcelMessage] = useState("");
   const [jobProgress, setJobProgress] = useState<ProductExcelJobProgress | null>(null);
   const [imageStatus, setImageStatus] = useState<RequestState>("idle");
-  const [imageMessage, setImageMessage] = useState("이미지는 ZIP 파일로 저장됩니다.");
+  const [imageMessage, setImageMessage] = useState("");
 
   const productFileLabel = useMemo(() => labelForFile(productFile), [productFile]);
 
@@ -164,9 +163,7 @@ export function ProductExcelCard() {
 
   return (
     <UploadCard
-      eyebrow="Step 4"
       title="상품 엑셀 업로드"
-      description="상품명으로 네이버 카테고리를 찾고, 사용자별 매칭표에서 해당 마이카테고리를 찾아 T열에 씁니다."
       fileLabel={productFileLabel}
       status={excelStatus === "uploading" ? excelStatus : imageStatus === "uploading" ? imageStatus : excelStatus}
       message=""
@@ -226,11 +223,6 @@ export function ProductExcelCard() {
         </form>
       </div>
 
-      <div className="grid gap-2 text-sm text-slate-700">
-        <Feature text="네이버 카테고리 직접 매칭 후 실패한 경우 AI 임베딩 검색 사용" />
-        <Feature text="추천된 네이버 카테고리에 해당하는 사용자 마이카테고리를 T열에 작성" />
-        <Feature text="이미지 ZIP 저장은 목록이미지1 URL만 별도로 처리" />
-      </div>
     </UploadCard>
   );
 }

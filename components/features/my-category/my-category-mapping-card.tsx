@@ -11,9 +11,7 @@ import { MyCategoryMappingUploadResult, RequestState } from "@/types/store-pilot
 export function MyCategoryMappingCard() {
   const [mappingFile, setMappingFile] = useState<File | null>(null);
   const [mappingStatus, setMappingStatus] = useState<RequestState>("idle");
-  const [mappingMessage, setMappingMessage] = useState(
-    "사용자별 마이카테고리 A열과 네이버 카테고리 H열을 1:1로 매칭합니다.",
-  );
+  const [mappingMessage, setMappingMessage] = useState("");
   const [mappingResult, setMappingResult] = useState<MyCategoryMappingUploadResult | null>(null);
 
   const mappingFileLabel = useMemo(() => labelForFile(mappingFile), [mappingFile]);
@@ -52,9 +50,7 @@ export function MyCategoryMappingCard() {
 
   return (
     <UploadCard
-      eyebrow="Step 2"
       title="마이카테고리 매칭 업로드"
-      description="사용자마다 다른 마이카테고리 번호 체계를 유지하면서 A열 마이카테고리와 H열 네이버 카테고리를 저장합니다."
       fileLabel={mappingFileLabel}
       status={mappingStatus}
       message={mappingMessage}

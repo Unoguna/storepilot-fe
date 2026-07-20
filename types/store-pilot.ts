@@ -19,6 +19,17 @@ export type AuthResponse = {
   code?: string;
 };
 
+export type MessageResult = {
+  message: string;
+};
+
+export type MessageResponse = {
+  success: boolean;
+  data?: MessageResult;
+  message?: string;
+  code?: string;
+};
+
 export type AuthUserResponse = {
   success: boolean;
   data?: AuthUser;
@@ -87,6 +98,27 @@ export type MyCategoryMappingUploadResult = {
 export type MyCategoryMappingUploadResponse = {
   success: boolean;
   data?: MyCategoryMappingUploadResult;
+  message?: string;
+  code?: string;
+};
+
+export type MyCategoryMappingItem = {
+  id: number;
+  myCategoryCode: string;
+  naverCategoryValue: string;
+  naverCategoryId: number;
+  naverCategoryCode: string;
+  naverCategoryFullPath: string;
+};
+
+export type MyCategoryMappingListResult = {
+  mappingCount: number;
+  mappings: MyCategoryMappingItem[];
+};
+
+export type MyCategoryMappingListResponse = {
+  success: boolean;
+  data?: MyCategoryMappingListResult;
   message?: string;
   code?: string;
 };

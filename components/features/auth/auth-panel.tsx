@@ -12,7 +12,7 @@ export function AuthPanel({ onAuthenticated }: { onAuthenticated: (user: AuthUse
   const [password, setPassword] = useState("");
   const [passwordConfirm, setPasswordConfirm] = useState("");
   const [status, setStatus] = useState<RequestState>("idle");
-  const [message, setMessage] = useState("계정으로 로그인하면 StorePilot 작업 도구를 사용할 수 있습니다.");
+  const [message, setMessage] = useState("");
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -28,7 +28,14 @@ export function AuthPanel({ onAuthenticated }: { onAuthenticated: (user: AuthUse
           ? await login(email.trim(), password)
           : await signup(email.trim(), password, passwordConfirm);
       if (!body.data) {
-        throw new Error(body.message ?? "인증 응답을 확인하지 못했습니다.");
+        setStatus("success");
+        setMessage(body.message ?? "인증 메일을 확인해주세요.");
+        if (mode === "signup") {
+          setMode("login");
+          setPassword("");
+          setPasswordConfirm("");
+        }
+        return;
       }
       setStatus("success");
       setMessage(body.message ?? "로그인되었습니다.");
@@ -43,11 +50,7 @@ export function AuthPanel({ onAuthenticated }: { onAuthenticated: (user: AuthUse
     setMode(nextMode);
     setPasswordConfirm("");
     setStatus("idle");
-    setMessage(
-      nextMode === "login"
-        ? "계정으로 로그인하면 StorePilot 작업 도구를 사용할 수 있습니다."
-        : "이메일과 비밀번호로 StorePilot 계정을 만듭니다.",
-    );
+    setMessage("");
   }
 
   const busy = status === "uploading";
@@ -57,10 +60,7 @@ export function AuthPanel({ onAuthenticated }: { onAuthenticated: (user: AuthUse
       <section className="mx-auto grid min-h-[calc(100vh-4rem)] max-w-md content-center gap-6">
         <div className="grid gap-3">
           <p className="text-sm font-extrabold uppercase tracking-normal text-teal-700">StorePilot</p>
-          <h1 className="text-3xl font-black leading-tight tracking-normal">계정으로 작업 공간에 들어가기</h1>
-          <p className="text-sm leading-6 text-slate-600">
-            로그인 후 네이버 카테고리, 마이카테고리 매핑, 기존 상품 학습, 상품 엑셀 처리를 이어갈 수 있습니다.
-          </p>
+          <h1 className="text-3xl font-black leading-tight tracking-normal">로그인</h1>
         </div>
 
         <div className="grid gap-5 rounded-md border border-slate-200 bg-white p-5 shadow-sm">
@@ -133,9 +133,11 @@ export function AuthPanel({ onAuthenticated }: { onAuthenticated: (user: AuthUse
             </button>
           </form>
 
-          <p className={`text-sm font-semibold ${status === "error" ? "text-red-600" : "text-slate-600"}`}>
-            {message}
-          </p>
+          {message && (
+            <p className={`text-sm font-semibold ${status === "error" ? "text-red-600" : "text-slate-600"}`}>
+              {message}
+            </p>
+          )}
         </div>
       </section>
     </main>
