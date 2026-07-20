@@ -19,6 +19,17 @@ export type AuthResponse = {
   code?: string;
 };
 
+export type MessageResult = {
+  message: string;
+};
+
+export type MessageResponse = {
+  success: boolean;
+  data?: MessageResult;
+  message?: string;
+  code?: string;
+};
+
 export type AuthUserResponse = {
   success: boolean;
   data?: AuthUser;

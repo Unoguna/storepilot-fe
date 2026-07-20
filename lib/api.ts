@@ -2,6 +2,7 @@ import {
   AuthResponse,
   AuthUserResponse,
   CategoryUploadResponse,
+  MessageResponse,
   MyCategoryMappingListResponse,
   MyCategoryMappingUploadResponse,
   ProductExcelJobCreateResponse,
@@ -29,6 +30,19 @@ export async function signup(email: string, password: string, passwordConfirm: s
     throw new Error(await readErrorMessage(response));
   }
   return (await response.json()) as AuthResponse;
+}
+
+export async function verifyEmail(token: string) {
+  const response = await fetch(`${AUTH_URL}/verify-email`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    credentials: "include",
+    body: JSON.stringify({ token }),
+  });
+  if (!response.ok) {
+    throw new Error(await readErrorMessage(response));
+  }
+  return (await response.json()) as MessageResponse;
 }
 
 export async function login(email: string, password: string) {
