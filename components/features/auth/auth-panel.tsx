@@ -28,7 +28,14 @@ export function AuthPanel({ onAuthenticated }: { onAuthenticated: (user: AuthUse
           ? await login(email.trim(), password)
           : await signup(email.trim(), password, passwordConfirm);
       if (!body.data) {
-        throw new Error(body.message ?? "인증 응답을 확인하지 못했습니다.");
+        setStatus("success");
+        setMessage(body.message ?? "인증 메일을 확인해주세요.");
+        if (mode === "signup") {
+          setMode("login");
+          setPassword("");
+          setPasswordConfirm("");
+        }
+        return;
       }
       setStatus("success");
       setMessage(body.message ?? "로그인되었습니다.");
