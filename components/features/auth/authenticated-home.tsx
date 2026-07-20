@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { useRouter } from "next/navigation";
 import { CategoryUploadCard } from "@/components/features/category/category-upload-card";
 import { MyCategoryMappingCard } from "@/components/features/my-category/my-category-mapping-card";
 import { MyCategoryMappingListPage } from "@/components/features/my-category/my-category-mapping-list-page";
@@ -12,11 +13,15 @@ import { AuthUser } from "@/types/store-pilot";
 
 type HomeView = "dashboard" | "my-category-mappings";
 
-export function AuthenticatedHome() {
+type AuthenticatedHomeProps = {
+  currentView?: HomeView;
+};
+
+export function AuthenticatedHome({ currentView = "dashboard" }: AuthenticatedHomeProps) {
+  const router = useRouter();
   const [user, setUser] = useState<AuthUser | null>(null);
   const [loading, setLoading] = useState(true);
   const [accountMenuOpen, setAccountMenuOpen] = useState(false);
-  const [view, setView] = useState<HomeView>("dashboard");
   const accountMenuRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
@@ -60,8 +65,8 @@ export function AuthenticatedHome() {
       await logout();
     } finally {
       setAccountMenuOpen(false);
-      setView("dashboard");
       setUser(null);
+      router.push("/");
     }
   }
 
@@ -115,8 +120,8 @@ export function AuthenticatedHome() {
                   <button
                     className="h-10 rounded-md px-3 text-left text-sm font-extrabold text-slate-700 transition hover:bg-slate-100 hover:text-teal-800"
                     onClick={() => {
-                      setView("my-category-mappings");
                       setAccountMenuOpen(false);
+                      router.push("/my-category-mappings");
                     }}
                     role="menuitem"
                     type="button"
@@ -138,8 +143,8 @@ export function AuthenticatedHome() {
         </section>
 
         <section className="grid gap-5 lg:grid-cols-2">
-          {view === "my-category-mappings" ? (
-            <MyCategoryMappingListPage onBack={() => setView("dashboard")} />
+          {currentView === "my-category-mappings" ? (
+            <MyCategoryMappingListPage onBack={() => router.push("/")} />
           ) : (
             <>
               {isAdmin && <CategoryUploadCard />}
