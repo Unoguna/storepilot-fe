@@ -11,7 +11,12 @@ import { AuthPanel } from "@/components/features/auth/auth-panel";
 import { getCurrentUser, logout } from "@/lib/api";
 import { AuthUser } from "@/types/store-pilot";
 
-type HomeView = "dashboard" | "my-category-mappings";
+type HomeView =
+  | "dashboard"
+  | "naver-category-upload"
+  | "my-category-upload"
+  | "my-category-mappings"
+  | "training-product-upload";
 
 type AuthenticatedHomeProps = {
   currentView?: HomeView;
@@ -84,6 +89,31 @@ export function AuthenticatedHome({ currentView = "dashboard" }: AuthenticatedHo
 
   const isAdmin = user.role === "ADMIN";
 
+  function renderContent() {
+    if (currentView === "naver-category-upload") {
+      return isAdmin ? <CategoryUploadCard /> : <AccessDeniedMessage />;
+    }
+
+    if (currentView === "my-category-upload") {
+      return <MyCategoryMappingCard />;
+    }
+
+    if (currentView === "my-category-mappings") {
+      return <MyCategoryMappingListPage onBack={() => router.push("/")} />;
+    }
+
+    if (currentView === "training-product-upload") {
+      return isAdmin ? <TrainingProductUploadCard /> : <AccessDeniedMessage />;
+    }
+
+    return <ProductExcelCard />;
+  }
+
+  function moveTo(path: string) {
+    setAccountMenuOpen(false);
+    router.push(path);
+  }
+
   return (
     <main className="min-h-screen bg-[#f5f7f6] px-4 py-8 text-[#172126] sm:px-6 lg:px-8">
       <div className="mx-auto grid max-w-7xl gap-8">
@@ -121,19 +151,44 @@ export function AuthenticatedHome({ currentView = "dashboard" }: AuthenticatedHo
                       {isAdmin ? "관리자" : "사용자"}
                     </p>
                   </div>
+                  {isAdmin && (
+                    <button
+                      className="h-10 rounded-md px-3 text-left text-sm font-extrabold text-slate-700 transition hover:bg-slate-100 hover:text-teal-800"
+                      onClick={() => moveTo("/naver-categories/upload")}
+                      role="menuitem"
+                      type="button"
+                    >
+                      네이버 카테고리 업로드
+                    </button>
+                  )}
                   <button
                     className="h-10 rounded-md px-3 text-left text-sm font-extrabold text-slate-700 transition hover:bg-slate-100 hover:text-teal-800"
-                    onClick={() => {
-                      setAccountMenuOpen(false);
-                      router.push("/my-category-mappings");
-                    }}
+                    onClick={() => moveTo("/my-category-mappings/upload")}
+                    role="menuitem"
+                    type="button"
+                  >
+                    마이카테고리 업로드
+                  </button>
+                  <button
+                    className="h-10 rounded-md px-3 text-left text-sm font-extrabold text-slate-700 transition hover:bg-slate-100 hover:text-teal-800"
+                    onClick={() => moveTo("/my-category-mappings")}
                     role="menuitem"
                     type="button"
                   >
                     마이카테고리 조회
                   </button>
+                  {isAdmin && (
+                    <button
+                      className="h-10 rounded-md px-3 text-left text-sm font-extrabold text-slate-700 transition hover:bg-slate-100 hover:text-teal-800"
+                      onClick={() => moveTo("/training-products/upload")}
+                      role="menuitem"
+                      type="button"
+                    >
+                      기존 상품 업로드
+                    </button>
+                  )}
                   <button
-                    className="h-10 rounded-md px-3 text-left text-sm font-extrabold text-slate-700 transition hover:bg-slate-100 hover:text-teal-800"
+                    className="h-10 rounded-md px-3 text-left text-sm font-extrabold text-red-600 transition hover:bg-red-50 hover:text-red-700"
                     onClick={handleLogout}
                     role="menuitem"
                     type="button"
@@ -147,18 +202,17 @@ export function AuthenticatedHome({ currentView = "dashboard" }: AuthenticatedHo
         </section>
 
         <section className="grid gap-5 lg:grid-cols-2">
-          {currentView === "my-category-mappings" ? (
-            <MyCategoryMappingListPage onBack={() => router.push("/")} />
-          ) : (
-            <>
-              {isAdmin && <CategoryUploadCard />}
-              <MyCategoryMappingCard />
-              {isAdmin && <TrainingProductUploadCard />}
-              <ProductExcelCard />
-            </>
-          )}
+          {renderContent()}
         </section>
       </div>
     </main>
+  );
+}
+
+function AccessDeniedMessage() {
+  return (
+    <section className="rounded-md border border-red-100 bg-white p-6 text-sm font-bold text-red-700 shadow-sm lg:col-span-2">
+      접근 권한이 없습니다.
+    </section>
   );
 }
