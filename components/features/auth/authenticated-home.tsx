@@ -169,14 +169,6 @@ export function AuthenticatedHome({ currentView = "dashboard" }: AuthenticatedHo
                   >
                     마이카테고리 업로드
                   </button>
-                  <button
-                    className="h-10 rounded-md px-3 text-left text-sm font-extrabold text-slate-700 transition hover:bg-slate-100 hover:text-teal-800"
-                    onClick={() => moveTo("/my-category-mappings")}
-                    role="menuitem"
-                    type="button"
-                  >
-                    마이카테고리 조회
-                  </button>
                   {isAdmin && (
                     <button
                       className="h-10 rounded-md px-3 text-left text-sm font-extrabold text-slate-700 transition hover:bg-slate-100 hover:text-teal-800"
@@ -187,6 +179,14 @@ export function AuthenticatedHome({ currentView = "dashboard" }: AuthenticatedHo
                       기존 상품 업로드
                     </button>
                   )}
+                  <button
+                    className="h-10 rounded-md px-3 text-left text-sm font-extrabold text-slate-700 transition hover:bg-slate-100 hover:text-teal-800"
+                    onClick={() => moveTo("/my-category-mappings")}
+                    role="menuitem"
+                    type="button"
+                  >
+                    마이카테고리 조회
+                  </button>
                   <button
                     className="h-10 rounded-md px-3 text-left text-sm font-extrabold text-red-600 transition hover:bg-red-50 hover:text-red-700"
                     onClick={handleLogout}
