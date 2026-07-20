@@ -90,9 +90,13 @@ export function AuthenticatedHome({ currentView = "dashboard" }: AuthenticatedHo
         <section className="grid gap-4">
           <div className="flex flex-wrap items-start justify-between gap-4">
             <div className="grid gap-4">
-              <h1 className="max-w-3xl text-3xl font-black leading-tight tracking-normal sm:text-4xl">
+              <button
+                className="max-w-3xl cursor-pointer text-left text-3xl font-black leading-tight tracking-normal transition hover:text-teal-800 sm:text-4xl"
+                onClick={() => window.location.assign("/")}
+                type="button"
+              >
                 StorePilot
-              </h1>
+              </button>
             </div>
             <div className="relative" ref={accountMenuRef}>
               <button
