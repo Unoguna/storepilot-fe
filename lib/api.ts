@@ -14,7 +14,6 @@ const API_BASE = resolveApiBase();
 const PRODUCT_EXCEL_JOB_URL = `${API_BASE}/api/v1/product-excel-jobs`;
 const IMAGE_ZIP_DOWNLOAD_URL = `${API_BASE}/api/v1/product-excel-jobs/images/download-zip`;
 const CATEGORY_UPLOAD_URL = `${API_BASE}/api/v1/admin/naver-categories/upload`;
-const MY_CATEGORY_MAPPING_UPLOAD_URL = `${API_BASE}/api/v1/admin/my-category-mappings/upload`;
 const MY_CATEGORY_MAPPING_URL = `${API_BASE}/api/v1/my-category-mappings`;
 const TRAINING_PRODUCT_UPLOAD_URL = `${API_BASE}/api/v1/admin/training-products/rebuild`;
 const AUTH_URL = `${API_BASE}/api/v1/auth`;
@@ -133,7 +132,7 @@ export async function uploadMyCategoryMappingFile(file: File) {
   const formData = new FormData();
   formData.append("file", file);
 
-  const response = await fetchWithAuth(MY_CATEGORY_MAPPING_UPLOAD_URL, {
+  const response = await fetchWithAuth(`${MY_CATEGORY_MAPPING_URL}/upload`, {
     method: "POST",
     body: formData,
   });
