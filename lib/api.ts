@@ -78,6 +78,16 @@ export async function logout() {
   }
 }
 
+export async function deleteAccount() {
+  const response = await fetchWithAuth(`${AUTH_URL}/me`, {
+    method: "DELETE",
+  });
+  if (!response.ok) {
+    throw new Error(await readErrorMessage(response));
+  }
+  return (await response.json()) as MessageResponse;
+}
+
 export async function createProductExcelJob(file: File) {
   const formData = new FormData();
   formData.append("file", file);

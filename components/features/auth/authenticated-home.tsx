@@ -8,7 +8,7 @@ import { MyCategoryMappingListPage } from "@/components/features/my-category/my-
 import { ProductExcelCard } from "@/components/features/product/product-excel-card";
 import { TrainingProductUploadCard } from "@/components/features/training-product/training-product-upload-card";
 import { AuthPanel } from "@/components/features/auth/auth-panel";
-import { getCurrentUser, logout } from "@/lib/api";
+import { deleteAccount, getCurrentUser, logout } from "@/lib/api";
 import { AuthUser } from "@/types/store-pilot";
 
 type HomeView =
@@ -72,6 +72,22 @@ export function AuthenticatedHome({ currentView = "dashboard" }: AuthenticatedHo
       setAccountMenuOpen(false);
       setUser(null);
       router.push("/");
+    }
+  }
+
+  async function handleDeleteAccount() {
+    const confirmed = window.confirm("회원 탈퇴 시 계정과 개인 데이터가 삭제됩니다. 정말 탈퇴하시겠습니까?");
+    if (!confirmed) {
+      return;
+    }
+
+    try {
+      await deleteAccount();
+      setAccountMenuOpen(false);
+      setUser(null);
+      window.location.assign("/");
+    } catch (error) {
+      window.alert(error instanceof Error ? error.message : "회원 탈퇴 중 오류가 발생했습니다.");
     }
   }
 
@@ -186,6 +202,14 @@ export function AuthenticatedHome({ currentView = "dashboard" }: AuthenticatedHo
                     type="button"
                   >
                     마이카테고리 조회
+                  </button>
+                  <button
+                    className="h-10 rounded-md px-3 text-left text-sm font-extrabold text-red-600 transition hover:bg-red-50 hover:text-red-700"
+                    onClick={handleDeleteAccount}
+                    role="menuitem"
+                    type="button"
+                  >
+                    회원 탈퇴
                   </button>
                   <button
                     className="h-10 rounded-md px-3 text-left text-sm font-extrabold text-red-600 transition hover:bg-red-50 hover:text-red-700"
