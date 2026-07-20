@@ -91,11 +91,11 @@ export function AuthenticatedHome({ currentView = "dashboard" }: AuthenticatedHo
 
   function renderContent() {
     if (currentView === "naver-category-upload") {
-      return isAdmin ? <CategoryUploadCard /> : <AccessDeniedMessage />;
+      return isAdmin ? <FullWidthContent><CategoryUploadCard /></FullWidthContent> : <AccessDeniedMessage />;
     }
 
     if (currentView === "my-category-upload") {
-      return <MyCategoryMappingCard />;
+      return <FullWidthContent><MyCategoryMappingCard /></FullWidthContent>;
     }
 
     if (currentView === "my-category-mappings") {
@@ -103,10 +103,10 @@ export function AuthenticatedHome({ currentView = "dashboard" }: AuthenticatedHo
     }
 
     if (currentView === "training-product-upload") {
-      return isAdmin ? <TrainingProductUploadCard /> : <AccessDeniedMessage />;
+      return isAdmin ? <FullWidthContent><TrainingProductUploadCard /></FullWidthContent> : <AccessDeniedMessage />;
     }
 
-    return <ProductExcelCard />;
+    return <FullWidthContent><ProductExcelCard /></FullWidthContent>;
   }
 
   function moveTo(path: string) {
@@ -207,6 +207,10 @@ export function AuthenticatedHome({ currentView = "dashboard" }: AuthenticatedHo
       </div>
     </main>
   );
+}
+
+function FullWidthContent({ children }: { children: React.ReactNode }) {
+  return <div className="lg:col-span-2">{children}</div>;
 }
 
 function AccessDeniedMessage() {

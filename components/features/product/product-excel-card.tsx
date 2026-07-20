@@ -163,7 +163,6 @@ export function ProductExcelCard() {
 
   return (
     <UploadCard
-      eyebrow="Step 4"
       title="상품 엑셀 업로드"
       fileLabel={productFileLabel}
       status={excelStatus === "uploading" ? excelStatus : imageStatus === "uploading" ? imageStatus : excelStatus}

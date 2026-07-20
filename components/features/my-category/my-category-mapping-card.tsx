@@ -50,7 +50,6 @@ export function MyCategoryMappingCard() {
 
   return (
     <UploadCard
-      eyebrow="Step 2"
       title="마이카테고리 매칭 업로드"
       fileLabel={mappingFileLabel}
       status={mappingStatus}

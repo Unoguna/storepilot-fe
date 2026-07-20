@@ -54,7 +54,6 @@ export function TrainingProductUploadCard() {
 
   return (
     <UploadCard
-      eyebrow="Step 3"
       title="기존 상품 엑셀 업로드"
       fileLabel={fileLabel}
       status={status}

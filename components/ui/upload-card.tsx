@@ -3,7 +3,6 @@ import { RequestState } from "@/types/store-pilot";
 import { statusClassName } from "@/components/ui/upload-status";
 
 export function UploadCard({
-  eyebrow,
   title,
   description,
   fileLabel,
@@ -14,7 +13,6 @@ export function UploadCard({
   children,
   onFileChange,
 }: {
-  eyebrow: string;
   title: string;
   description?: string;
   fileLabel: string;
@@ -28,8 +26,7 @@ export function UploadCard({
   return (
     <section className="grid gap-5 rounded-lg border border-slate-200 bg-white p-6 shadow-[0_14px_40px_rgba(23,33,38,0.08)]">
       <div>
-        <p className="text-xs font-bold uppercase tracking-normal text-slate-500">{eyebrow}</p>
-        <h2 className="mt-1 text-xl font-black">{title}</h2>
+        <h2 className="text-xl font-black">{title}</h2>
         {description && <p className="mt-2 text-sm leading-6 text-slate-600">{description}</p>}
       </div>
 

@@ -50,7 +50,6 @@ export function CategoryUploadCard() {
 
   return (
     <UploadCard
-      eyebrow="Step 1"
       title="네이버 카테고리 리스트 업로드"
       fileLabel={categoryFileLabel}
       status={categoryStatus}
