@@ -45,6 +45,45 @@ export async function verifyEmail(token: string) {
   return (await response.json()) as MessageResponse;
 }
 
+export async function resendVerificationEmail(email: string) {
+  const response = await fetch(`${AUTH_URL}/verification-email/resend`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    credentials: "include",
+    body: JSON.stringify({ email }),
+  });
+  if (!response.ok) {
+    throw new Error(await readErrorMessage(response));
+  }
+  return (await response.json()) as MessageResponse;
+}
+
+export async function requestPasswordReset(email: string) {
+  const response = await fetch(`${AUTH_URL}/password-reset/request`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    credentials: "include",
+    body: JSON.stringify({ email }),
+  });
+  if (!response.ok) {
+    throw new Error(await readErrorMessage(response));
+  }
+  return (await response.json()) as MessageResponse;
+}
+
+export async function resetPassword(token: string, password: string, passwordConfirm: string) {
+  const response = await fetch(`${AUTH_URL}/password-reset/confirm`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    credentials: "include",
+    body: JSON.stringify({ token, password, passwordConfirm }),
+  });
+  if (!response.ok) {
+    throw new Error(await readErrorMessage(response));
+  }
+  return (await response.json()) as MessageResponse;
+}
+
 export async function login(email: string, password: string) {
   const response = await fetch(`${AUTH_URL}/login`, {
     method: "POST",
