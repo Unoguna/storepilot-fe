@@ -169,59 +169,61 @@ export function ProductExcelCard() {
       message=""
       onFileChange={handleProductFileChange}
     >
-      <div className="grid gap-3 sm:grid-cols-2">
-        <form className="grid gap-2" onSubmit={handleExcelSubmit}>
-          <ActionButton disabled={excelStatus === "uploading"} loading={excelStatus === "uploading"}>
-            {excelStatus === "uploading" ? "카테고리 찾는 중..." : "결과 엑셀 저장"}
-          </ActionButton>
-          <p className={statusClassName(excelStatus)}>{excelMessage}</p>
-          {jobProgress && (
-            <div className="grid gap-2 rounded-md border border-slate-200 bg-slate-50 p-3">
-              <div className="flex items-center justify-between gap-3 text-xs font-bold text-slate-600">
-                <span>{jobProgress.stage}</span>
-                <span>{jobProgress.progress}%</span>
-              </div>
-              <div
-                aria-label="카테고리 찾기 진행률"
-                aria-valuemax={100}
-                aria-valuemin={0}
-                aria-valuenow={jobProgress.progress}
-                className="h-2 overflow-hidden rounded-full bg-slate-200"
-                role="progressbar"
-              >
+      {productFile && (
+        <div className="grid gap-3 sm:grid-cols-2">
+          <form className="grid gap-2" onSubmit={handleExcelSubmit}>
+            <ActionButton disabled={excelStatus === "uploading"} loading={excelStatus === "uploading"}>
+              {excelStatus === "uploading" ? "카테고리 찾는 중..." : "결과 엑셀 저장"}
+            </ActionButton>
+            <p className={statusClassName(excelStatus)}>{excelMessage}</p>
+            {jobProgress && (
+              <div className="grid gap-2 rounded-md border border-slate-200 bg-slate-50 p-3">
+                <div className="flex items-center justify-between gap-3 text-xs font-bold text-slate-600">
+                  <span>{jobProgress.stage}</span>
+                  <span>{jobProgress.progress}%</span>
+                </div>
                 <div
-                  className="h-full bg-teal-700 transition-[width] duration-300"
-                  style={{ width: `${jobProgress.progress}%` }}
-                />
+                  aria-label="카테고리 찾기 진행률"
+                  aria-valuemax={100}
+                  aria-valuemin={0}
+                  aria-valuenow={jobProgress.progress}
+                  className="h-2 overflow-hidden rounded-full bg-slate-200"
+                  role="progressbar"
+                >
+                  <div
+                    className="h-full bg-teal-700 transition-[width] duration-300"
+                    style={{ width: `${jobProgress.progress}%` }}
+                  />
+                </div>
+                <p className="text-xs font-semibold text-slate-500">
+                  {jobProgress.processedCount.toLocaleString()} / {jobProgress.totalCount.toLocaleString()}개 처리
+                </p>
+                <dl className="grid grid-cols-2 gap-x-4 gap-y-1 border-t border-slate-200 pt-2 text-xs">
+                  <div className="flex min-w-0 items-center justify-between gap-2">
+                    <dt className="truncate font-semibold text-slate-500">카테고리 분류</dt>
+                    <dd className="shrink-0 font-bold text-slate-700">
+                      {formatElapsedTime(jobProgress.categoryElapsedMillis)}
+                    </dd>
+                  </div>
+                  <div className="flex min-w-0 items-center justify-between gap-2">
+                    <dt className="truncate font-semibold text-slate-500">키워드 생성</dt>
+                    <dd className="shrink-0 font-bold text-slate-700">
+                      {formatElapsedTime(jobProgress.keywordElapsedMillis)}
+                    </dd>
+                  </div>
+                </dl>
               </div>
-              <p className="text-xs font-semibold text-slate-500">
-                {jobProgress.processedCount.toLocaleString()} / {jobProgress.totalCount.toLocaleString()}개 처리
-              </p>
-              <dl className="grid grid-cols-2 gap-x-4 gap-y-1 border-t border-slate-200 pt-2 text-xs">
-                <div className="flex min-w-0 items-center justify-between gap-2">
-                  <dt className="truncate font-semibold text-slate-500">카테고리 분류</dt>
-                  <dd className="shrink-0 font-bold text-slate-700">
-                    {formatElapsedTime(jobProgress.categoryElapsedMillis)}
-                  </dd>
-                </div>
-                <div className="flex min-w-0 items-center justify-between gap-2">
-                  <dt className="truncate font-semibold text-slate-500">키워드 생성</dt>
-                  <dd className="shrink-0 font-bold text-slate-700">
-                    {formatElapsedTime(jobProgress.keywordElapsedMillis)}
-                  </dd>
-                </div>
-              </dl>
-            </div>
-          )}
-        </form>
+            )}
+          </form>
 
-        <form className="grid gap-2" onSubmit={handleImageSubmit}>
-          <ActionButton disabled={imageStatus === "uploading"} loading={imageStatus === "uploading"}>
-            {imageStatus === "uploading" ? "ZIP 저장 중..." : "이미지 ZIP 저장"}
-          </ActionButton>
-          <p className={statusClassName(imageStatus)}>{imageMessage}</p>
-        </form>
-      </div>
+          <form className="grid gap-2" onSubmit={handleImageSubmit}>
+            <ActionButton disabled={imageStatus === "uploading"} loading={imageStatus === "uploading"}>
+              {imageStatus === "uploading" ? "ZIP 저장 중..." : "이미지 ZIP 저장"}
+            </ActionButton>
+            <p className={statusClassName(imageStatus)}>{imageMessage}</p>
+          </form>
+        </div>
+      )}
 
     </UploadCard>
   );

@@ -1,6 +1,7 @@
 "use client";
 
 import { ChangeEvent, FormEvent, useMemo, useState } from "react";
+import { useRouter } from "next/navigation";
 import { ActionButton } from "@/components/ui/action-button";
 import { ResultRow } from "@/components/ui/result-row";
 import { UploadCard } from "@/components/ui/upload-card";
@@ -9,6 +10,7 @@ import { labelForFile } from "@/lib/format";
 import { MyCategoryMappingUploadResult, RequestState } from "@/types/store-pilot";
 
 export function MyCategoryMappingCard() {
+  const router = useRouter();
   const [mappingFile, setMappingFile] = useState<File | null>(null);
   const [mappingStatus, setMappingStatus] = useState<RequestState>("idle");
   const [mappingMessage, setMappingMessage] = useState("");
@@ -56,17 +58,26 @@ export function MyCategoryMappingCard() {
       message={mappingMessage}
       onFileChange={handleMappingFileChange}
     >
-      <form className="grid gap-5" onSubmit={handleMappingSubmit}>
-        <ActionButton disabled={mappingStatus === "uploading"} loading={mappingStatus === "uploading"}>
-          {mappingStatus === "uploading" ? "저장 중..." : "마이카테 매칭 저장"}
-        </ActionButton>
-      </form>
+      {mappingFile && (
+        <form className="grid gap-5" onSubmit={handleMappingSubmit}>
+          <ActionButton disabled={mappingStatus === "uploading"} loading={mappingStatus === "uploading"}>
+            {mappingStatus === "uploading" ? "저장 중..." : "마이카테 매칭 저장"}
+          </ActionButton>
+        </form>
+      )}
 
       {mappingResult && (
         <div className="grid gap-2 rounded-md bg-teal-50 p-4 text-sm text-teal-950">
           <ResultRow label="버전" value={String(mappingResult.versionId)} />
           <ResultRow label="매핑 수" value={`${mappingResult.mappingCount.toLocaleString()}개`} />
           <ResultRow label="자동 연결" value={`${mappingResult.matchedCount.toLocaleString()}개`} />
+          <button
+            className="mt-2 h-11 w-fit rounded-md bg-teal-700 px-5 text-sm font-extrabold text-white transition hover:bg-teal-800"
+            onClick={() => router.push("/")}
+            type="button"
+          >
+            홈으로 이동
+          </button>
         </div>
       )}
     </UploadCard>
