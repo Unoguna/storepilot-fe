@@ -88,7 +88,7 @@ export function AuthPanel({ onAuthenticated }: { onAuthenticated: (user: AuthUse
   const busy = status === "uploading";
   const currentEmail = mode === "login" ? loginEmail : mode === "signup" ? signupEmail : passwordResetEmail;
   const currentPassword = mode === "login" ? loginPassword : signupPassword;
-  const title = mode === "signup" ? "회원가입" : mode === "password-reset" ? "비밀번호 찾기" : "로그인";
+  const title = mode === "signup" ? "회원가입" : mode === "password-reset" ? "비밀번호 재설정" : "로그인";
 
   return (
     <main className="min-h-screen bg-[#f5f7f6] px-4 py-8 text-[#172126] sm:px-6 lg:px-8">
@@ -196,7 +196,7 @@ export function AuthPanel({ onAuthenticated }: { onAuthenticated: (user: AuthUse
                 onClick={() => switchMode("password-reset")}
                 type="button"
               >
-                비밀번호 찾기
+                비밀번호 재설정
               </button>
             )}
 
