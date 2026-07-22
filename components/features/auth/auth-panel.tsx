@@ -8,9 +8,11 @@ type AuthMode = "login" | "signup";
 
 export function AuthPanel({ onAuthenticated }: { onAuthenticated: (user: AuthUser) => void }) {
   const [mode, setMode] = useState<AuthMode>("login");
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [passwordConfirm, setPasswordConfirm] = useState("");
+  const [loginEmail, setLoginEmail] = useState("");
+  const [loginPassword, setLoginPassword] = useState("");
+  const [signupEmail, setSignupEmail] = useState("");
+  const [signupPassword, setSignupPassword] = useState("");
+  const [signupPasswordConfirm, setSignupPasswordConfirm] = useState("");
   const [status, setStatus] = useState<RequestState>("idle");
   const [message, setMessage] = useState("");
   const [verificationEmailSent, setVerificationEmailSent] = useState(false);
@@ -21,19 +23,19 @@ export function AuthPanel({ onAuthenticated }: { onAuthenticated: (user: AuthUse
     setMessage(mode === "login" ? "로그인하는 중입니다..." : "계정을 만드는 중입니다...");
 
     try {
-      if (mode === "signup" && password !== passwordConfirm) {
+      if (mode === "signup" && signupPassword !== signupPasswordConfirm) {
         throw new Error("비밀번호 확인이 일치하지 않습니다.");
       }
       const body =
         mode === "login"
-          ? await login(email.trim(), password)
-          : await signup(email.trim(), password, passwordConfirm);
+          ? await login(loginEmail.trim(), loginPassword)
+          : await signup(signupEmail.trim(), signupPassword, signupPasswordConfirm);
       if (!body.data) {
         setStatus("success");
         setMessage(body.message ?? "인증 메일을 확인해주세요.");
         if (mode === "signup") {
-          setPassword("");
-          setPasswordConfirm("");
+          setSignupPassword("");
+          setSignupPasswordConfirm("");
           setVerificationEmailSent(true);
         }
         return;
@@ -52,7 +54,7 @@ export function AuthPanel({ onAuthenticated }: { onAuthenticated: (user: AuthUse
     setMessage("인증 메일을 다시 보내는 중입니다...");
 
     try {
-      const body = await resendVerificationEmail(email.trim());
+      const body = await resendVerificationEmail(signupEmail.trim());
       setStatus("success");
       setMessage(body.message ?? "인증 메일을 다시 보냈습니다.");
       setVerificationEmailSent(true);
@@ -64,13 +66,14 @@ export function AuthPanel({ onAuthenticated }: { onAuthenticated: (user: AuthUse
 
   function switchMode(nextMode: AuthMode) {
     setMode(nextMode);
-    setPasswordConfirm("");
     setStatus("idle");
     setMessage("");
     setVerificationEmailSent(false);
   }
 
   const busy = status === "uploading";
+  const currentEmail = mode === "login" ? loginEmail : signupEmail;
+  const currentPassword = mode === "login" ? loginPassword : signupPassword;
 
   return (
     <main className="min-h-screen bg-[#f5f7f6] px-4 py-8 text-[#172126] sm:px-6 lg:px-8">
@@ -110,9 +113,13 @@ export function AuthPanel({ onAuthenticated }: { onAuthenticated: (user: AuthUse
                 className="h-11 rounded-md border border-slate-300 px-3 font-medium outline-none transition focus:border-teal-700 focus:ring-2 focus:ring-teal-100"
                 placeholder="you@example.com"
                 type="email"
-                value={email}
+                value={currentEmail}
                 onChange={(event) => {
-                  setEmail(event.target.value);
+                  if (mode === "login") {
+                    setLoginEmail(event.target.value);
+                  } else {
+                    setSignupEmail(event.target.value);
+                  }
                   setVerificationEmailSent(false);
                 }}
               />
@@ -125,8 +132,15 @@ export function AuthPanel({ onAuthenticated }: { onAuthenticated: (user: AuthUse
                 className="h-11 rounded-md border border-slate-300 px-3 font-medium outline-none transition focus:border-teal-700 focus:ring-2 focus:ring-teal-100"
                 placeholder="8자 이상"
                 type="password"
-                value={password}
-                onChange={(event) => setPassword(event.target.value)}
+                value={currentPassword}
+                onChange={(event) => {
+                  if (mode === "login") {
+                    setLoginPassword(event.target.value);
+                  } else {
+                    setSignupPassword(event.target.value);
+                    setVerificationEmailSent(false);
+                  }
+                }}
               />
             </label>
 
@@ -138,8 +152,11 @@ export function AuthPanel({ onAuthenticated }: { onAuthenticated: (user: AuthUse
                   className="h-11 rounded-md border border-slate-300 px-3 font-medium outline-none transition focus:border-teal-700 focus:ring-2 focus:ring-teal-100"
                   placeholder="비밀번호를 다시 입력"
                   type="password"
-                  value={passwordConfirm}
-                  onChange={(event) => setPasswordConfirm(event.target.value)}
+                  value={signupPasswordConfirm}
+                  onChange={(event) => {
+                    setSignupPasswordConfirm(event.target.value);
+                    setVerificationEmailSent(false);
+                  }}
                 />
               </label>
             )}
@@ -155,7 +172,7 @@ export function AuthPanel({ onAuthenticated }: { onAuthenticated: (user: AuthUse
             {mode === "signup" && verificationEmailSent && (
               <button
                 className="h-11 w-fit rounded-md border border-slate-300 bg-white px-4 text-sm font-extrabold text-slate-700 transition hover:border-teal-700 hover:text-teal-800 disabled:cursor-wait disabled:border-slate-200 disabled:text-slate-400"
-                disabled={busy || email.trim().length === 0}
+                disabled={busy || signupEmail.trim().length === 0}
                 onClick={handleResendVerificationEmail}
                 type="button"
               >
