@@ -50,7 +50,7 @@ export function MyCategoryMappingCard() {
 
   return (
     <UploadCard
-      title="마이카테고리 매칭 업로드"
+      title="마이카테고리 업로드"
       fileLabel={mappingFileLabel}
       status={mappingStatus}
       message={mappingMessage}

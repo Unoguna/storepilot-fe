@@ -167,6 +167,17 @@ export function AuthenticatedHome({ currentView = "dashboard" }: AuthenticatedHo
                       {isAdmin ? "관리자" : "사용자"}
                     </p>
                   </div>
+                  <button
+                    className="h-10 rounded-md px-3 text-left text-sm font-extrabold text-slate-700 transition hover:bg-slate-100 hover:text-teal-800"
+                    onClick={() => {
+                      setAccountMenuOpen(false);
+                      window.location.assign("/");
+                    }}
+                    role="menuitem"
+                    type="button"
+                  >
+                    홈
+                  </button>
                   {isAdmin && (
                     <button
                       className="h-10 rounded-md px-3 text-left text-sm font-extrabold text-slate-700 transition hover:bg-slate-100 hover:text-teal-800"
