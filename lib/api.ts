@@ -45,6 +45,19 @@ export async function verifyEmail(token: string) {
   return (await response.json()) as MessageResponse;
 }
 
+export async function resendVerificationEmail(email: string) {
+  const response = await fetch(`${AUTH_URL}/verification-email/resend`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    credentials: "include",
+    body: JSON.stringify({ email }),
+  });
+  if (!response.ok) {
+    throw new Error(await readErrorMessage(response));
+  }
+  return (await response.json()) as MessageResponse;
+}
+
 export async function login(email: string, password: string) {
   const response = await fetch(`${AUTH_URL}/login`, {
     method: "POST",

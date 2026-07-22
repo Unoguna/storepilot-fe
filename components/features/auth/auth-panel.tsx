@@ -1,7 +1,7 @@
 "use client";
 
 import { FormEvent, useState } from "react";
-import { login, signup } from "@/lib/api";
+import { login, resendVerificationEmail, signup } from "@/lib/api";
 import { AuthUser, RequestState } from "@/types/store-pilot";
 
 type AuthMode = "login" | "signup";
@@ -13,6 +13,7 @@ export function AuthPanel({ onAuthenticated }: { onAuthenticated: (user: AuthUse
   const [passwordConfirm, setPasswordConfirm] = useState("");
   const [status, setStatus] = useState<RequestState>("idle");
   const [message, setMessage] = useState("");
+  const [verificationEmailSent, setVerificationEmailSent] = useState(false);
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -31,9 +32,9 @@ export function AuthPanel({ onAuthenticated }: { onAuthenticated: (user: AuthUse
         setStatus("success");
         setMessage(body.message ?? "인증 메일을 확인해주세요.");
         if (mode === "signup") {
-          setMode("login");
           setPassword("");
           setPasswordConfirm("");
+          setVerificationEmailSent(true);
         }
         return;
       }
@@ -46,11 +47,27 @@ export function AuthPanel({ onAuthenticated }: { onAuthenticated: (user: AuthUse
     }
   }
 
+  async function handleResendVerificationEmail() {
+    setStatus("uploading");
+    setMessage("인증 메일을 다시 보내는 중입니다...");
+
+    try {
+      const body = await resendVerificationEmail(email.trim());
+      setStatus("success");
+      setMessage(body.message ?? "인증 메일을 다시 보냈습니다.");
+      setVerificationEmailSent(true);
+    } catch (error) {
+      setStatus("error");
+      setMessage(error instanceof Error ? error.message : "인증 메일 재전송 중 오류가 발생했습니다.");
+    }
+  }
+
   function switchMode(nextMode: AuthMode) {
     setMode(nextMode);
     setPasswordConfirm("");
     setStatus("idle");
     setMessage("");
+    setVerificationEmailSent(false);
   }
 
   const busy = status === "uploading";
@@ -94,7 +111,10 @@ export function AuthPanel({ onAuthenticated }: { onAuthenticated: (user: AuthUse
                 placeholder="you@example.com"
                 type="email"
                 value={email}
-                onChange={(event) => setEmail(event.target.value)}
+                onChange={(event) => {
+                  setEmail(event.target.value);
+                  setVerificationEmailSent(false);
+                }}
               />
             </label>
 
@@ -131,6 +151,17 @@ export function AuthPanel({ onAuthenticated }: { onAuthenticated: (user: AuthUse
             >
               {busy ? "처리 중..." : mode === "login" ? "로그인" : "회원가입"}
             </button>
+
+            {mode === "signup" && verificationEmailSent && (
+              <button
+                className="h-11 w-fit rounded-md border border-slate-300 bg-white px-4 text-sm font-extrabold text-slate-700 transition hover:border-teal-700 hover:text-teal-800 disabled:cursor-wait disabled:border-slate-200 disabled:text-slate-400"
+                disabled={busy || email.trim().length === 0}
+                onClick={handleResendVerificationEmail}
+                type="button"
+              >
+                인증메일 재전송
+              </button>
+            )}
           </form>
 
           {message && (
