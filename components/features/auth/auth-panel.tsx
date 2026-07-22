@@ -1,10 +1,10 @@
 "use client";
 
 import { FormEvent, useState } from "react";
-import { login, resendVerificationEmail, signup } from "@/lib/api";
+import { login, requestPasswordReset, resendVerificationEmail, signup } from "@/lib/api";
 import { AuthUser, RequestState } from "@/types/store-pilot";
 
-type AuthMode = "login" | "signup";
+type AuthMode = "login" | "signup" | "password-reset";
 
 export function AuthPanel({ onAuthenticated }: { onAuthenticated: (user: AuthUser) => void }) {
   const [mode, setMode] = useState<AuthMode>("login");
@@ -13,6 +13,7 @@ export function AuthPanel({ onAuthenticated }: { onAuthenticated: (user: AuthUse
   const [signupEmail, setSignupEmail] = useState("");
   const [signupPassword, setSignupPassword] = useState("");
   const [signupPasswordConfirm, setSignupPasswordConfirm] = useState("");
+  const [passwordResetEmail, setPasswordResetEmail] = useState("");
   const [status, setStatus] = useState<RequestState>("idle");
   const [message, setMessage] = useState("");
   const [verificationEmailSent, setVerificationEmailSent] = useState(false);
@@ -20,9 +21,22 @@ export function AuthPanel({ onAuthenticated }: { onAuthenticated: (user: AuthUse
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setStatus("uploading");
-    setMessage(mode === "login" ? "로그인하는 중입니다..." : "계정을 만드는 중입니다...");
+    setMessage(
+      mode === "login"
+        ? "로그인하는 중입니다..."
+        : mode === "signup"
+          ? "계정을 만드는 중입니다..."
+          : "비밀번호 재설정 메일을 보내는 중입니다..."
+    );
 
     try {
+      if (mode === "password-reset") {
+        const body = await requestPasswordReset(passwordResetEmail.trim());
+        setStatus("success");
+        setMessage(body.message ?? "비밀번호 재설정 메일을 확인해주세요.");
+        return;
+      }
+
       if (mode === "signup" && signupPassword !== signupPasswordConfirm) {
         throw new Error("비밀번호 확인이 일치하지 않습니다.");
       }
@@ -72,15 +86,16 @@ export function AuthPanel({ onAuthenticated }: { onAuthenticated: (user: AuthUse
   }
 
   const busy = status === "uploading";
-  const currentEmail = mode === "login" ? loginEmail : signupEmail;
+  const currentEmail = mode === "login" ? loginEmail : mode === "signup" ? signupEmail : passwordResetEmail;
   const currentPassword = mode === "login" ? loginPassword : signupPassword;
+  const title = mode === "signup" ? "회원가입" : mode === "password-reset" ? "비밀번호 찾기" : "로그인";
 
   return (
     <main className="min-h-screen bg-[#f5f7f6] px-4 py-8 text-[#172126] sm:px-6 lg:px-8">
       <section className="mx-auto grid min-h-[calc(100vh-4rem)] max-w-md content-center gap-6">
         <div className="grid gap-3">
           <p className="text-sm font-extrabold uppercase tracking-normal text-teal-700">StorePilot</p>
-          <h1 className="text-3xl font-black leading-tight tracking-normal">로그인</h1>
+          <h1 className="text-3xl font-black leading-tight tracking-normal">{title}</h1>
         </div>
 
         <div className="grid gap-5 rounded-md border border-slate-200 bg-white p-5 shadow-sm">
@@ -117,32 +132,36 @@ export function AuthPanel({ onAuthenticated }: { onAuthenticated: (user: AuthUse
                 onChange={(event) => {
                   if (mode === "login") {
                     setLoginEmail(event.target.value);
-                  } else {
+                  } else if (mode === "signup") {
                     setSignupEmail(event.target.value);
+                  } else {
+                    setPasswordResetEmail(event.target.value);
                   }
                   setVerificationEmailSent(false);
                 }}
               />
             </label>
 
-            <label className="grid gap-2 text-sm font-extrabold text-slate-700">
-              비밀번호
-              <input
-                autoComplete={mode === "login" ? "current-password" : "new-password"}
-                className="h-11 rounded-md border border-slate-300 px-3 font-medium outline-none transition focus:border-teal-700 focus:ring-2 focus:ring-teal-100"
-                placeholder="8자 이상"
-                type="password"
-                value={currentPassword}
-                onChange={(event) => {
-                  if (mode === "login") {
-                    setLoginPassword(event.target.value);
-                  } else {
-                    setSignupPassword(event.target.value);
-                    setVerificationEmailSent(false);
-                  }
-                }}
-              />
-            </label>
+            {mode !== "password-reset" && (
+              <label className="grid gap-2 text-sm font-extrabold text-slate-700">
+                비밀번호
+                <input
+                  autoComplete={mode === "login" ? "current-password" : "new-password"}
+                  className="h-11 rounded-md border border-slate-300 px-3 font-medium outline-none transition focus:border-teal-700 focus:ring-2 focus:ring-teal-100"
+                  placeholder="8자 이상"
+                  type="password"
+                  value={currentPassword}
+                  onChange={(event) => {
+                    if (mode === "login") {
+                      setLoginPassword(event.target.value);
+                    } else {
+                      setSignupPassword(event.target.value);
+                      setVerificationEmailSent(false);
+                    }
+                  }}
+                />
+              </label>
+            )}
 
             {mode === "signup" && (
               <label className="grid gap-2 text-sm font-extrabold text-slate-700">
@@ -166,8 +185,28 @@ export function AuthPanel({ onAuthenticated }: { onAuthenticated: (user: AuthUse
               disabled={busy}
               type="submit"
             >
-              {busy ? "처리 중..." : mode === "login" ? "로그인" : "회원가입"}
+              {busy ? "처리 중..." : mode === "login" ? "로그인" : mode === "signup" ? "회원가입" : "재설정 메일 보내기"}
             </button>
+
+            {mode === "login" && (
+              <button
+                className="h-10 w-fit text-sm font-extrabold text-slate-600 transition hover:text-teal-800"
+                onClick={() => switchMode("password-reset")}
+                type="button"
+              >
+                비밀번호 찾기
+              </button>
+            )}
+
+            {mode === "password-reset" && (
+              <button
+                className="h-10 w-fit text-sm font-extrabold text-slate-600 transition hover:text-teal-800"
+                onClick={() => switchMode("login")}
+                type="button"
+              >
+                로그인으로 돌아가기
+              </button>
+            )}
 
             {mode === "signup" && verificationEmailSent && (
               <button
