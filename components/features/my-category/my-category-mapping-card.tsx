@@ -56,11 +56,13 @@ export function MyCategoryMappingCard() {
       message={mappingMessage}
       onFileChange={handleMappingFileChange}
     >
-      <form className="grid gap-5" onSubmit={handleMappingSubmit}>
-        <ActionButton disabled={mappingStatus === "uploading"} loading={mappingStatus === "uploading"}>
-          {mappingStatus === "uploading" ? "저장 중..." : "마이카테 매칭 저장"}
-        </ActionButton>
-      </form>
+      {mappingFile && (
+        <form className="grid gap-5" onSubmit={handleMappingSubmit}>
+          <ActionButton disabled={mappingStatus === "uploading"} loading={mappingStatus === "uploading"}>
+            {mappingStatus === "uploading" ? "저장 중..." : "마이카테 매칭 저장"}
+          </ActionButton>
+        </form>
+      )}
 
       {mappingResult && (
         <div className="grid gap-2 rounded-md bg-teal-50 p-4 text-sm text-teal-950">
