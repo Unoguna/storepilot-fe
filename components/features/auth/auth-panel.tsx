@@ -99,26 +99,28 @@ export function AuthPanel({ onAuthenticated }: { onAuthenticated: (user: AuthUse
         </div>
 
         <div className="grid gap-5 rounded-md border border-slate-200 bg-white p-5 shadow-sm">
-          <div className="grid grid-cols-2 gap-2 rounded-md bg-slate-100 p-1">
-            <button
-              className={`h-10 rounded-md text-sm font-extrabold transition ${
-                mode === "login" ? "bg-white text-teal-800 shadow-sm" : "text-slate-600"
-              }`}
-              onClick={() => switchMode("login")}
-              type="button"
-            >
-              로그인
-            </button>
-            <button
-              className={`h-10 rounded-md text-sm font-extrabold transition ${
-                mode === "signup" ? "bg-white text-teal-800 shadow-sm" : "text-slate-600"
-              }`}
-              onClick={() => switchMode("signup")}
-              type="button"
-            >
-              회원가입
-            </button>
-          </div>
+          {mode !== "password-reset" && (
+            <div className="grid grid-cols-2 gap-2 rounded-md bg-slate-100 p-1">
+              <button
+                className={`h-10 rounded-md text-sm font-extrabold transition ${
+                  mode === "login" ? "bg-white text-teal-800 shadow-sm" : "text-slate-600"
+                }`}
+                onClick={() => switchMode("login")}
+                type="button"
+              >
+                로그인
+              </button>
+              <button
+                className={`h-10 rounded-md text-sm font-extrabold transition ${
+                  mode === "signup" ? "bg-white text-teal-800 shadow-sm" : "text-slate-600"
+                }`}
+                onClick={() => switchMode("signup")}
+                type="button"
+              >
+                회원가입
+              </button>
+            </div>
+          )}
 
           <form className="grid gap-4" onSubmit={handleSubmit}>
             <label className="grid gap-2 text-sm font-extrabold text-slate-700">
