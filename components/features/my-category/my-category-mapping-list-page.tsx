@@ -4,11 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import { getMyCategoryMappings } from "@/lib/api";
 import { MyCategoryMappingItem } from "@/types/store-pilot";
 
-type MyCategoryMappingListPageProps = {
-  onBack: () => void;
-};
-
-export function MyCategoryMappingListPage({ onBack }: MyCategoryMappingListPageProps) {
+export function MyCategoryMappingListPage() {
   const [mappings, setMappings] = useState<MyCategoryMappingItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [errorMessage, setErrorMessage] = useState("");
@@ -58,13 +54,6 @@ export function MyCategoryMappingListPage({ onBack }: MyCategoryMappingListPageP
             {mappings.length.toLocaleString()}개
           </p>
         </div>
-        <button
-          className="h-10 rounded-md border border-slate-200 px-4 text-sm font-extrabold text-slate-700 transition hover:border-teal-700 hover:text-teal-800"
-          onClick={onBack}
-          type="button"
-        >
-          돌아가기
-        </button>
       </div>
 
       <input

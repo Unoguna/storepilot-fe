@@ -143,7 +143,7 @@ export function AuthenticatedHome({ currentView = "dashboard" }: AuthenticatedHo
     }
 
     if (currentView === "my-category-mappings") {
-      return <MyCategoryMappingListPage onBack={() => router.push("/")} />;
+      return <MyCategoryMappingListPage />;
     }
 
     if (currentView === "training-product-upload") {
