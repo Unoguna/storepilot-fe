@@ -204,25 +204,27 @@ export function AuthenticatedHome({ currentView = "dashboard" }: AuthenticatedHo
             <SidebarButton active={currentView === "product-image-download"} onClick={() => moveTo("/product-images/download")}>
               상품 이미지 다운로드
             </SidebarButton>
-            {isAdmin && (
-              <SidebarButton active={currentView === "naver-category-upload"} onClick={() => moveTo("/naver-categories/upload")}>
-                네이버 카테고리 업로드
-              </SidebarButton>
-            )}
             <SidebarButton active={currentView === "my-category-upload"} onClick={() => moveTo("/my-category-mappings/upload")}>
               마이카테고리 업로드
             </SidebarButton>
-            {isAdmin && (
-              <SidebarButton active={currentView === "training-product-upload"} onClick={() => moveTo("/training-products/upload")}>
-                기존 상품 업로드
-              </SidebarButton>
-            )}
             <SidebarButton active={currentView === "my-category-mappings"} onClick={() => moveTo("/my-category-mappings")}>
               마이카테고리 조회
             </SidebarButton>
           </nav>
 
-          <div className="relative mt-auto border-t border-slate-200 pt-4" ref={accountMenuRef}>
+          {isAdmin && (
+            <nav className="mt-auto grid gap-1 border-t border-slate-200 pt-4" aria-label="관리자 메뉴">
+              <p className="px-3 pb-1 text-xs font-extrabold text-slate-400">관리자</p>
+              <SidebarButton active={currentView === "naver-category-upload"} onClick={() => moveTo("/naver-categories/upload")}>
+                네이버 카테고리 업로드
+              </SidebarButton>
+              <SidebarButton active={currentView === "training-product-upload"} onClick={() => moveTo("/training-products/upload")}>
+                기존 상품 업로드
+              </SidebarButton>
+            </nav>
+          )}
+
+          <div className="relative mt-4 border-t border-slate-200 pt-4" ref={accountMenuRef}>
             {accountMenuOpen && (
               <div
                 className="absolute bottom-full left-0 z-20 mb-2 grid w-full gap-1 rounded-md border border-slate-200 bg-white p-2 shadow-[0_18px_45px_rgba(23,33,38,0.16)]"
