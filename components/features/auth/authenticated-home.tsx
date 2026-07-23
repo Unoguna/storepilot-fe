@@ -8,11 +8,12 @@ import { MyCategoryMappingListPage } from "@/components/features/my-category/my-
 import { ProductExcelCard } from "@/components/features/product/product-excel-card";
 import { TrainingProductUploadCard } from "@/components/features/training-product/training-product-upload-card";
 import { AuthPanel } from "@/components/features/auth/auth-panel";
-import { deleteAccount, getCurrentUser, getMyCategoryMappings, logout } from "@/lib/api";
+import { deleteAccount, getCurrentUser, logout } from "@/lib/api";
 import { AuthUser } from "@/types/store-pilot";
 
 type HomeView =
   | "dashboard"
+  | "product-excel-upload"
   | "naver-category-upload"
   | "my-category-upload"
   | "my-category-mappings"
@@ -27,7 +28,6 @@ export function AuthenticatedHome({ currentView = "dashboard" }: AuthenticatedHo
   const [user, setUser] = useState<AuthUser | null>(null);
   const [loading, setLoading] = useState(true);
   const [accountMenuOpen, setAccountMenuOpen] = useState(false);
-  const [myCategoryRedirectNotified, setMyCategoryRedirectNotified] = useState(false);
   const accountMenuRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
@@ -44,33 +44,6 @@ export function AuthenticatedHome({ currentView = "dashboard" }: AuthenticatedHo
 
     restoreSession();
   }, []);
-
-  useEffect(() => {
-    if (!user || currentView !== "dashboard" || myCategoryRedirectNotified) {
-      return;
-    }
-
-    function notifyAndRedirectToMyCategoryUpload() {
-      setMyCategoryRedirectNotified(true);
-      window.alert("활성화된 마이카테고리가 없습니다. 마이카테고리 업로드를 해주세요!");
-      router.replace("/my-category-mappings/upload");
-    }
-
-    async function redirectIfMyCategoryMappingsEmpty() {
-      try {
-        const body = await getMyCategoryMappings();
-        if ((body.data?.mappings ?? []).length === 0) {
-          notifyAndRedirectToMyCategoryUpload();
-        }
-      } catch (error) {
-        if (error instanceof Error && error.message.includes("마이카테고리")) {
-          notifyAndRedirectToMyCategoryUpload();
-        }
-      }
-    }
-
-    redirectIfMyCategoryMappingsEmpty();
-  }, [currentView, myCategoryRedirectNotified, router, user]);
 
   useEffect(() => {
     function handlePointerDown(event: PointerEvent) {
@@ -134,6 +107,10 @@ export function AuthenticatedHome({ currentView = "dashboard" }: AuthenticatedHo
   const isAdmin = user.role === "ADMIN";
 
   function renderContent() {
+    if (currentView === "product-excel-upload") {
+      return <FullWidthContent><ProductExcelCard /></FullWidthContent>;
+    }
+
     if (currentView === "naver-category-upload") {
       return isAdmin ? <FullWidthContent><CategoryUploadCard /></FullWidthContent> : <AccessDeniedMessage />;
     }
@@ -150,7 +127,7 @@ export function AuthenticatedHome({ currentView = "dashboard" }: AuthenticatedHo
       return isAdmin ? <FullWidthContent><TrainingProductUploadCard /></FullWidthContent> : <AccessDeniedMessage />;
     }
 
-    return <FullWidthContent><ProductExcelCard /></FullWidthContent>;
+    return null;
   }
 
   function moveTo(path: string) {
@@ -172,6 +149,9 @@ export function AuthenticatedHome({ currentView = "dashboard" }: AuthenticatedHo
           <nav className="grid gap-1" aria-label="주요 메뉴">
             <SidebarButton active={currentView === "dashboard"} onClick={() => window.location.assign("/")}>
               홈
+            </SidebarButton>
+            <SidebarButton active={currentView === "product-excel-upload"} onClick={() => moveTo("/product-excel-jobs/upload")}>
+              상품 엑셀 업로드
             </SidebarButton>
             {isAdmin && (
               <SidebarButton active={currentView === "naver-category-upload"} onClick={() => moveTo("/naver-categories/upload")}>
