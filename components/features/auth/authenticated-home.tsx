@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { CategoryUploadCard } from "@/components/features/category/category-upload-card";
 import { MyCategoryMappingCard } from "@/components/features/my-category/my-category-mapping-card";
@@ -26,9 +26,7 @@ export function AuthenticatedHome({ currentView = "dashboard" }: AuthenticatedHo
   const router = useRouter();
   const [user, setUser] = useState<AuthUser | null>(null);
   const [loading, setLoading] = useState(true);
-  const [accountMenuOpen, setAccountMenuOpen] = useState(false);
   const [myCategoryRedirectNotified, setMyCategoryRedirectNotified] = useState(false);
-  const accountMenuRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
     async function restoreSession() {
@@ -72,32 +70,10 @@ export function AuthenticatedHome({ currentView = "dashboard" }: AuthenticatedHo
     redirectIfMyCategoryMappingsEmpty();
   }, [currentView, myCategoryRedirectNotified, router, user]);
 
-  useEffect(() => {
-    function handlePointerDown(event: PointerEvent) {
-      if (!accountMenuRef.current?.contains(event.target as Node)) {
-        setAccountMenuOpen(false);
-      }
-    }
-
-    function handleKeyDown(event: KeyboardEvent) {
-      if (event.key === "Escape") {
-        setAccountMenuOpen(false);
-      }
-    }
-
-    document.addEventListener("pointerdown", handlePointerDown);
-    document.addEventListener("keydown", handleKeyDown);
-    return () => {
-      document.removeEventListener("pointerdown", handlePointerDown);
-      document.removeEventListener("keydown", handleKeyDown);
-    };
-  }, []);
-
   async function handleLogout() {
     try {
       await logout();
     } finally {
-      setAccountMenuOpen(false);
       setUser(null);
       router.push("/");
     }
@@ -111,7 +87,6 @@ export function AuthenticatedHome({ currentView = "dashboard" }: AuthenticatedHo
 
     try {
       await deleteAccount();
-      setAccountMenuOpen(false);
       setUser(null);
       window.location.assign("/");
     } catch (error) {
@@ -154,121 +129,95 @@ export function AuthenticatedHome({ currentView = "dashboard" }: AuthenticatedHo
   }
 
   function moveTo(path: string) {
-    setAccountMenuOpen(false);
     router.push(path);
   }
 
   return (
-    <main className="min-h-screen bg-[#f5f7f6] px-4 py-8 text-[#172126] sm:px-6 lg:px-8">
-      <div className="mx-auto grid max-w-7xl gap-8">
-        <section className="grid gap-4">
-          <div className="flex flex-wrap items-start justify-between gap-4">
-            <div className="grid gap-4">
-              <button
-                className="max-w-3xl cursor-pointer text-left text-3xl font-black leading-tight tracking-normal transition hover:text-teal-800 sm:text-4xl"
-                onClick={() => window.location.assign("/")}
-                type="button"
-              >
-                StorePilot
-              </button>
-            </div>
-            <div className="relative" ref={accountMenuRef}>
-              <button
-                aria-expanded={accountMenuOpen}
-                aria-haspopup="menu"
-                className="flex min-h-11 items-center gap-2 rounded-md border border-slate-200 bg-white px-4 py-2 text-sm font-bold text-slate-700 shadow-sm transition hover:border-teal-700 hover:text-teal-800"
-                onClick={() => setAccountMenuOpen((open) => !open)}
-                type="button"
-              >
-                <span className="max-w-56 truncate">{user.email}</span>
-                <span className="text-xs text-slate-400">▾</span>
-              </button>
+    <main className="min-h-screen bg-[#f5f7f6] text-[#172126]">
+      <div className="grid min-h-screen lg:grid-cols-[280px_1fr]">
+        <aside className="flex min-h-full flex-col border-b border-slate-200 bg-white px-4 py-4 shadow-sm lg:border-b-0 lg:border-r">
+          <button
+            className="mb-5 h-11 rounded-md px-3 text-left text-xl font-black tracking-normal text-slate-950 transition hover:bg-slate-100 hover:text-teal-800"
+            onClick={() => window.location.assign("/")}
+            type="button"
+          >
+            StorePilot
+          </button>
 
-              {accountMenuOpen && (
-                <div
-                  className="absolute right-0 z-20 mt-2 grid min-w-64 gap-1 rounded-md border border-slate-200 bg-white p-2 shadow-[0_18px_45px_rgba(23,33,38,0.16)]"
-                  role="menu"
-                >
-                  <div className="border-b border-slate-100 px-3 py-2">
-                    <p className="truncate text-sm font-bold text-slate-800">{user.email}</p>
-                    <p className="mt-1 text-xs font-semibold text-slate-500">
-                      {isAdmin ? "관리자" : "사용자"}
-                    </p>
-                  </div>
-                  <button
-                    className="h-10 rounded-md px-3 text-left text-sm font-extrabold text-slate-700 transition hover:bg-slate-100 hover:text-teal-800"
-                    onClick={() => {
-                      setAccountMenuOpen(false);
-                      window.location.assign("/");
-                    }}
-                    role="menuitem"
-                    type="button"
-                  >
-                    홈
-                  </button>
-                  {isAdmin && (
-                    <button
-                      className="h-10 rounded-md px-3 text-left text-sm font-extrabold text-slate-700 transition hover:bg-slate-100 hover:text-teal-800"
-                      onClick={() => moveTo("/naver-categories/upload")}
-                      role="menuitem"
-                      type="button"
-                    >
-                      네이버 카테고리 업로드
-                    </button>
-                  )}
-                  <button
-                    className="h-10 rounded-md px-3 text-left text-sm font-extrabold text-slate-700 transition hover:bg-slate-100 hover:text-teal-800"
-                    onClick={() => moveTo("/my-category-mappings/upload")}
-                    role="menuitem"
-                    type="button"
-                  >
-                    마이카테고리 업로드
-                  </button>
-                  {isAdmin && (
-                    <button
-                      className="h-10 rounded-md px-3 text-left text-sm font-extrabold text-slate-700 transition hover:bg-slate-100 hover:text-teal-800"
-                      onClick={() => moveTo("/training-products/upload")}
-                      role="menuitem"
-                      type="button"
-                    >
-                      기존 상품 업로드
-                    </button>
-                  )}
-                  <button
-                    className="h-10 rounded-md px-3 text-left text-sm font-extrabold text-slate-700 transition hover:bg-slate-100 hover:text-teal-800"
-                    onClick={() => moveTo("/my-category-mappings")}
-                    role="menuitem"
-                    type="button"
-                  >
-                    마이카테고리 조회
-                  </button>
-                  <button
-                    className="h-10 rounded-md px-3 text-left text-sm font-extrabold text-red-600 transition hover:bg-red-50 hover:text-red-700"
-                    onClick={handleDeleteAccount}
-                    role="menuitem"
-                    type="button"
-                  >
-                    회원 탈퇴
-                  </button>
-                  <button
-                    className="h-10 rounded-md px-3 text-left text-sm font-extrabold text-red-600 transition hover:bg-red-50 hover:text-red-700"
-                    onClick={handleLogout}
-                    role="menuitem"
-                    type="button"
-                  >
-                    로그아웃
-                  </button>
-                </div>
-              )}
+          <nav className="grid gap-1" aria-label="주요 메뉴">
+            <SidebarButton active={currentView === "dashboard"} onClick={() => window.location.assign("/")}>
+              홈
+            </SidebarButton>
+            {isAdmin && (
+              <SidebarButton active={currentView === "naver-category-upload"} onClick={() => moveTo("/naver-categories/upload")}>
+                네이버 카테고리 업로드
+              </SidebarButton>
+            )}
+            <SidebarButton active={currentView === "my-category-upload"} onClick={() => moveTo("/my-category-mappings/upload")}>
+              마이카테고리 업로드
+            </SidebarButton>
+            {isAdmin && (
+              <SidebarButton active={currentView === "training-product-upload"} onClick={() => moveTo("/training-products/upload")}>
+                기존 상품 업로드
+              </SidebarButton>
+            )}
+            <SidebarButton active={currentView === "my-category-mappings"} onClick={() => moveTo("/my-category-mappings")}>
+              마이카테고리 조회
+            </SidebarButton>
+          </nav>
+
+          <div className="mt-auto grid gap-2 border-t border-slate-200 pt-4">
+            <div className="rounded-md bg-slate-50 px-3 py-2">
+              <p className="truncate text-sm font-extrabold text-slate-800">{user.email}</p>
+              <p className="mt-1 text-xs font-semibold text-slate-500">{isAdmin ? "관리자" : "사용자"}</p>
             </div>
+            <button
+              className="h-10 rounded-md px-3 text-left text-sm font-extrabold text-red-600 transition hover:bg-red-50 hover:text-red-700"
+              onClick={handleDeleteAccount}
+              type="button"
+            >
+              회원 탈퇴
+            </button>
+            <button
+              className="h-10 rounded-md px-3 text-left text-sm font-extrabold text-red-600 transition hover:bg-red-50 hover:text-red-700"
+              onClick={handleLogout}
+              type="button"
+            >
+              로그아웃
+            </button>
           </div>
-        </section>
+        </aside>
 
-        <section className="grid gap-5 lg:grid-cols-2">
+        <section className="grid content-start gap-5 px-4 py-6 sm:px-6 lg:grid-cols-2 lg:px-8 lg:py-8">
           {renderContent()}
         </section>
       </div>
     </main>
+  );
+}
+
+function SidebarButton({
+  active,
+  children,
+  onClick,
+}: {
+  active: boolean;
+  children: React.ReactNode;
+  onClick: () => void;
+}) {
+  return (
+    <button
+      className={[
+        "min-h-10 rounded-md px-3 py-2 text-left text-sm font-extrabold transition",
+        active
+          ? "bg-teal-50 text-teal-900"
+          : "text-slate-700 hover:bg-slate-100 hover:text-teal-800",
+      ].join(" ")}
+      onClick={onClick}
+      type="button"
+    >
+      {children}
+    </button>
   );
 }
 
