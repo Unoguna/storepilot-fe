@@ -5,13 +5,17 @@ import { ActionButton } from "@/components/ui/action-button";
 import { UploadCard } from "@/components/ui/upload-card";
 import { statusClassName } from "@/components/ui/upload-status";
 import {
-  downloadImageZip,
   createProductExcelJob,
   downloadProductExcelJobResult,
   getProductExcelJobStatus,
 } from "@/lib/api";
-import { chooseSaveHandle, downloadBlob, parseFilename, saveBlobToHandle } from "@/lib/file-download";
-import { labelForFile, removeExcelExtension } from "@/lib/format";
+import {
+  chooseSaveHandle,
+  downloadBlob,
+  parseFilename,
+  saveBlobToHandle,
+} from "@/lib/file-download";
+import { labelForFile } from "@/lib/format";
 import { ProductExcelJobProgress, RequestState } from "@/types/store-pilot";
 
 const STATUS_POLL_INTERVAL_MS = 1000;
@@ -36,8 +40,6 @@ export function ProductExcelCard() {
   const [excelStatus, setExcelStatus] = useState<RequestState>("idle");
   const [excelMessage, setExcelMessage] = useState("");
   const [jobProgress, setJobProgress] = useState<ProductExcelJobProgress | null>(null);
-  const [imageStatus, setImageStatus] = useState<RequestState>("idle");
-  const [imageMessage, setImageMessage] = useState("");
 
   const productFileLabel = useMemo(() => labelForFile(productFile), [productFile]);
 
@@ -46,9 +48,7 @@ export function ProductExcelCard() {
     setProductFile(selectedFile);
     setExcelStatus(selectedFile ? "ready" : "idle");
     setJobProgress(null);
-    setImageStatus(selectedFile ? "ready" : "idle");
     setExcelMessage(selectedFile ? "상품 엑셀 파일이 선택되었습니다." : "상품 엑셀 파일을 선택하세요.");
-    setImageMessage(selectedFile ? "이미지 ZIP을 저장할 수 있습니다." : "상품 엑셀 파일을 선택하세요.");
   }
 
   async function handleExcelSubmit(event: FormEvent<HTMLFormElement>) {
@@ -118,59 +118,16 @@ export function ProductExcelCard() {
     }
   }
 
-  async function handleImageSubmit(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-
-    if (!productFile) {
-      setImageStatus("error");
-      setImageMessage("이미지를 저장할 상품 엑셀 파일을 선택해주세요.");
-      return;
-    }
-
-    const fallbackFilename = `product_images_${removeExcelExtension(productFile.name)}.zip`;
-    const saveHandle = await chooseSaveHandle(fallbackFilename, "ZIP archive", {
-      "application/zip": [".zip"],
-    });
-    if (saveHandle === "cancelled") {
-      setImageStatus("ready");
-      setImageMessage("저장 위치 선택이 취소되었습니다.");
-      return;
-    }
-
-    setImageStatus("uploading");
-    setImageMessage("목록이미지1 URL의 이미지를 ZIP으로 묶는 중입니다...");
-
-    try {
-      const response = await downloadImageZip(productFile);
-      const blob = await response.blob();
-      const responseFilename = parseFilename(response.headers.get("Content-Disposition")) ?? fallbackFilename;
-      const savedCount = response.headers.get("X-Saved-Image-Count") ?? "0";
-      const failedCount = response.headers.get("X-Failed-Image-Count") ?? "0";
-
-      if (saveHandle) {
-        await saveBlobToHandle(blob, saveHandle);
-      } else {
-        downloadBlob(blob, responseFilename);
-      }
-
-      setImageStatus("success");
-      setImageMessage(`이미지 ZIP 저장 완료: 성공 ${Number(savedCount).toLocaleString()}개, 실패/건너뜀 ${Number(failedCount).toLocaleString()}개`);
-    } catch (error) {
-      setImageStatus("error");
-      setImageMessage(error instanceof Error ? error.message : "이미지 ZIP 저장 중 오류가 발생했습니다.");
-    }
-  }
-
   return (
     <UploadCard
-      title="상품 엑셀 업로드"
+      title="상품 카테고리 분류 및 키워드 찾기"
       fileLabel={productFileLabel}
-      status={excelStatus === "uploading" ? excelStatus : imageStatus === "uploading" ? imageStatus : excelStatus}
+      status={excelStatus}
       message=""
       onFileChange={handleProductFileChange}
     >
       {productFile && (
-        <div className="grid gap-3 sm:grid-cols-2">
+        <div className="grid gap-3">
           <form className="grid gap-2" onSubmit={handleExcelSubmit}>
             <ActionButton disabled={excelStatus === "uploading"} loading={excelStatus === "uploading"}>
               {excelStatus === "uploading" ? "카테고리 찾는 중..." : "결과 엑셀 저장"}
@@ -214,13 +171,6 @@ export function ProductExcelCard() {
                 </dl>
               </div>
             )}
-          </form>
-
-          <form className="grid gap-2" onSubmit={handleImageSubmit}>
-            <ActionButton disabled={imageStatus === "uploading"} loading={imageStatus === "uploading"}>
-              {imageStatus === "uploading" ? "ZIP 저장 중..." : "이미지 ZIP 저장"}
-            </ActionButton>
-            <p className={statusClassName(imageStatus)}>{imageMessage}</p>
           </form>
         </div>
       )}

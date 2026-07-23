@@ -69,6 +69,34 @@ export type ProductExcelJobStatusResponse = {
   code?: string;
 };
 
+export type ProductImageDownloadItem = {
+  rowNumber: number;
+  name: string;
+  filename: string;
+  url: string;
+};
+
+export type ProductImageDownloadFailure = {
+  rowNumber: number;
+  name: string;
+  url: string;
+  reason: string;
+};
+
+export type ProductImageDownloadPrepareResult = {
+  imageCount: number;
+  failedCount: number;
+  images: ProductImageDownloadItem[];
+  failures: ProductImageDownloadFailure[];
+};
+
+export type ProductImageDownloadPrepareResponse = {
+  success: boolean;
+  data?: ProductImageDownloadPrepareResult;
+  message?: string;
+  code?: string;
+};
+
 export type CategoryUploadResult = {
   versionId: number;
   sourceFilename: string;
@@ -151,6 +179,10 @@ export type FileSystemFileHandle = {
   createWritable: () => Promise<FileSystemWritableFileStream>;
 };
 
+export type FileSystemDirectoryHandle = {
+  getFileHandle: (name: string, options?: { create?: boolean }) => Promise<FileSystemFileHandle>;
+};
+
 export type SaveFilePickerOptions = {
   suggestedName?: string;
   types?: Array<{
@@ -161,4 +193,5 @@ export type SaveFilePickerOptions = {
 
 export type WindowWithSavePicker = Window & {
   showSaveFilePicker?: (options?: SaveFilePickerOptions) => Promise<FileSystemFileHandle>;
+  showDirectoryPicker?: () => Promise<FileSystemDirectoryHandle>;
 };
