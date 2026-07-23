@@ -5,14 +5,23 @@ import { ActionButton } from "@/components/ui/action-button";
 import { UploadCard } from "@/components/ui/upload-card";
 import { statusClassName } from "@/components/ui/upload-status";
 import {
-  downloadImageZip,
   createProductExcelJob,
+  downloadProductImage,
   downloadProductExcelJobResult,
   getProductExcelJobStatus,
+  prepareImageDownloads,
 } from "@/lib/api";
-import { chooseSaveHandle, downloadBlob, parseFilename, saveBlobToHandle } from "@/lib/file-download";
-import { labelForFile, removeExcelExtension } from "@/lib/format";
-import { ProductExcelJobProgress, RequestState } from "@/types/store-pilot";
+import {
+  chooseDirectoryHandle,
+  chooseSaveHandle,
+  downloadBlob,
+  parseFilename,
+  saveBlobToDirectory,
+  saveBlobToHandle,
+  saveTextToDirectory,
+} from "@/lib/file-download";
+import { labelForFile } from "@/lib/format";
+import { ProductExcelJobProgress, ProductImageDownloadFailure, RequestState } from "@/types/store-pilot";
 
 const STATUS_POLL_INTERVAL_MS = 1000;
 
@@ -48,7 +57,7 @@ export function ProductExcelCard() {
     setJobProgress(null);
     setImageStatus(selectedFile ? "ready" : "idle");
     setExcelMessage(selectedFile ? "상품 엑셀 파일이 선택되었습니다." : "상품 엑셀 파일을 선택하세요.");
-    setImageMessage(selectedFile ? "이미지 ZIP을 저장할 수 있습니다." : "상품 엑셀 파일을 선택하세요.");
+    setImageMessage(selectedFile ? "이미지를 폴더에 저장할 수 있습니다." : "상품 엑셀 파일을 선택하세요.");
   }
 
   async function handleExcelSubmit(event: FormEvent<HTMLFormElement>) {
@@ -127,37 +136,58 @@ export function ProductExcelCard() {
       return;
     }
 
-    const fallbackFilename = `product_images_${removeExcelExtension(productFile.name)}.zip`;
-    const saveHandle = await chooseSaveHandle(fallbackFilename, "ZIP archive", {
-      "application/zip": [".zip"],
-    });
-    if (saveHandle === "cancelled") {
+    const directoryHandle = await chooseDirectoryHandle();
+    if (directoryHandle === null) {
+      setImageStatus("error");
+      setImageMessage("폴더 저장은 Chrome 또는 Edge 브라우저에서 사용할 수 있습니다.");
+      return;
+    }
+    if (directoryHandle === "cancelled") {
       setImageStatus("ready");
-      setImageMessage("저장 위치 선택이 취소되었습니다.");
+      setImageMessage("저장 폴더 선택이 취소되었습니다.");
       return;
     }
 
     setImageStatus("uploading");
-    setImageMessage("목록이미지1 URL의 이미지를 ZIP으로 묶는 중입니다...");
+    setImageMessage("목록이미지1 URL을 읽는 중입니다...");
 
     try {
-      const response = await downloadImageZip(productFile);
-      const blob = await response.blob();
-      const responseFilename = parseFilename(response.headers.get("Content-Disposition")) ?? fallbackFilename;
-      const savedCount = response.headers.get("X-Saved-Image-Count") ?? "0";
-      const failedCount = response.headers.get("X-Failed-Image-Count") ?? "0";
+      const prepareBody = await prepareImageDownloads(productFile);
+      if (!prepareBody.data) {
+        throw new Error(prepareBody.message ?? "이미지 다운로드 목록을 만들지 못했습니다.");
+      }
 
-      if (saveHandle) {
-        await saveBlobToHandle(blob, saveHandle);
-      } else {
-        downloadBlob(blob, responseFilename);
+      const { images } = prepareBody.data;
+      const failures: ProductImageDownloadFailure[] = [...prepareBody.data.failures];
+      let savedCount = 0;
+
+      for (let index = 0; index < images.length; index++) {
+        const image = images[index];
+        setImageMessage(`이미지 저장 중: ${index + 1} / ${images.length}`);
+        try {
+          const response = await downloadProductImage(image.url);
+          const blob = await response.blob();
+          await saveBlobToDirectory(blob, directoryHandle, image.filename);
+          savedCount++;
+        } catch (error) {
+          failures.push({
+            rowNumber: image.rowNumber,
+            name: image.name,
+            url: image.url,
+            reason: error instanceof Error ? error.message : "이미지를 저장하지 못했습니다.",
+          });
+        }
+      }
+
+      if (failures.length > 0) {
+        await saveTextToDirectory(formatImageFailures(failures), directoryHandle, "failed_images.txt");
       }
 
       setImageStatus("success");
-      setImageMessage(`이미지 ZIP 저장 완료: 성공 ${Number(savedCount).toLocaleString()}개, 실패/건너뜀 ${Number(failedCount).toLocaleString()}개`);
+      setImageMessage(`이미지 폴더 저장 완료: 성공 ${savedCount.toLocaleString()}개, 실패/건너뜀 ${failures.length.toLocaleString()}개`);
     } catch (error) {
       setImageStatus("error");
-      setImageMessage(error instanceof Error ? error.message : "이미지 ZIP 저장 중 오류가 발생했습니다.");
+      setImageMessage(error instanceof Error ? error.message : "이미지 저장 중 오류가 발생했습니다.");
     }
   }
 
@@ -218,7 +248,7 @@ export function ProductExcelCard() {
 
           <form className="grid gap-2" onSubmit={handleImageSubmit}>
             <ActionButton disabled={imageStatus === "uploading"} loading={imageStatus === "uploading"}>
-              {imageStatus === "uploading" ? "ZIP 저장 중..." : "이미지 ZIP 저장"}
+              {imageStatus === "uploading" ? "이미지 저장 중..." : "이미지 폴더 저장"}
             </ActionButton>
             <p className={statusClassName(imageStatus)}>{imageMessage}</p>
           </form>
@@ -227,4 +257,21 @@ export function ProductExcelCard() {
 
     </UploadCard>
   );
+}
+
+function formatImageFailures(failures: ProductImageDownloadFailure[]) {
+  const lines = ["row\tname\turl\treason"];
+  for (const failure of failures) {
+    lines.push([
+      failure.rowNumber,
+      sanitizeFailureField(failure.name),
+      sanitizeFailureField(failure.url),
+      sanitizeFailureField(failure.reason),
+    ].join("\t"));
+  }
+  return `${lines.join("\n")}\n`;
+}
+
+function sanitizeFailureField(value: string) {
+  return value.replaceAll("\t", " ").replaceAll("\n", " ").replaceAll("\r", " ");
 }

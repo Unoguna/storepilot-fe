@@ -1,4 +1,4 @@
-import { FileSystemFileHandle, WindowWithSavePicker } from "@/types/store-pilot";
+import { FileSystemDirectoryHandle, FileSystemFileHandle, WindowWithSavePicker } from "@/types/store-pilot";
 
 export async function chooseSaveHandle(
   suggestedName: string,
@@ -32,6 +32,31 @@ export async function saveBlobToHandle(blob: Blob, fileHandle: FileSystemFileHan
   const writable = await fileHandle.createWritable();
   await writable.write(blob);
   await writable.close();
+}
+
+export async function chooseDirectoryHandle(): Promise<FileSystemDirectoryHandle | null | "cancelled"> {
+  const directoryPicker = (window as WindowWithSavePicker).showDirectoryPicker;
+  if (!directoryPicker) {
+    return null;
+  }
+
+  try {
+    return await directoryPicker();
+  } catch (error) {
+    if (error instanceof DOMException && error.name === "AbortError") {
+      return "cancelled";
+    }
+    throw error;
+  }
+}
+
+export async function saveBlobToDirectory(blob: Blob, directoryHandle: FileSystemDirectoryHandle, filename: string) {
+  const fileHandle = await directoryHandle.getFileHandle(filename, { create: true });
+  await saveBlobToHandle(blob, fileHandle);
+}
+
+export async function saveTextToDirectory(text: string, directoryHandle: FileSystemDirectoryHandle, filename: string) {
+  await saveBlobToDirectory(new Blob([text], { type: "text/plain;charset=utf-8" }), directoryHandle, filename);
 }
 
 export function parseFilename(contentDisposition: string | null) {
