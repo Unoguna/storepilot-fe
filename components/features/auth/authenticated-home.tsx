@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { CategoryUploadCard } from "@/components/features/category/category-upload-card";
 import { MyCategoryMappingCard } from "@/components/features/my-category/my-category-mapping-card";
@@ -173,11 +174,19 @@ export function AuthenticatedHome({ currentView = "dashboard" }: AuthenticatedHo
       <div className="grid min-h-screen lg:grid-cols-[280px_1fr]">
         <aside className="flex min-h-full flex-col border-b border-slate-200 bg-white px-4 py-4 shadow-sm lg:border-b-0 lg:border-r">
           <button
-            className="mb-5 h-11 rounded-md px-3 text-left text-xl font-black tracking-normal text-slate-950 transition hover:bg-slate-100 hover:text-teal-800"
+            className="mb-5 flex h-11 items-center gap-2 rounded-md px-3 text-left text-xl font-black tracking-normal text-slate-950 transition hover:bg-slate-100 hover:text-teal-800"
             onClick={() => window.location.assign("/")}
             type="button"
           >
-            StorePilot
+            <Image
+              alt=""
+              aria-hidden="true"
+              className="size-8 shrink-0 rounded-full"
+              height={32}
+              src="/storepilot-logo-green.png"
+              width={32}
+            />
+            <span>StorePilot</span>
           </button>
 
           <nav className="grid gap-1" aria-label="주요 메뉴">
