@@ -5,6 +5,7 @@ import {
   MessageResponse,
   MyCategoryMappingListResponse,
   MyCategoryMappingUploadResponse,
+  ProductImageDownloadPrepareResponse,
   ProductExcelJobCreateResponse,
   ProductExcelJobStatusResponse,
   TrainingProductUploadResponse,
@@ -13,7 +14,8 @@ import {
 const API_BASE = resolveApiBase();
 
 const PRODUCT_EXCEL_JOB_URL = `${API_BASE}/api/v1/product-excel-jobs`;
-const IMAGE_ZIP_DOWNLOAD_URL = `${API_BASE}/api/v1/product-excel-jobs/images/download-zip`;
+const IMAGE_DOWNLOAD_PREPARE_URL = `${API_BASE}/api/v1/product-excel-jobs/images/prepare`;
+const IMAGE_DOWNLOAD_URL = `${API_BASE}/api/v1/product-excel-jobs/images/download`;
 const CATEGORY_UPLOAD_URL = `${API_BASE}/api/v1/admin/naver-categories/upload`;
 const MY_CATEGORY_MAPPING_URL = `${API_BASE}/api/v1/my-category-mappings`;
 const TRAINING_PRODUCT_UPLOAD_URL = `${API_BASE}/api/v1/admin/training-products/rebuild`;
@@ -159,13 +161,27 @@ export async function downloadProductExcelJobResult(jobId: number) {
   return response;
 }
 
-export async function downloadImageZip(file: File) {
+export async function prepareImageDownloads(file: File) {
   const formData = new FormData();
   formData.append("file", file);
 
-  const response = await fetchWithAuth(IMAGE_ZIP_DOWNLOAD_URL, {
+  const response = await fetchWithAuth(IMAGE_DOWNLOAD_PREPARE_URL, {
     method: "POST",
     body: formData,
+  });
+
+  if (!response.ok) {
+    throw new Error(await readErrorMessage(response));
+  }
+
+  return (await response.json()) as ProductImageDownloadPrepareResponse;
+}
+
+export async function downloadProductImage(url: string) {
+  const response = await fetchWithAuth(IMAGE_DOWNLOAD_URL, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ url }),
   });
 
   if (!response.ok) {
