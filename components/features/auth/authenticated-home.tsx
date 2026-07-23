@@ -6,6 +6,7 @@ import { CategoryUploadCard } from "@/components/features/category/category-uplo
 import { MyCategoryMappingCard } from "@/components/features/my-category/my-category-mapping-card";
 import { MyCategoryMappingListPage } from "@/components/features/my-category/my-category-mapping-list-page";
 import { ProductExcelCard } from "@/components/features/product/product-excel-card";
+import { ProductImageDownloadCard } from "@/components/features/product/product-image-download-card";
 import { TrainingProductUploadCard } from "@/components/features/training-product/training-product-upload-card";
 import { AuthPanel } from "@/components/features/auth/auth-panel";
 import { deleteAccount, getCurrentUser, logout } from "@/lib/api";
@@ -14,6 +15,7 @@ import { AuthUser } from "@/types/store-pilot";
 type HomeView =
   | "dashboard"
   | "product-excel-upload"
+  | "product-image-download"
   | "naver-category-upload"
   | "my-category-upload"
   | "my-category-mappings"
@@ -111,6 +113,10 @@ export function AuthenticatedHome({ currentView = "dashboard" }: AuthenticatedHo
       return <FullWidthContent><ProductExcelCard /></FullWidthContent>;
     }
 
+    if (currentView === "product-image-download") {
+      return <FullWidthContent><ProductImageDownloadCard /></FullWidthContent>;
+    }
+
     if (currentView === "naver-category-upload") {
       return isAdmin ? <FullWidthContent><CategoryUploadCard /></FullWidthContent> : <AccessDeniedMessage />;
     }
@@ -152,6 +158,9 @@ export function AuthenticatedHome({ currentView = "dashboard" }: AuthenticatedHo
             </SidebarButton>
             <SidebarButton active={currentView === "product-excel-upload"} onClick={() => moveTo("/product-excel-jobs/upload")}>
               상품 카테고리 분류 및 키워드 찾기
+            </SidebarButton>
+            <SidebarButton active={currentView === "product-image-download"} onClick={() => moveTo("/product-images/download")}>
+              상품 이미지 다운로드
             </SidebarButton>
             {isAdmin && (
               <SidebarButton active={currentView === "naver-category-upload"} onClick={() => moveTo("/naver-categories/upload")}>
