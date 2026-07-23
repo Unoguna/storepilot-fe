@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { CategoryUploadCard } from "@/components/features/category/category-upload-card";
 import { MyCategoryMappingCard } from "@/components/features/my-category/my-category-mapping-card";
@@ -26,7 +26,9 @@ export function AuthenticatedHome({ currentView = "dashboard" }: AuthenticatedHo
   const router = useRouter();
   const [user, setUser] = useState<AuthUser | null>(null);
   const [loading, setLoading] = useState(true);
+  const [accountMenuOpen, setAccountMenuOpen] = useState(false);
   const [myCategoryRedirectNotified, setMyCategoryRedirectNotified] = useState(false);
+  const accountMenuRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
     async function restoreSession() {
@@ -70,10 +72,32 @@ export function AuthenticatedHome({ currentView = "dashboard" }: AuthenticatedHo
     redirectIfMyCategoryMappingsEmpty();
   }, [currentView, myCategoryRedirectNotified, router, user]);
 
+  useEffect(() => {
+    function handlePointerDown(event: PointerEvent) {
+      if (!accountMenuRef.current?.contains(event.target as Node)) {
+        setAccountMenuOpen(false);
+      }
+    }
+
+    function handleKeyDown(event: KeyboardEvent) {
+      if (event.key === "Escape") {
+        setAccountMenuOpen(false);
+      }
+    }
+
+    document.addEventListener("pointerdown", handlePointerDown);
+    document.addEventListener("keydown", handleKeyDown);
+    return () => {
+      document.removeEventListener("pointerdown", handlePointerDown);
+      document.removeEventListener("keydown", handleKeyDown);
+    };
+  }, []);
+
   async function handleLogout() {
     try {
       await logout();
     } finally {
+      setAccountMenuOpen(false);
       setUser(null);
       router.push("/");
     }
@@ -87,6 +111,7 @@ export function AuthenticatedHome({ currentView = "dashboard" }: AuthenticatedHo
 
     try {
       await deleteAccount();
+      setAccountMenuOpen(false);
       setUser(null);
       window.location.assign("/");
     } catch (error) {
@@ -166,24 +191,39 @@ export function AuthenticatedHome({ currentView = "dashboard" }: AuthenticatedHo
             </SidebarButton>
           </nav>
 
-          <div className="mt-auto grid gap-2 border-t border-slate-200 pt-4">
-            <div className="rounded-md bg-slate-50 px-3 py-2">
-              <p className="truncate text-sm font-extrabold text-slate-800">{user.email}</p>
-              <p className="mt-1 text-xs font-semibold text-slate-500">{isAdmin ? "관리자" : "사용자"}</p>
-            </div>
+          <div className="relative mt-auto border-t border-slate-200 pt-4" ref={accountMenuRef}>
+            {accountMenuOpen && (
+              <div
+                className="absolute bottom-full left-0 z-20 mb-2 grid w-full gap-1 rounded-md border border-slate-200 bg-white p-2 shadow-[0_18px_45px_rgba(23,33,38,0.16)]"
+                role="menu"
+              >
+                <button
+                  className="h-10 rounded-md px-3 text-left text-sm font-extrabold text-red-600 transition hover:bg-red-50 hover:text-red-700"
+                  onClick={handleDeleteAccount}
+                  role="menuitem"
+                  type="button"
+                >
+                  회원 탈퇴
+                </button>
+                <button
+                  className="h-10 rounded-md px-3 text-left text-sm font-extrabold text-red-600 transition hover:bg-red-50 hover:text-red-700"
+                  onClick={handleLogout}
+                  role="menuitem"
+                  type="button"
+                >
+                  로그아웃
+                </button>
+              </div>
+            )}
             <button
-              className="h-10 rounded-md px-3 text-left text-sm font-extrabold text-red-600 transition hover:bg-red-50 hover:text-red-700"
-              onClick={handleDeleteAccount}
+              aria-expanded={accountMenuOpen}
+              aria-haspopup="menu"
+              className="w-full rounded-md bg-white px-3 py-2 text-left transition hover:bg-slate-100"
+              onClick={() => setAccountMenuOpen((open) => !open)}
               type="button"
             >
-              회원 탈퇴
-            </button>
-            <button
-              className="h-10 rounded-md px-3 text-left text-sm font-extrabold text-red-600 transition hover:bg-red-50 hover:text-red-700"
-              onClick={handleLogout}
-              type="button"
-            >
-              로그아웃
+              <span className="block truncate text-sm font-extrabold text-slate-800">{user.email}</span>
+              <span className="mt-1 block text-xs font-semibold text-slate-500">{isAdmin ? "관리자" : "사용자"}</span>
             </button>
           </div>
         </aside>
