@@ -18,7 +18,6 @@ import {
   parseFilename,
   saveBlobToDirectory,
   saveBlobToHandle,
-  saveTextToDirectory,
 } from "@/lib/file-download";
 import { labelForFile } from "@/lib/format";
 import { ProductExcelJobProgress, ProductImageDownloadFailure, RequestState } from "@/types/store-pilot";
@@ -47,6 +46,7 @@ export function ProductExcelCard() {
   const [jobProgress, setJobProgress] = useState<ProductExcelJobProgress | null>(null);
   const [imageStatus, setImageStatus] = useState<RequestState>("idle");
   const [imageMessage, setImageMessage] = useState("");
+  const [imageFailures, setImageFailures] = useState<ProductImageDownloadFailure[]>([]);
 
   const productFileLabel = useMemo(() => labelForFile(productFile), [productFile]);
 
@@ -56,6 +56,7 @@ export function ProductExcelCard() {
     setExcelStatus(selectedFile ? "ready" : "idle");
     setJobProgress(null);
     setImageStatus(selectedFile ? "ready" : "idle");
+    setImageFailures([]);
     setExcelMessage(selectedFile ? "상품 엑셀 파일이 선택되었습니다." : "상품 엑셀 파일을 선택하세요.");
     setImageMessage(selectedFile ? "이미지를 폴더에 저장할 수 있습니다." : "상품 엑셀 파일을 선택하세요.");
   }
@@ -149,6 +150,7 @@ export function ProductExcelCard() {
     }
 
     setImageStatus("uploading");
+    setImageFailures([]);
     setImageMessage("목록이미지1 URL을 읽는 중입니다...");
 
     try {
@@ -179,10 +181,7 @@ export function ProductExcelCard() {
         }
       }
 
-      if (failures.length > 0) {
-        await saveTextToDirectory(formatImageFailures(failures), directoryHandle, "failed_images.txt");
-      }
-
+      setImageFailures(failures);
       setImageStatus("success");
       setImageMessage(`이미지 폴더 저장 완료: 성공 ${savedCount.toLocaleString()}개, 실패/건너뜀 ${failures.length.toLocaleString()}개`);
     } catch (error) {
@@ -251,27 +250,32 @@ export function ProductExcelCard() {
               {imageStatus === "uploading" ? "이미지 저장 중..." : "이미지 폴더 저장"}
             </ActionButton>
             <p className={statusClassName(imageStatus)}>{imageMessage}</p>
+            {imageFailures.length > 0 && (
+              <div className="max-h-56 overflow-auto rounded-md border border-rose-200 bg-rose-50">
+                <table className="min-w-full border-collapse text-left text-xs">
+                  <thead className="sticky top-0 bg-rose-100 text-rose-900">
+                    <tr>
+                      <th className="whitespace-nowrap px-3 py-2 font-bold">행</th>
+                      <th className="whitespace-nowrap px-3 py-2 font-bold">파일명</th>
+                      <th className="whitespace-nowrap px-3 py-2 font-bold">이유</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-rose-100 text-rose-950">
+                    {imageFailures.map((failure) => (
+                      <tr key={`${failure.rowNumber}-${failure.name}-${failure.url}`}>
+                        <td className="whitespace-nowrap px-3 py-2 font-semibold">{failure.rowNumber}</td>
+                        <td className="min-w-24 px-3 py-2">{failure.name || "-"}</td>
+                        <td className="min-w-48 px-3 py-2">{failure.reason || "이미지를 저장하지 못했습니다."}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
           </form>
         </div>
       )}
 
     </UploadCard>
   );
-}
-
-function formatImageFailures(failures: ProductImageDownloadFailure[]) {
-  const lines = ["row\tname\turl\treason"];
-  for (const failure of failures) {
-    lines.push([
-      failure.rowNumber,
-      sanitizeFailureField(failure.name),
-      sanitizeFailureField(failure.url),
-      sanitizeFailureField(failure.reason),
-    ].join("\t"));
-  }
-  return `${lines.join("\n")}\n`;
-}
-
-function sanitizeFailureField(value: string) {
-  return value.replaceAll("\t", " ").replaceAll("\n", " ").replaceAll("\r", " ");
 }

@@ -55,10 +55,6 @@ export async function saveBlobToDirectory(blob: Blob, directoryHandle: FileSyste
   await saveBlobToHandle(blob, fileHandle);
 }
 
-export async function saveTextToDirectory(text: string, directoryHandle: FileSystemDirectoryHandle, filename: string) {
-  await saveBlobToDirectory(new Blob([text], { type: "text/plain;charset=utf-8" }), directoryHandle, filename);
-}
-
 export function parseFilename(contentDisposition: string | null) {
   if (!contentDisposition) {
     return null;
