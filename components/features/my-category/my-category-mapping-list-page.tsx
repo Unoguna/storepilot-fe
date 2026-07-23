@@ -49,7 +49,7 @@ export function MyCategoryMappingListPage() {
     <section className="grid gap-5 rounded-md border border-slate-200 bg-white p-5 shadow-sm lg:col-span-2">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
-          <h2 className="text-2xl font-black tracking-normal text-slate-950">마이카테고리 조회</h2>
+          <h2 className="text-xl font-black tracking-normal text-slate-950">마이카테고리 조회</h2>
           <p className="mt-1 text-sm font-bold text-slate-500">
             {mappings.length.toLocaleString()}개
           </p>
