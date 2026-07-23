@@ -33,6 +33,7 @@ export function AuthenticatedHome({ currentView = "dashboard" }: AuthenticatedHo
   const [accountMenuOpen, setAccountMenuOpen] = useState(false);
   const [myCategoryRedirectNotified, setMyCategoryRedirectNotified] = useState(false);
   const accountMenuRef = useRef<HTMLDivElement | null>(null);
+  const myCategoryRedirectRef = useRef(false);
 
   useEffect(() => {
     async function restoreSession() {
@@ -50,11 +51,15 @@ export function AuthenticatedHome({ currentView = "dashboard" }: AuthenticatedHo
   }, []);
 
   useEffect(() => {
-    if (!user || currentView !== "product-excel-upload" || myCategoryRedirectNotified) {
+    if (!user || currentView !== "product-excel-upload" || myCategoryRedirectNotified || myCategoryRedirectRef.current) {
       return;
     }
 
     function notifyAndRedirectToMyCategoryUpload() {
+      if (myCategoryRedirectRef.current) {
+        return;
+      }
+      myCategoryRedirectRef.current = true;
       setMyCategoryRedirectNotified(true);
       window.alert("활성화된 마이카테고리가 없습니다. 마이카테고리 업로드를 해주세요!");
       router.replace("/my-category-mappings/upload");
