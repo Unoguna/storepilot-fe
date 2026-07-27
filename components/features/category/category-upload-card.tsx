@@ -1,6 +1,7 @@
 "use client";
 
 import { ChangeEvent, FormEvent, useMemo, useState } from "react";
+import { FolderUp } from "lucide-react";
 import { ActionButton } from "@/components/ui/action-button";
 import { ResultRow } from "@/components/ui/result-row";
 import { UploadCard } from "@/components/ui/upload-card";
@@ -51,6 +52,7 @@ export function CategoryUploadCard() {
   return (
     <UploadCard
       title="네이버 카테고리 리스트 업로드"
+      icon={FolderUp}
       fileLabel={categoryFileLabel}
       status={categoryStatus}
       message={categoryMessage}

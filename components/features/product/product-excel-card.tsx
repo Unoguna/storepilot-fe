@@ -1,6 +1,7 @@
 "use client";
 
 import { ChangeEvent, FormEvent, useMemo, useState } from "react";
+import { SearchCheck } from "lucide-react";
 import { ActionButton } from "@/components/ui/action-button";
 import { UploadCard } from "@/components/ui/upload-card";
 import { statusClassName } from "@/components/ui/upload-status";
@@ -122,6 +123,7 @@ export function ProductExcelCard() {
   return (
     <UploadCard
       title="카테고리 및 키워드 찾기"
+      icon={SearchCheck}
       fileLabel={productFileLabel}
       status={excelStatus}
       message=""

@@ -1,9 +1,9 @@
 "use client";
 
 import { ChangeEvent, FormEvent, useMemo, useState } from "react";
+import { ImageDown } from "lucide-react";
 import { ActionButton } from "@/components/ui/action-button";
 import { UploadCard } from "@/components/ui/upload-card";
-import { statusClassName } from "@/components/ui/upload-status";
 import { downloadProductImage, prepareImageDownloads } from "@/lib/api";
 import { chooseDirectoryHandle, saveBlobToDirectory } from "@/lib/file-download";
 import { labelForFile } from "@/lib/format";
@@ -90,6 +90,7 @@ export function ProductImageDownloadCard() {
   return (
     <UploadCard
       title="상품 이미지 다운로드"
+      icon={ImageDown}
       fileLabel={productFileLabel}
       status={imageStatus}
       message={imageMessage}
@@ -100,7 +101,6 @@ export function ProductImageDownloadCard() {
           <ActionButton disabled={imageStatus === "uploading"} loading={imageStatus === "uploading"}>
             {imageStatus === "uploading" ? "이미지 저장 중..." : "이미지 폴더 저장"}
           </ActionButton>
-          <p className={statusClassName(imageStatus)}>{imageMessage}</p>
           {imageFailures.length > 0 && (
             <div className="max-h-56 overflow-auto rounded-md border border-rose-200 bg-rose-50">
               <table className="min-w-full border-collapse text-left text-xs">
