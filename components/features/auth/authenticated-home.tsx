@@ -179,7 +179,7 @@ export function AuthenticatedHome({ currentView = "dashboard" }: AuthenticatedHo
       <div className="grid min-h-screen lg:grid-cols-[280px_1fr]">
         <aside className="flex min-h-full flex-col border-b border-slate-200 bg-white px-4 py-4 shadow-sm lg:border-b-0 lg:border-r">
           <button
-            className="mb-5 flex h-11 cursor-pointer items-center gap-2 rounded-md px-3 text-left text-xl font-black tracking-normal text-slate-950 transition hover:bg-slate-100 hover:text-teal-800"
+            className="mb-5 flex h-11 cursor-pointer items-center gap-2 rounded-md px-3 text-left text-xl font-black tracking-normal text-slate-950"
             onClick={() => window.location.assign("/")}
             type="button"
           >
