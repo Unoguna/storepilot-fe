@@ -179,7 +179,7 @@ export function AuthenticatedHome({ currentView = "dashboard" }: AuthenticatedHo
       <div className="grid min-h-screen lg:grid-cols-[280px_1fr]">
         <aside className="flex min-h-full flex-col border-b border-slate-200 bg-white px-4 py-4 shadow-sm lg:border-b-0 lg:border-r">
           <button
-            className="mb-5 flex h-11 items-center gap-2 rounded-md px-3 text-left text-xl font-black tracking-normal text-slate-950 transition hover:bg-slate-100 hover:text-teal-800"
+            className="mb-5 flex h-11 cursor-pointer items-center gap-2 rounded-md px-3 text-left text-xl font-black tracking-normal text-slate-950 transition hover:bg-slate-100 hover:text-teal-800"
             onClick={() => window.location.assign("/")}
             type="button"
           >
@@ -231,7 +231,7 @@ export function AuthenticatedHome({ currentView = "dashboard" }: AuthenticatedHo
                 role="menu"
               >
                 <button
-                  className="h-10 rounded-md px-3 text-left text-sm font-extrabold text-red-600 transition hover:bg-red-50 hover:text-red-700"
+                  className="h-10 cursor-pointer rounded-md px-3 text-left text-sm font-extrabold text-red-600 transition hover:bg-red-50 hover:text-red-700"
                   onClick={handleDeleteAccount}
                   role="menuitem"
                   type="button"
@@ -239,7 +239,7 @@ export function AuthenticatedHome({ currentView = "dashboard" }: AuthenticatedHo
                   회원 탈퇴
                 </button>
                 <button
-                  className="h-10 rounded-md px-3 text-left text-sm font-extrabold text-red-600 transition hover:bg-red-50 hover:text-red-700"
+                  className="h-10 cursor-pointer rounded-md px-3 text-left text-sm font-extrabold text-red-600 transition hover:bg-red-50 hover:text-red-700"
                   onClick={handleLogout}
                   role="menuitem"
                   type="button"
@@ -251,7 +251,7 @@ export function AuthenticatedHome({ currentView = "dashboard" }: AuthenticatedHo
             <button
               aria-expanded={accountMenuOpen}
               aria-haspopup="menu"
-              className="w-full rounded-md bg-white px-3 py-2 text-left transition hover:bg-slate-100"
+              className="w-full cursor-pointer rounded-md bg-white px-3 py-2 text-left transition hover:bg-slate-100"
               onClick={() => setAccountMenuOpen((open) => !open)}
               type="button"
             >
@@ -281,7 +281,7 @@ function SidebarButton({
   return (
     <button
       className={[
-        "min-h-10 rounded-md px-3 py-2 text-left text-sm font-extrabold transition",
+        "min-h-10 cursor-pointer rounded-md px-3 py-2 text-left text-sm font-extrabold transition",
         active
           ? "bg-teal-50 text-teal-900"
           : "text-slate-700 hover:bg-slate-100 hover:text-teal-800",
