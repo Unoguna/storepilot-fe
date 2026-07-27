@@ -187,9 +187,9 @@ export function AuthenticatedHome({ currentView = "dashboard" }: AuthenticatedHo
   }
 
   return (
-    <main className="min-h-screen bg-[#f5f7f6] text-[#172126]">
-      <div className="grid min-h-screen lg:grid-cols-[280px_1fr]">
-        <aside className="flex min-h-full flex-col border-b border-slate-200 bg-white px-4 py-4 shadow-sm lg:border-b-0 lg:border-r">
+    <main className="h-screen overflow-hidden bg-[#f5f7f6] text-[#172126]">
+      <div className="grid h-full min-h-0 lg:grid-cols-[280px_1fr]">
+        <aside className="flex h-full min-h-0 flex-col overflow-hidden border-b border-slate-200 bg-white px-4 py-4 shadow-sm lg:border-b-0 lg:border-r">
           <button
             className="mb-5 flex h-11 cursor-pointer items-center gap-2 rounded-md px-3 text-left text-xl font-black tracking-normal text-slate-950"
             onClick={() => window.location.assign("/")}
@@ -275,7 +275,7 @@ export function AuthenticatedHome({ currentView = "dashboard" }: AuthenticatedHo
           </div>
         </aside>
 
-        <section className="grid content-start gap-5 px-4 py-6 sm:px-6 lg:grid-cols-2 lg:px-8 lg:py-8">
+        <section className="grid min-h-0 content-start gap-5 overflow-y-auto px-4 py-6 sm:px-6 lg:grid-cols-2 lg:px-8 lg:py-8">
           {renderContent()}
         </section>
       </div>
