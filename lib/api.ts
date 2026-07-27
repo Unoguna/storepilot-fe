@@ -129,9 +129,10 @@ export async function deleteAccount() {
   return (await response.json()) as MessageResponse;
 }
 
-export async function createProductExcelJob(file: File) {
+export async function createProductExcelJob(file: File, includeSelectionDetails: boolean) {
   const formData = new FormData();
   formData.append("file", file);
+  formData.append("includeSelectionDetails", String(includeSelectionDetails));
 
   const response = await fetchWithAuth(PRODUCT_EXCEL_JOB_URL, {
     method: "POST",
