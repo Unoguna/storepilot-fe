@@ -1,6 +1,7 @@
 "use client";
 
 import { ChangeEvent, FormEvent, useMemo, useState } from "react";
+import { ImageDown } from "lucide-react";
 import { ActionButton } from "@/components/ui/action-button";
 import { UploadCard } from "@/components/ui/upload-card";
 import { statusClassName } from "@/components/ui/upload-status";
@@ -90,6 +91,7 @@ export function ProductImageDownloadCard() {
   return (
     <UploadCard
       title="상품 이미지 다운로드"
+      icon={ImageDown}
       fileLabel={productFileLabel}
       status={imageStatus}
       message={imageMessage}

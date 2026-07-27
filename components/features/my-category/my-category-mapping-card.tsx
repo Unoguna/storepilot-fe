@@ -1,6 +1,7 @@
 "use client";
 
 import { ChangeEvent, FormEvent, useMemo, useState } from "react";
+import { Upload } from "lucide-react";
 import { ActionButton } from "@/components/ui/action-button";
 import { ResultRow } from "@/components/ui/result-row";
 import { UploadCard } from "@/components/ui/upload-card";
@@ -51,6 +52,7 @@ export function MyCategoryMappingCard() {
   return (
     <UploadCard
       title="마이카테고리 업로드"
+      icon={Upload}
       fileLabel={mappingFileLabel}
       status={mappingStatus}
       message={mappingMessage}

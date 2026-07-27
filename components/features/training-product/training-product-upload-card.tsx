@@ -1,6 +1,7 @@
 "use client";
 
 import { ChangeEvent, FormEvent, useMemo, useState } from "react";
+import { Database } from "lucide-react";
 import { ActionButton } from "@/components/ui/action-button";
 import { ResultRow } from "@/components/ui/result-row";
 import { UploadCard } from "@/components/ui/upload-card";
@@ -55,6 +56,7 @@ export function TrainingProductUploadCard() {
   return (
     <UploadCard
       title="기존 상품 엑셀 업로드"
+      icon={Database}
       fileLabel={fileLabel}
       status={status}
       message={message}
