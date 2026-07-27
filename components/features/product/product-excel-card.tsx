@@ -120,7 +120,7 @@ export function ProductExcelCard() {
 
   return (
     <UploadCard
-      title="상품 카테고리 분류 및 키워드 찾기"
+      title="카테고리 및 키워드 찾기"
       fileLabel={productFileLabel}
       status={excelStatus}
       message=""
