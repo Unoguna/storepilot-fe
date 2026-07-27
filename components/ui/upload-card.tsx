@@ -1,9 +1,11 @@
 import { ChangeEvent } from "react";
+import { type LucideIcon } from "lucide-react";
 import { RequestState } from "@/types/store-pilot";
 import { statusClassName } from "@/components/ui/upload-status";
 
 export function UploadCard({
   title,
+  icon: Icon,
   description,
   fileLabel,
   status,
@@ -14,6 +16,7 @@ export function UploadCard({
   onFileChange,
 }: {
   title: string;
+  icon?: LucideIcon;
   description?: string;
   fileLabel: string;
   status: RequestState;
@@ -26,7 +29,10 @@ export function UploadCard({
   return (
     <section className="grid gap-5 rounded-lg border border-slate-200 bg-white p-6 shadow-[0_14px_40px_rgba(23,33,38,0.08)]">
       <div>
-        <h2 className="text-xl font-black">{title}</h2>
+        <div className="flex items-center gap-2">
+          {Icon && <Icon className="size-5 shrink-0 text-teal-700" aria-hidden="true" />}
+          <h2 className="text-xl font-black">{title}</h2>
+        </div>
         {description && <p className="mt-2 text-sm leading-6 text-slate-600">{description}</p>}
       </div>
 

@@ -3,6 +3,18 @@
 import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
+import {
+  Database,
+  FolderUp,
+  Home,
+  ImageDown,
+  ListTree,
+  LogOut,
+  SearchCheck,
+  Upload,
+  UserX,
+  type LucideIcon,
+} from "lucide-react";
 import { CategoryUploadCard } from "@/components/features/category/category-upload-card";
 import { MyCategoryMappingCard } from "@/components/features/my-category/my-category-mapping-card";
 import { MyCategoryMappingListPage } from "@/components/features/my-category/my-category-mapping-list-page";
@@ -175,11 +187,11 @@ export function AuthenticatedHome({ currentView = "dashboard" }: AuthenticatedHo
   }
 
   return (
-    <main className="min-h-screen bg-[#f5f7f6] text-[#172126]">
-      <div className="grid min-h-screen lg:grid-cols-[280px_1fr]">
-        <aside className="flex min-h-full flex-col border-b border-slate-200 bg-white px-4 py-4 shadow-sm lg:border-b-0 lg:border-r">
+    <main className="h-screen overflow-hidden bg-[#f5f7f6] text-[#172126]">
+      <div className="grid h-full min-h-0 lg:grid-cols-[280px_1fr]">
+        <aside className="flex h-full min-h-0 flex-col overflow-hidden border-b border-slate-200 bg-white px-4 py-4 shadow-sm lg:border-b-0 lg:border-r">
           <button
-            className="mb-5 flex h-11 items-center gap-2 rounded-md px-3 text-left text-xl font-black tracking-normal text-slate-950 transition hover:bg-slate-100 hover:text-teal-800"
+            className="mb-5 flex h-11 cursor-pointer items-center gap-2 rounded-md px-3 text-left text-xl font-black tracking-normal text-slate-950"
             onClick={() => window.location.assign("/")}
             type="button"
           >
@@ -195,19 +207,19 @@ export function AuthenticatedHome({ currentView = "dashboard" }: AuthenticatedHo
           </button>
 
           <nav className="grid gap-1" aria-label="주요 메뉴">
-            <SidebarButton active={currentView === "dashboard"} onClick={() => window.location.assign("/")}>
+            <SidebarButton active={currentView === "dashboard"} icon={Home} onClick={() => window.location.assign("/")}>
               홈
             </SidebarButton>
-            <SidebarButton active={currentView === "product-excel-upload"} onClick={() => moveTo("/product-excel-jobs/upload")}>
+            <SidebarButton active={currentView === "product-excel-upload"} icon={SearchCheck} onClick={() => moveTo("/product-excel-jobs/upload")}>
               카테고리 및 키워드 찾기
             </SidebarButton>
-            <SidebarButton active={currentView === "product-image-download"} onClick={() => moveTo("/product-images/download")}>
+            <SidebarButton active={currentView === "product-image-download"} icon={ImageDown} onClick={() => moveTo("/product-images/download")}>
               상품 이미지 다운로드
             </SidebarButton>
-            <SidebarButton active={currentView === "my-category-upload"} onClick={() => moveTo("/my-category-mappings/upload")}>
+            <SidebarButton active={currentView === "my-category-upload"} icon={Upload} onClick={() => moveTo("/my-category-mappings/upload")}>
               마이카테고리 업로드
             </SidebarButton>
-            <SidebarButton active={currentView === "my-category-mappings"} onClick={() => moveTo("/my-category-mappings")}>
+            <SidebarButton active={currentView === "my-category-mappings"} icon={ListTree} onClick={() => moveTo("/my-category-mappings")}>
               마이카테고리 조회
             </SidebarButton>
           </nav>
@@ -215,10 +227,10 @@ export function AuthenticatedHome({ currentView = "dashboard" }: AuthenticatedHo
           {isAdmin && (
             <nav className="mt-4 grid gap-1 border-t border-slate-200 pt-4" aria-label="관리자 메뉴">
               <p className="px-3 pb-1 text-xs font-extrabold text-slate-400">관리자</p>
-              <SidebarButton active={currentView === "naver-category-upload"} onClick={() => moveTo("/naver-categories/upload")}>
+              <SidebarButton active={currentView === "naver-category-upload"} icon={FolderUp} onClick={() => moveTo("/naver-categories/upload")}>
                 네이버 카테고리 업로드
               </SidebarButton>
-              <SidebarButton active={currentView === "training-product-upload"} onClick={() => moveTo("/training-products/upload")}>
+              <SidebarButton active={currentView === "training-product-upload"} icon={Database} onClick={() => moveTo("/training-products/upload")}>
                 기존 상품 업로드
               </SidebarButton>
             </nav>
@@ -231,19 +243,21 @@ export function AuthenticatedHome({ currentView = "dashboard" }: AuthenticatedHo
                 role="menu"
               >
                 <button
-                  className="h-10 rounded-md px-3 text-left text-sm font-extrabold text-red-600 transition hover:bg-red-50 hover:text-red-700"
+                  className="flex h-10 cursor-pointer items-center gap-2 rounded-md px-3 text-left text-sm font-extrabold text-red-600 transition hover:bg-red-50 hover:text-red-700"
                   onClick={handleDeleteAccount}
                   role="menuitem"
                   type="button"
                 >
+                  <UserX className="size-4 shrink-0" aria-hidden="true" />
                   회원 탈퇴
                 </button>
                 <button
-                  className="h-10 rounded-md px-3 text-left text-sm font-extrabold text-red-600 transition hover:bg-red-50 hover:text-red-700"
+                  className="flex h-10 cursor-pointer items-center gap-2 rounded-md px-3 text-left text-sm font-extrabold text-red-600 transition hover:bg-red-50 hover:text-red-700"
                   onClick={handleLogout}
                   role="menuitem"
                   type="button"
                 >
+                  <LogOut className="size-4 shrink-0" aria-hidden="true" />
                   로그아웃
                 </button>
               </div>
@@ -251,7 +265,7 @@ export function AuthenticatedHome({ currentView = "dashboard" }: AuthenticatedHo
             <button
               aria-expanded={accountMenuOpen}
               aria-haspopup="menu"
-              className="w-full rounded-md bg-white px-3 py-2 text-left transition hover:bg-slate-100"
+              className="w-full cursor-pointer rounded-md bg-white px-3 py-2 text-left transition hover:bg-slate-100"
               onClick={() => setAccountMenuOpen((open) => !open)}
               type="button"
             >
@@ -261,7 +275,7 @@ export function AuthenticatedHome({ currentView = "dashboard" }: AuthenticatedHo
           </div>
         </aside>
 
-        <section className="grid content-start gap-5 px-4 py-6 sm:px-6 lg:grid-cols-2 lg:px-8 lg:py-8">
+        <section className="grid min-h-0 content-start gap-5 overflow-y-auto px-4 py-6 sm:px-6 lg:grid-cols-2 lg:px-8 lg:py-8">
           {renderContent()}
         </section>
       </div>
@@ -272,16 +286,18 @@ export function AuthenticatedHome({ currentView = "dashboard" }: AuthenticatedHo
 function SidebarButton({
   active,
   children,
+  icon: Icon,
   onClick,
 }: {
   active: boolean;
   children: React.ReactNode;
+  icon: LucideIcon;
   onClick: () => void;
 }) {
   return (
     <button
       className={[
-        "min-h-10 rounded-md px-3 py-2 text-left text-sm font-extrabold transition",
+        "flex min-h-10 cursor-pointer items-center gap-2 rounded-md px-3 py-2 text-left text-sm font-extrabold transition",
         active
           ? "bg-teal-50 text-teal-900"
           : "text-slate-700 hover:bg-slate-100 hover:text-teal-800",
@@ -289,7 +305,8 @@ function SidebarButton({
       onClick={onClick}
       type="button"
     >
-      {children}
+      <Icon className="size-4 shrink-0" aria-hidden="true" />
+      <span className="truncate">{children}</span>
     </button>
   );
 }
