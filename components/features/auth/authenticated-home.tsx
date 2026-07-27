@@ -199,7 +199,7 @@ export function AuthenticatedHome({ currentView = "dashboard" }: AuthenticatedHo
               홈
             </SidebarButton>
             <SidebarButton active={currentView === "product-excel-upload"} onClick={() => moveTo("/product-excel-jobs/upload")}>
-              상품 카테고리 분류 및 키워드 찾기
+              카테고리 및 키워드 찾기
             </SidebarButton>
             <SidebarButton active={currentView === "product-image-download"} onClick={() => moveTo("/product-images/download")}>
               상품 이미지 다운로드

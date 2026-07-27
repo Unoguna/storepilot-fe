@@ -40,6 +40,7 @@ export function ProductExcelCard() {
   const [excelStatus, setExcelStatus] = useState<RequestState>("idle");
   const [excelMessage, setExcelMessage] = useState("");
   const [jobProgress, setJobProgress] = useState<ProductExcelJobProgress | null>(null);
+  const [includeSelectionDetails, setIncludeSelectionDetails] = useState(true);
 
   const productFileLabel = useMemo(() => labelForFile(productFile), [productFile]);
 
@@ -75,7 +76,7 @@ export function ProductExcelCard() {
     setExcelMessage("카테고리 찾기 작업을 등록하는 중입니다...");
 
     try {
-      const createBody = await createProductExcelJob(productFile);
+      const createBody = await createProductExcelJob(productFile, includeSelectionDetails);
       if (!createBody.data) {
         throw new Error(createBody.message ?? "카테고리 찾기 작업을 등록하지 못했습니다.");
       }
@@ -120,7 +121,7 @@ export function ProductExcelCard() {
 
   return (
     <UploadCard
-      title="상품 카테고리 분류 및 키워드 찾기"
+      title="카테고리 및 키워드 찾기"
       fileLabel={productFileLabel}
       status={excelStatus}
       message=""
@@ -129,6 +130,21 @@ export function ProductExcelCard() {
       {productFile && (
         <div className="grid gap-3">
           <form className="grid gap-2" onSubmit={handleExcelSubmit}>
+            <label className="flex items-start gap-3 rounded-md border border-slate-200 bg-slate-50 px-3 py-2 text-sm font-semibold text-slate-700">
+              <input
+                checked={includeSelectionDetails}
+                className="mt-1 h-4 w-4 accent-teal-700"
+                disabled={excelStatus === "uploading"}
+                onChange={(event) => setIncludeSelectionDetails(event.target.checked)}
+                type="checkbox"
+              />
+              <span className="grid gap-0.5">
+                <span>선택 과정 확인용 열 포함</span>
+                <span className="text-xs font-medium text-slate-500">
+                  유사상품, 선택카테고리, LLM상태, 카테고리검색 열을 결과 엑셀에 표시합니다.
+                </span>
+              </span>
+            </label>
             <ActionButton disabled={excelStatus === "uploading"} loading={excelStatus === "uploading"}>
               {excelStatus === "uploading" ? "카테고리 찾는 중..." : "결과 엑셀 저장"}
             </ActionButton>
