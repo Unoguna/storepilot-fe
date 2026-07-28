@@ -170,6 +170,58 @@ export type TrainingProductUploadResponse = {
   code?: string;
 };
 
+export type QnaQuestionStatus = "WAITING" | "ANSWERED";
+
+export type QnaFaq = {
+  id: number;
+  question: string;
+  answer: string;
+};
+
+export type QnaFaqListResult = {
+  faqCount: number;
+  faqs: QnaFaq[];
+};
+
+export type QnaFaqListResponse = {
+  success: boolean;
+  data?: QnaFaqListResult;
+  message?: string;
+  code?: string;
+};
+
+export type QnaQuestion = {
+  id: number;
+  userId: number;
+  title: string;
+  content: string;
+  status: QnaQuestionStatus;
+  answer: string | null;
+  answeredBy: number | null;
+  answeredAt: string | null;
+  createdAt: string;
+  updatedAt: string;
+};
+
+export type QnaQuestionListResult = {
+  questionCount: number;
+  questions: QnaQuestion[];
+};
+
+export type QnaQuestionResponse = {
+  success: boolean;
+  data?: QnaQuestion;
+  message?: string;
+  code?: string;
+};
+
+export type QnaQuestionListResponse = {
+  success: boolean;
+  data?: QnaQuestionListResult;
+  message?: string;
+  code?: string;
+};
+
 export type FileSystemWritableFileStream = WritableStream & {
   write: (data: Blob) => Promise<void>;
   close: () => Promise<void>;

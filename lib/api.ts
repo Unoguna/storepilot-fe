@@ -8,6 +8,9 @@ import {
   ProductImageDownloadPrepareResponse,
   ProductExcelJobCreateResponse,
   ProductExcelJobStatusResponse,
+  QnaFaqListResponse,
+  QnaQuestionListResponse,
+  QnaQuestionResponse,
   TrainingProductUploadResponse,
 } from "@/types/store-pilot";
 
@@ -20,6 +23,8 @@ const CATEGORY_UPLOAD_URL = `${API_BASE}/api/v1/admin/naver-categories/upload`;
 const MY_CATEGORY_MAPPING_URL = `${API_BASE}/api/v1/my-category-mappings`;
 const TRAINING_PRODUCT_UPLOAD_URL = `${API_BASE}/api/v1/admin/training-products/rebuild`;
 const AUTH_URL = `${API_BASE}/api/v1/auth`;
+const QNA_URL = `${API_BASE}/api/v1/qna`;
+const ADMIN_QNA_URL = `${API_BASE}/api/v1/admin/qna`;
 
 export async function signup(email: string, password: string, passwordConfirm: string) {
   const response = await fetch(`${AUTH_URL}/signup`, {
@@ -250,6 +255,60 @@ export async function uploadTrainingProductFiles(files: File[]) {
   }
 
   return (await response.json()) as TrainingProductUploadResponse;
+}
+
+export async function getQnaFaqs() {
+  const response = await fetchWithAuth(`${QNA_URL}/faqs`, {
+    cache: "no-store",
+  });
+  if (!response.ok) {
+    throw new Error(await readErrorMessage(response));
+  }
+  return (await response.json()) as QnaFaqListResponse;
+}
+
+export async function getMyQnaQuestions() {
+  const response = await fetchWithAuth(`${QNA_URL}/questions`, {
+    cache: "no-store",
+  });
+  if (!response.ok) {
+    throw new Error(await readErrorMessage(response));
+  }
+  return (await response.json()) as QnaQuestionListResponse;
+}
+
+export async function createQnaQuestion(title: string, content: string) {
+  const response = await fetchWithAuth(`${QNA_URL}/questions`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ title, content }),
+  });
+  if (!response.ok) {
+    throw new Error(await readErrorMessage(response));
+  }
+  return (await response.json()) as QnaQuestionResponse;
+}
+
+export async function getAdminQnaQuestions() {
+  const response = await fetchWithAuth(`${ADMIN_QNA_URL}/questions`, {
+    cache: "no-store",
+  });
+  if (!response.ok) {
+    throw new Error(await readErrorMessage(response));
+  }
+  return (await response.json()) as QnaQuestionListResponse;
+}
+
+export async function answerQnaQuestion(questionId: number, answer: string) {
+  const response = await fetchWithAuth(`${ADMIN_QNA_URL}/questions/${questionId}/answer`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ answer }),
+  });
+  if (!response.ok) {
+    throw new Error(await readErrorMessage(response));
+  }
+  return (await response.json()) as QnaQuestionResponse;
 }
 
 async function fetchWithAuth(input: RequestInfo | URL, init: RequestInit = {}, retry = true) {

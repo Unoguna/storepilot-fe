@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import {
+  CircleHelp,
   Database,
   FolderUp,
   Home,
@@ -20,6 +21,7 @@ import { MyCategoryMappingCard } from "@/components/features/my-category/my-cate
 import { MyCategoryMappingListPage } from "@/components/features/my-category/my-category-mapping-list-page";
 import { ProductExcelCard } from "@/components/features/product/product-excel-card";
 import { ProductImageDownloadCard } from "@/components/features/product/product-image-download-card";
+import { QnaPage } from "@/components/features/qna/qna-page";
 import { TrainingProductUploadCard } from "@/components/features/training-product/training-product-upload-card";
 import { AuthPanel } from "@/components/features/auth/auth-panel";
 import { deleteAccount, getCurrentUser, getMyCategoryMappings, logout } from "@/lib/api";
@@ -32,6 +34,7 @@ type HomeView =
   | "naver-category-upload"
   | "my-category-upload"
   | "my-category-mappings"
+  | "qna"
   | "training-product-upload";
 
 type AuthenticatedHomeProps = {
@@ -175,6 +178,10 @@ export function AuthenticatedHome({ currentView = "dashboard" }: AuthenticatedHo
       return <MyCategoryMappingListPage />;
     }
 
+    if (currentView === "qna") {
+      return <QnaPage user={user} />;
+    }
+
     if (currentView === "training-product-upload") {
       return isAdmin ? <FullWidthContent><TrainingProductUploadCard /></FullWidthContent> : <AccessDeniedMessage />;
     }
@@ -221,6 +228,9 @@ export function AuthenticatedHome({ currentView = "dashboard" }: AuthenticatedHo
             </SidebarButton>
             <SidebarButton active={currentView === "my-category-mappings"} icon={ListTree} onClick={() => moveTo("/my-category-mappings")}>
               마이카테고리 조회
+            </SidebarButton>
+            <SidebarButton active={currentView === "qna"} icon={CircleHelp} onClick={() => moveTo("/qna")}>
+              QnA
             </SidebarButton>
           </nav>
 
