@@ -9,6 +9,7 @@ import {
   ProductExcelJobCreateResponse,
   ProductExcelJobStatusResponse,
   QnaFaqListResponse,
+  QnaFaqResponse,
   QnaQuestionListResponse,
   QnaQuestionResponse,
   TrainingProductUploadResponse,
@@ -260,6 +261,50 @@ export async function uploadTrainingProductFiles(files: File[]) {
 export async function getQnaFaqs() {
   const response = await fetchWithAuth(`${QNA_URL}/faqs`, {
     cache: "no-store",
+  });
+  if (!response.ok) {
+    throw new Error(await readErrorMessage(response));
+  }
+  return (await response.json()) as QnaFaqResponse;
+}
+
+export async function getAdminQnaFaqs() {
+  const response = await fetchWithAuth(`${ADMIN_QNA_URL}/faqs`, {
+    cache: "no-store",
+  });
+  if (!response.ok) {
+    throw new Error(await readErrorMessage(response));
+  }
+  return (await response.json()) as QnaFaqResponse;
+}
+
+export async function createQnaFaq(question: string, answer: string, sortOrder: number) {
+  const response = await fetchWithAuth(`${ADMIN_QNA_URL}/faqs`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ question, answer, sortOrder }),
+  });
+  if (!response.ok) {
+    throw new Error(await readErrorMessage(response));
+  }
+  return (await response.json()) as QnaFaqResponse;
+}
+
+export async function updateQnaFaq(faqId: number, question: string, answer: string, sortOrder: number) {
+  const response = await fetchWithAuth(`${ADMIN_QNA_URL}/faqs/${faqId}`, {
+    method: "PUT",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ question, answer, sortOrder }),
+  });
+  if (!response.ok) {
+    throw new Error(await readErrorMessage(response));
+  }
+  return (await response.json()) as QnaFaqListResponse;
+}
+
+export async function setQnaFaqActive(faqId: number, active: boolean) {
+  const response = await fetchWithAuth(`${ADMIN_QNA_URL}/faqs/${faqId}/${active ? "activate" : "deactivate"}`, {
+    method: "PATCH",
   });
   if (!response.ok) {
     throw new Error(await readErrorMessage(response));

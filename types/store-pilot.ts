@@ -176,6 +176,10 @@ export type QnaFaq = {
   id: number;
   question: string;
   answer: string;
+  sortOrder: number;
+  active: boolean;
+  createdAt: string;
+  updatedAt: string;
 };
 
 export type QnaFaqListResult = {
@@ -186,6 +190,13 @@ export type QnaFaqListResult = {
 export type QnaFaqListResponse = {
   success: boolean;
   data?: QnaFaqListResult;
+  message?: string;
+  code?: string;
+};
+
+export type QnaFaqResponse = {
+  success: boolean;
+  data?: QnaFaq;
   message?: string;
   code?: string;
 };

@@ -1,14 +1,18 @@
 "use client";
 
 import { FormEvent, useEffect, useMemo, useState } from "react";
-import { CircleHelp, MessageCircleQuestion, Send } from "lucide-react";
+import { CircleHelp, MessageCircleQuestion, Pencil, Send } from "lucide-react";
 import { ActionButton } from "@/components/ui/action-button";
 import {
   answerQnaQuestion,
+  createQnaFaq,
   createQnaQuestion,
+  getAdminQnaFaqs,
   getAdminQnaQuestions,
   getMyQnaQuestions,
   getQnaFaqs,
+  setQnaFaqActive,
+  updateQnaFaq,
 } from "@/lib/api";
 import { AuthUser, QnaFaq, QnaQuestion, RequestState } from "@/types/store-pilot";
 
@@ -33,6 +37,10 @@ export function QnaPage({ user }: QnaPageProps) {
   const [questions, setQuestions] = useState<QnaQuestion[]>([]);
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
+  const [faqId, setFaqId] = useState<number | null>(null);
+  const [faqQuestion, setFaqQuestion] = useState("");
+  const [faqAnswer, setFaqAnswer] = useState("");
+  const [faqSortOrder, setFaqSortOrder] = useState("0");
   const [answerDrafts, setAnswerDrafts] = useState<Record<number, string>>({});
   const [loading, setLoading] = useState(true);
   const [status, setStatus] = useState<RequestState>("idle");
@@ -53,7 +61,7 @@ export function QnaPage({ user }: QnaPageProps) {
     setMessage("");
     try {
       const [faqBody, questionBody] = await Promise.all([
-        getQnaFaqs(),
+        isAdmin ? getAdminQnaFaqs() : getQnaFaqs(),
         isAdmin ? getAdminQnaQuestions() : getMyQnaQuestions(),
       ]);
       setFaqs(faqBody.data?.faqs ?? []);
@@ -81,6 +89,58 @@ export function QnaPage({ user }: QnaPageProps) {
       setStatus("error");
       setMessage(error instanceof Error ? error.message : "문의 등록 중 오류가 발생했습니다.");
     }
+  }
+
+  async function handleFaqSubmit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    const sortOrder = Number.parseInt(faqSortOrder, 10);
+    setStatus("uploading");
+    setMessage(faqId === null ? "FAQ를 등록하는 중입니다..." : "FAQ를 수정하는 중입니다...");
+
+    try {
+      if (faqId === null) {
+        await createQnaFaq(faqQuestion, faqAnswer, Number.isNaN(sortOrder) ? 0 : sortOrder);
+        setMessage("FAQ가 등록되었습니다.");
+      } else {
+        await updateQnaFaq(faqId, faqQuestion, faqAnswer, Number.isNaN(sortOrder) ? 0 : sortOrder);
+        setMessage("FAQ가 수정되었습니다.");
+      }
+      resetFaqForm();
+      setStatus("success");
+      await loadQna();
+    } catch (error) {
+      setStatus("error");
+      setMessage(error instanceof Error ? error.message : "FAQ 저장 중 오류가 발생했습니다.");
+    }
+  }
+
+  async function handleFaqActiveToggle(faq: QnaFaq) {
+    setStatus("uploading");
+    setMessage(faq.active ? "FAQ를 숨김 처리하는 중입니다..." : "FAQ를 노출 처리하는 중입니다...");
+
+    try {
+      await setQnaFaqActive(faq.id, !faq.active);
+      setStatus("success");
+      setMessage(faq.active ? "FAQ가 숨김 처리되었습니다." : "FAQ가 노출 처리되었습니다.");
+      await loadQna();
+    } catch (error) {
+      setStatus("error");
+      setMessage(error instanceof Error ? error.message : "FAQ 상태 변경 중 오류가 발생했습니다.");
+    }
+  }
+
+  function startFaqEdit(faq: QnaFaq) {
+    setFaqId(faq.id);
+    setFaqQuestion(faq.question);
+    setFaqAnswer(faq.answer);
+    setFaqSortOrder(String(faq.sortOrder));
+  }
+
+  function resetFaqForm() {
+    setFaqId(null);
+    setFaqQuestion("");
+    setFaqAnswer("");
+    setFaqSortOrder("0");
   }
 
   async function handleAnswerSubmit(questionId: number) {
@@ -132,6 +192,62 @@ export function QnaPage({ user }: QnaPageProps) {
 
       <div className="grid gap-5 xl:grid-cols-[minmax(0,1fr)_minmax(360px,420px)]">
         <section className="grid gap-5">
+          {isAdmin && (
+            <div className="rounded-lg border border-slate-200 bg-white p-6 shadow-sm">
+              <div className="flex items-center gap-2">
+                <Pencil className="size-5 shrink-0 text-teal-700" aria-hidden="true" />
+                <h3 className="text-lg font-black text-slate-950">FAQ 관리</h3>
+              </div>
+
+              <form className="mt-4 grid gap-3" onSubmit={handleFaqSubmit}>
+                <label className="grid gap-1 text-sm font-extrabold text-slate-700">
+                  질문
+                  <input
+                    className="h-11 rounded-md border border-slate-200 px-3 text-sm font-semibold text-slate-800 outline-none transition placeholder:text-slate-400 focus:border-teal-700 focus:ring-2 focus:ring-teal-100"
+                    maxLength={300}
+                    onChange={(event) => setFaqQuestion(event.target.value)}
+                    placeholder="FAQ 질문"
+                    value={faqQuestion}
+                  />
+                </label>
+                <label className="grid gap-1 text-sm font-extrabold text-slate-700">
+                  답변
+                  <textarea
+                    className="min-h-32 resize-y rounded-md border border-slate-200 px-3 py-2 text-sm font-semibold text-slate-800 outline-none transition placeholder:text-slate-400 focus:border-teal-700 focus:ring-2 focus:ring-teal-100"
+                    maxLength={5000}
+                    onChange={(event) => setFaqAnswer(event.target.value)}
+                    placeholder="FAQ 답변"
+                    value={faqAnswer}
+                  />
+                </label>
+                <label className="grid gap-1 text-sm font-extrabold text-slate-700 sm:max-w-40">
+                  정렬 순서
+                  <input
+                    className="h-11 rounded-md border border-slate-200 px-3 text-sm font-semibold text-slate-800 outline-none transition placeholder:text-slate-400 focus:border-teal-700 focus:ring-2 focus:ring-teal-100"
+                    min={0}
+                    onChange={(event) => setFaqSortOrder(event.target.value)}
+                    type="number"
+                    value={faqSortOrder}
+                  />
+                </label>
+                <div className="flex flex-wrap gap-2">
+                  <ActionButton disabled={status === "uploading"} loading={status === "uploading"}>
+                    {faqId === null ? "FAQ 등록" : "FAQ 수정"}
+                  </ActionButton>
+                  {faqId !== null && (
+                    <button
+                      className="h-12 cursor-pointer rounded-md border border-slate-200 px-5 text-sm font-extrabold text-slate-700 transition hover:bg-slate-50"
+                      onClick={resetFaqForm}
+                      type="button"
+                    >
+                      취소
+                    </button>
+                  )}
+                </div>
+              </form>
+            </div>
+          )}
+
           <div className="rounded-lg border border-slate-200 bg-white p-6 shadow-sm">
             <div className="flex items-center gap-2">
               <CircleHelp className="size-5 shrink-0 text-teal-700" aria-hidden="true" />
@@ -148,9 +264,32 @@ export function QnaPage({ user }: QnaPageProps) {
               {faqs.map((faq) => (
                 <details key={faq.id} className="group rounded-md border border-slate-200 bg-slate-50 px-4 py-3">
                   <summary className="cursor-pointer list-none text-sm font-extrabold text-slate-800">
-                    {faq.question}
+                    <span className={!faq.active ? "text-slate-400" : ""}>{faq.question}</span>
+                    {isAdmin && !faq.active && (
+                      <span className="ml-2 rounded-full bg-slate-200 px-2 py-0.5 text-xs font-black text-slate-500">
+                        숨김
+                      </span>
+                    )}
                   </summary>
                   <p className="mt-3 whitespace-pre-wrap text-sm leading-6 text-slate-600">{faq.answer}</p>
+                  {isAdmin && (
+                    <div className="mt-3 flex flex-wrap gap-2 border-t border-slate-200 pt-3">
+                      <button
+                        className="h-9 cursor-pointer rounded-md border border-slate-200 px-3 text-xs font-extrabold text-slate-700 transition hover:bg-white"
+                        onClick={() => startFaqEdit(faq)}
+                        type="button"
+                      >
+                        수정
+                      </button>
+                      <button
+                        className="h-9 cursor-pointer rounded-md border border-slate-200 px-3 text-xs font-extrabold text-slate-700 transition hover:bg-white"
+                        onClick={() => handleFaqActiveToggle(faq)}
+                        type="button"
+                      >
+                        {faq.active ? "숨김" : "노출"}
+                      </button>
+                    </div>
+                  )}
                 </details>
               ))}
             </div>
