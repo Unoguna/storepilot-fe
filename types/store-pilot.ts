@@ -170,6 +170,27 @@ export type TrainingProductUploadResponse = {
   code?: string;
 };
 
+export type ProductCategoryStatItem = {
+  naverCategoryId: number;
+  naverCategoryCode: string;
+  naverCategoryFullPath: string;
+  productCount: number;
+};
+
+export type ProductCategoryStatsResult = {
+  categoryCount: number;
+  totalProductCount: number;
+  updatedAt: string | null;
+  stats: ProductCategoryStatItem[];
+};
+
+export type ProductCategoryStatsResponse = {
+  success: boolean;
+  data?: ProductCategoryStatsResult;
+  message?: string;
+  code?: string;
+};
+
 export type QnaQuestionStatus = "WAITING" | "ANSWERED";
 
 export type QnaFaq = {

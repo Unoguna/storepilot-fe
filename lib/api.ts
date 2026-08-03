@@ -8,6 +8,7 @@ import {
   ProductImageDownloadPrepareResponse,
   ProductExcelJobCreateResponse,
   ProductExcelJobStatusResponse,
+  ProductCategoryStatsResponse,
   QnaFaqListResponse,
   QnaFaqResponse,
   QnaQuestionListResponse,
@@ -23,6 +24,7 @@ const IMAGE_DOWNLOAD_URL = `${API_BASE}/api/v1/product-excel-jobs/images/downloa
 const CATEGORY_UPLOAD_URL = `${API_BASE}/api/v1/admin/naver-categories/upload`;
 const MY_CATEGORY_MAPPING_URL = `${API_BASE}/api/v1/my-category-mappings`;
 const TRAINING_PRODUCT_UPLOAD_URL = `${API_BASE}/api/v1/admin/training-products/rebuild`;
+const TRAINING_PRODUCT_CATEGORY_STATS_URL = `${API_BASE}/api/v1/admin/training-products/category-stats`;
 const AUTH_URL = `${API_BASE}/api/v1/auth`;
 const QNA_URL = `${API_BASE}/api/v1/qna`;
 const ADMIN_QNA_URL = `${API_BASE}/api/v1/admin/qna`;
@@ -256,6 +258,18 @@ export async function uploadTrainingProductFiles(files: File[]) {
   }
 
   return (await response.json()) as TrainingProductUploadResponse;
+}
+
+export async function getTrainingProductCategoryStats() {
+  const response = await fetchWithAuth(TRAINING_PRODUCT_CATEGORY_STATS_URL, {
+    cache: "no-store",
+  });
+
+  if (!response.ok) {
+    throw new Error(await readErrorMessage(response));
+  }
+
+  return (await response.json()) as ProductCategoryStatsResponse;
 }
 
 export async function getQnaFaqs() {

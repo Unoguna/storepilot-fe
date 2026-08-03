@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import {
+  BarChart3,
   CircleHelp,
   Database,
   FolderUp,
@@ -22,6 +23,7 @@ import { MyCategoryMappingListPage } from "@/components/features/my-category/my-
 import { ProductExcelCard } from "@/components/features/product/product-excel-card";
 import { ProductImageDownloadCard } from "@/components/features/product/product-image-download-card";
 import { QnaPage } from "@/components/features/qna/qna-page";
+import { TrainingProductCategoryStatsPage } from "@/components/features/training-product/training-product-category-stats-page";
 import { TrainingProductUploadCard } from "@/components/features/training-product/training-product-upload-card";
 import { AuthPanel } from "@/components/features/auth/auth-panel";
 import { deleteAccount, getCurrentUser, getMyCategoryMappings, logout } from "@/lib/api";
@@ -35,7 +37,8 @@ type HomeView =
   | "my-category-upload"
   | "my-category-mappings"
   | "qna"
-  | "training-product-upload";
+  | "training-product-upload"
+  | "training-product-category-stats";
 
 type AuthenticatedHomeProps = {
   currentView?: HomeView;
@@ -186,6 +189,10 @@ export function AuthenticatedHome({ currentView = "dashboard" }: AuthenticatedHo
       return isAdmin ? <FullWidthContent><TrainingProductUploadCard /></FullWidthContent> : <AccessDeniedMessage />;
     }
 
+    if (currentView === "training-product-category-stats") {
+      return isAdmin ? <TrainingProductCategoryStatsPage /> : <AccessDeniedMessage />;
+    }
+
     return null;
   }
 
@@ -242,6 +249,9 @@ export function AuthenticatedHome({ currentView = "dashboard" }: AuthenticatedHo
               </SidebarButton>
               <SidebarButton active={currentView === "training-product-upload"} icon={Database} onClick={() => moveTo("/training-products/upload")}>
                 기존 상품 업로드
+              </SidebarButton>
+              <SidebarButton active={currentView === "training-product-category-stats"} icon={BarChart3} onClick={() => moveTo("/training-products/category-stats")}>
+                기존 상품 카테고리 통계
               </SidebarButton>
             </nav>
           )}
