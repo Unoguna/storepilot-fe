@@ -191,6 +191,39 @@ export type ProductCategoryStatsResponse = {
   code?: string;
 };
 
+export type ProductCategoryFeedbackResult = {
+  feedbackId: number;
+  userId: number;
+  myCategoryCode: string;
+  naverCategory: string;
+  indexedProductCount: number;
+  message: string;
+};
+
+export type ProductCategoryFeedbackResponse = {
+  success: boolean;
+  data?: ProductCategoryFeedbackResult;
+  message?: string;
+  code?: string;
+};
+
+export type ProductIndexAppendResult = {
+  sourceCount: number;
+  sourceRowCount: number;
+  validRowCount: number;
+  unmappedRowCount: number;
+  appendedProductCount: number;
+  indexedProductCount: number;
+  message: string;
+};
+
+export type ProductIndexAppendResponse = {
+  success: boolean;
+  data?: ProductIndexAppendResult;
+  message?: string;
+  code?: string;
+};
+
 export type QnaQuestionStatus = "WAITING" | "ANSWERED";
 
 export type QnaFaq = {

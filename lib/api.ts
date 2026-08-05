@@ -8,7 +8,9 @@ import {
   ProductImageDownloadPrepareResponse,
   ProductExcelJobCreateResponse,
   ProductExcelJobStatusResponse,
+  ProductCategoryFeedbackResponse,
   ProductCategoryStatsResponse,
+  ProductIndexAppendResponse,
   QnaFaqListResponse,
   QnaFaqResponse,
   QnaQuestionListResponse,
@@ -24,7 +26,9 @@ const IMAGE_DOWNLOAD_URL = `${API_BASE}/api/v1/product-excel-jobs/images/downloa
 const CATEGORY_UPLOAD_URL = `${API_BASE}/api/v1/admin/naver-categories/upload`;
 const MY_CATEGORY_MAPPING_URL = `${API_BASE}/api/v1/my-category-mappings`;
 const TRAINING_PRODUCT_UPLOAD_URL = `${API_BASE}/api/v1/admin/training-products/rebuild`;
+const TRAINING_PRODUCT_APPEND_URL = `${API_BASE}/api/v1/admin/training-products/append`;
 const TRAINING_PRODUCT_CATEGORY_STATS_URL = `${API_BASE}/api/v1/admin/training-products/category-stats`;
+const TRAINING_PRODUCT_FEEDBACK_URL = `${API_BASE}/api/v1/admin/training-products/feedback`;
 const AUTH_URL = `${API_BASE}/api/v1/auth`;
 const QNA_URL = `${API_BASE}/api/v1/qna`;
 const ADMIN_QNA_URL = `${API_BASE}/api/v1/admin/qna`;
@@ -260,6 +264,22 @@ export async function uploadTrainingProductFiles(files: File[]) {
   return (await response.json()) as TrainingProductUploadResponse;
 }
 
+export async function appendTrainingProductFiles(files: File[]) {
+  const formData = new FormData();
+  files.forEach((file) => formData.append("files", file));
+
+  const response = await fetchWithAuth(TRAINING_PRODUCT_APPEND_URL, {
+    method: "POST",
+    body: formData,
+  });
+
+  if (!response.ok) {
+    throw new Error(await readErrorMessage(response));
+  }
+
+  return (await response.json()) as ProductIndexAppendResponse;
+}
+
 export async function getTrainingProductCategoryStats() {
   const response = await fetchWithAuth(TRAINING_PRODUCT_CATEGORY_STATS_URL, {
     cache: "no-store",
@@ -270,6 +290,20 @@ export async function getTrainingProductCategoryStats() {
   }
 
   return (await response.json()) as ProductCategoryStatsResponse;
+}
+
+export async function addTrainingProduct(productName: string, myCategoryCode: string) {
+  const response = await fetchWithAuth(TRAINING_PRODUCT_FEEDBACK_URL, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ productName, myCategoryCode }),
+  });
+
+  if (!response.ok) {
+    throw new Error(await readErrorMessage(response));
+  }
+
+  return (await response.json()) as ProductCategoryFeedbackResponse;
 }
 
 export async function getQnaFaqs() {

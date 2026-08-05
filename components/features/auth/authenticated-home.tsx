@@ -12,6 +12,7 @@ import {
   ImageDown,
   ListTree,
   LogOut,
+  PackagePlus,
   SearchCheck,
   Upload,
   UserX,
@@ -23,6 +24,7 @@ import { MyCategoryMappingListPage } from "@/components/features/my-category/my-
 import { ProductExcelCard } from "@/components/features/product/product-excel-card";
 import { ProductImageDownloadCard } from "@/components/features/product/product-image-download-card";
 import { QnaPage } from "@/components/features/qna/qna-page";
+import { TrainingProductAddCard } from "@/components/features/training-product/training-product-add-card";
 import { TrainingProductCategoryStatsPage } from "@/components/features/training-product/training-product-category-stats-page";
 import { TrainingProductUploadCard } from "@/components/features/training-product/training-product-upload-card";
 import { AuthPanel } from "@/components/features/auth/auth-panel";
@@ -38,6 +40,7 @@ type HomeView =
   | "my-category-mappings"
   | "qna"
   | "training-product-upload"
+  | "training-product-add"
   | "training-product-category-stats";
 
 type AuthenticatedHomeProps = {
@@ -189,6 +192,10 @@ export function AuthenticatedHome({ currentView = "dashboard" }: AuthenticatedHo
       return isAdmin ? <FullWidthContent><TrainingProductUploadCard /></FullWidthContent> : <AccessDeniedMessage />;
     }
 
+    if (currentView === "training-product-add") {
+      return isAdmin ? <TrainingProductAddCard /> : <AccessDeniedMessage />;
+    }
+
     if (currentView === "training-product-category-stats") {
       return isAdmin ? <TrainingProductCategoryStatsPage /> : <AccessDeniedMessage />;
     }
@@ -249,6 +256,9 @@ export function AuthenticatedHome({ currentView = "dashboard" }: AuthenticatedHo
               </SidebarButton>
               <SidebarButton active={currentView === "training-product-upload"} icon={Database} onClick={() => moveTo("/training-products/upload")}>
                 기존 상품 업로드
+              </SidebarButton>
+              <SidebarButton active={currentView === "training-product-add"} icon={PackagePlus} onClick={() => moveTo("/training-products/add")}>
+                추가 상품 업로드
               </SidebarButton>
               <SidebarButton active={currentView === "training-product-category-stats"} icon={BarChart3} onClick={() => moveTo("/training-products/category-stats")}>
                 기존 상품 카테고리 통계
