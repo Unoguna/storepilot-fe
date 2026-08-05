@@ -213,6 +213,8 @@ export type ProductIndexAppendResult = {
   validRowCount: number;
   unmappedRowCount: number;
   appendedProductCount: number;
+  insertedProductCount: number;
+  updatedProductCount: number;
   indexedProductCount: number;
   message: string;
 };

@@ -77,6 +77,8 @@ export function TrainingProductAddCard() {
           <ResultRow label="추가 가능 행" value={`${result.validRowCount.toLocaleString()}개`} />
           <ResultRow label="매핑 없는 행" value={`${result.unmappedRowCount.toLocaleString()}개`} />
           <ResultRow label="추가 요청 상품" value={`${result.appendedProductCount.toLocaleString()}개`} />
+          <ResultRow label="신규 추가 상품" value={`${result.insertedProductCount.toLocaleString()}개`} />
+          <ResultRow label="기존 갱신 상품" value={`${result.updatedProductCount.toLocaleString()}개`} />
           <ResultRow label="현재 인덱싱 상품" value={`${result.indexedProductCount.toLocaleString()}개`} />
         </div>
       )}

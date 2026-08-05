@@ -193,7 +193,7 @@ export function AuthenticatedHome({ currentView = "dashboard" }: AuthenticatedHo
     }
 
     if (currentView === "training-product-add") {
-      return isAdmin ? <TrainingProductAddCard /> : <AccessDeniedMessage />;
+      return isAdmin ? <FullWidthContent><TrainingProductAddCard /></FullWidthContent> : <AccessDeniedMessage />;
     }
 
     if (currentView === "training-product-category-stats") {
