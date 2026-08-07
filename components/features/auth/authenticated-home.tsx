@@ -161,7 +161,8 @@ export function AuthenticatedHome({ currentView = "dashboard" }: AuthenticatedHo
     return <AuthPanel onAuthenticated={setUser} />;
   }
 
-  const isAdmin = user.role === "ADMIN";
+  const authenticatedUser = user;
+  const isAdmin = authenticatedUser.role === "ADMIN";
 
   function renderContent() {
     if (currentView === "product-excel-upload") {
@@ -185,7 +186,7 @@ export function AuthenticatedHome({ currentView = "dashboard" }: AuthenticatedHo
     }
 
     if (currentView === "qna") {
-      return <QnaPage user={user} />;
+      return <QnaPage user={authenticatedUser} />;
     }
 
     if (currentView === "training-product-upload") {
@@ -299,7 +300,7 @@ export function AuthenticatedHome({ currentView = "dashboard" }: AuthenticatedHo
               onClick={() => setAccountMenuOpen((open) => !open)}
               type="button"
             >
-              <span className="block truncate text-sm font-extrabold text-slate-800">{user.email}</span>
+              <span className="block truncate text-sm font-extrabold text-slate-800">{authenticatedUser.email}</span>
               <span className="mt-1 block text-xs font-semibold text-slate-500">{isAdmin ? "관리자" : "사용자"}</span>
             </button>
           </div>
