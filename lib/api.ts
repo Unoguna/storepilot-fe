@@ -313,7 +313,7 @@ export async function getQnaFaqs() {
   if (!response.ok) {
     throw new Error(await readErrorMessage(response));
   }
-  return (await response.json()) as QnaFaqResponse;
+  return (await response.json()) as QnaFaqListResponse;
 }
 
 export async function getAdminQnaFaqs() {
@@ -323,7 +323,7 @@ export async function getAdminQnaFaqs() {
   if (!response.ok) {
     throw new Error(await readErrorMessage(response));
   }
-  return (await response.json()) as QnaFaqResponse;
+  return (await response.json()) as QnaFaqListResponse;
 }
 
 export async function createQnaFaq(question: string, answer: string, sortOrder: number) {
