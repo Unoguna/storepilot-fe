@@ -170,6 +170,125 @@ export type TrainingProductUploadResponse = {
   code?: string;
 };
 
+export type ProductCategoryStatItem = {
+  naverCategoryId: number;
+  naverCategoryCode: string;
+  naverCategoryFullPath: string;
+  productCount: number;
+};
+
+export type ProductCategoryStatsResult = {
+  categoryCount: number;
+  totalProductCount: number;
+  updatedAt: string | null;
+  stats: ProductCategoryStatItem[];
+};
+
+export type ProductCategoryStatsResponse = {
+  success: boolean;
+  data?: ProductCategoryStatsResult;
+  message?: string;
+  code?: string;
+};
+
+export type ProductCategoryFeedbackResult = {
+  feedbackId: number;
+  userId: number;
+  myCategoryCode: string;
+  naverCategory: string;
+  indexedProductCount: number;
+  message: string;
+};
+
+export type ProductCategoryFeedbackResponse = {
+  success: boolean;
+  data?: ProductCategoryFeedbackResult;
+  message?: string;
+  code?: string;
+};
+
+export type ProductIndexAppendResult = {
+  sourceCount: number;
+  sourceRowCount: number;
+  validRowCount: number;
+  unmappedRowCount: number;
+  appendedProductCount: number;
+  insertedProductCount: number;
+  updatedProductCount: number;
+  indexedProductCount: number;
+  message: string;
+};
+
+export type ProductIndexAppendResponse = {
+  success: boolean;
+  data?: ProductIndexAppendResult;
+  message?: string;
+  code?: string;
+};
+
+export type QnaQuestionStatus = "WAITING" | "ANSWERED";
+
+export type QnaFaq = {
+  id: number;
+  question: string;
+  answer: string;
+  sortOrder: number;
+  active: boolean;
+  createdAt: string;
+  updatedAt: string;
+};
+
+export type QnaFaqListResult = {
+  faqCount: number;
+  faqs: QnaFaq[];
+};
+
+export type QnaFaqListResponse = {
+  success: boolean;
+  data?: QnaFaqListResult;
+  message?: string;
+  code?: string;
+};
+
+export type QnaFaqResponse = {
+  success: boolean;
+  data?: QnaFaq;
+  message?: string;
+  code?: string;
+};
+
+export type QnaQuestion = {
+  id: number;
+  userId: number;
+  title: string;
+  content: string;
+  status: QnaQuestionStatus;
+  answer: string | null;
+  answeredBy: number | null;
+  answeredAt: string | null;
+  createdAt: string;
+  updatedAt: string;
+};
+
+export type QnaQuestionListResult = {
+  questionCount: number;
+  questions: QnaQuestion[];
+};
+
+export type QnaQuestionResponse = {
+  success: boolean;
+  data?: QnaQuestion;
+  message?: string;
+  code?: string;
+};
+
+export type QnaQuestionListResponse = {
+  success: boolean;
+  data?: QnaQuestionListResult;
+  message?: string;
+  code?: string;
+};
+
 export type FileSystemWritableFileStream = WritableStream & {
   write: (data: Blob) => Promise<void>;
   close: () => Promise<void>;

@@ -4,12 +4,15 @@ import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import {
+  BarChart3,
+  CircleHelp,
   Database,
   FolderUp,
   Home,
   ImageDown,
   ListTree,
   LogOut,
+  PackagePlus,
   SearchCheck,
   Upload,
   UserX,
@@ -20,6 +23,9 @@ import { MyCategoryMappingCard } from "@/components/features/my-category/my-cate
 import { MyCategoryMappingListPage } from "@/components/features/my-category/my-category-mapping-list-page";
 import { ProductExcelCard } from "@/components/features/product/product-excel-card";
 import { ProductImageDownloadCard } from "@/components/features/product/product-image-download-card";
+import { QnaPage } from "@/components/features/qna/qna-page";
+import { TrainingProductAddCard } from "@/components/features/training-product/training-product-add-card";
+import { TrainingProductCategoryStatsPage } from "@/components/features/training-product/training-product-category-stats-page";
 import { TrainingProductUploadCard } from "@/components/features/training-product/training-product-upload-card";
 import { AuthPanel } from "@/components/features/auth/auth-panel";
 import { deleteAccount, getCurrentUser, getMyCategoryMappings, logout } from "@/lib/api";
@@ -32,7 +38,10 @@ type HomeView =
   | "naver-category-upload"
   | "my-category-upload"
   | "my-category-mappings"
-  | "training-product-upload";
+  | "qna"
+  | "training-product-upload"
+  | "training-product-add"
+  | "training-product-category-stats";
 
 type AuthenticatedHomeProps = {
   currentView?: HomeView;
@@ -175,8 +184,20 @@ export function AuthenticatedHome({ currentView = "dashboard" }: AuthenticatedHo
       return <MyCategoryMappingListPage />;
     }
 
+    if (currentView === "qna") {
+      return <QnaPage user={user} />;
+    }
+
     if (currentView === "training-product-upload") {
       return isAdmin ? <FullWidthContent><TrainingProductUploadCard /></FullWidthContent> : <AccessDeniedMessage />;
+    }
+
+    if (currentView === "training-product-add") {
+      return isAdmin ? <FullWidthContent><TrainingProductAddCard /></FullWidthContent> : <AccessDeniedMessage />;
+    }
+
+    if (currentView === "training-product-category-stats") {
+      return isAdmin ? <TrainingProductCategoryStatsPage /> : <AccessDeniedMessage />;
     }
 
     return null;
@@ -222,6 +243,9 @@ export function AuthenticatedHome({ currentView = "dashboard" }: AuthenticatedHo
             <SidebarButton active={currentView === "my-category-mappings"} icon={ListTree} onClick={() => moveTo("/my-category-mappings")}>
               마이카테고리 조회
             </SidebarButton>
+            <SidebarButton active={currentView === "qna"} icon={CircleHelp} onClick={() => moveTo("/qna")}>
+              QnA
+            </SidebarButton>
           </nav>
 
           {isAdmin && (
@@ -232,6 +256,12 @@ export function AuthenticatedHome({ currentView = "dashboard" }: AuthenticatedHo
               </SidebarButton>
               <SidebarButton active={currentView === "training-product-upload"} icon={Database} onClick={() => moveTo("/training-products/upload")}>
                 기존 상품 업로드
+              </SidebarButton>
+              <SidebarButton active={currentView === "training-product-add"} icon={PackagePlus} onClick={() => moveTo("/training-products/add")}>
+                추가 상품 업로드
+              </SidebarButton>
+              <SidebarButton active={currentView === "training-product-category-stats"} icon={BarChart3} onClick={() => moveTo("/training-products/category-stats")}>
+                기존 상품 카테고리 통계
               </SidebarButton>
             </nav>
           )}
