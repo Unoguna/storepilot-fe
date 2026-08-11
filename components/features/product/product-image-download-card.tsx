@@ -22,6 +22,7 @@ export function ProductImageDownloadCard() {
   const [imageMessage, setImageMessage] = useState("");
   const [imageFailures, setImageFailures] = useState<ProductImageDownloadFailure[]>([]);
   const [failureExcelSaving, setFailureExcelSaving] = useState(false);
+  const [targetSizePercent, setTargetSizePercent] = useState(70);
 
   const productFileLabel = useMemo(() => labelForFile(productFile), [productFile]);
 
@@ -72,7 +73,7 @@ export function ProductImageDownloadCard() {
         const image = images[index];
         setImageMessage(`이미지 저장 중: ${index + 1} / ${images.length}`);
         try {
-          const response = await downloadProductImage(image.url);
+          const response = await downloadProductImage(image.url, targetSizePercent);
           const blob = await response.blob();
           await saveBlobToDirectory(blob, directoryHandle, image.filename);
           savedCount++;
@@ -134,6 +135,28 @@ export function ProductImageDownloadCard() {
     >
       {productFile && (
         <form className="grid gap-2" onSubmit={handleImageSubmit}>
+          <label className="grid gap-2 rounded-md border border-slate-200 bg-slate-50 px-3 py-3 text-sm font-semibold text-slate-700">
+            <span className="flex items-center justify-between gap-3">
+              <span>목표 이미지 용량</span>
+              <strong className="text-teal-800">원본의 {targetSizePercent}%</strong>
+            </span>
+            <input
+              aria-label="목표 이미지 용량 비율"
+              className="w-full accent-teal-700"
+              disabled={imageStatus === "uploading"}
+              max="100"
+              min="30"
+              onChange={(event) => setTargetSizePercent(Number(event.target.value))}
+              step="1"
+              type="range"
+              value={targetSizePercent}
+            />
+            <span className="flex justify-between text-xs font-medium text-slate-500">
+              <span>30%</span>
+              <span>원본 파일 바이트 기준</span>
+              <span>100%</span>
+            </span>
+          </label>
           <ActionButton disabled={imageStatus === "uploading"} loading={imageStatus === "uploading"}>
             {imageStatus === "uploading" ? "이미지 저장 중..." : "이미지 폴더 저장"}
           </ActionButton>
