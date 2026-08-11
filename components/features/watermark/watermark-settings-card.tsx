@@ -212,10 +212,11 @@ export function WatermarkSettingsCard() {
           </p>
         )}
 
-        <div className="flex flex-wrap gap-2">
-          <ActionButton disabled={busy || (!watermark?.exists && !selectedFile)} loading={busy}>
-            {busy ? "저장 중..." : watermark?.exists ? "워터마크 수정" : "워터마크 등록"}
-          </ActionButton>
+        {(watermark?.exists || selectedFile) && (
+          <div className="flex flex-wrap gap-2">
+            <ActionButton disabled={busy} loading={busy}>
+              {busy ? "저장 중..." : watermark?.exists ? "워터마크 수정" : "워터마크 등록"}
+            </ActionButton>
           {watermark?.exists && (
             <button
               className="flex h-12 items-center gap-2 rounded-md border border-rose-200 px-5 font-extrabold text-rose-700 transition hover:bg-rose-50 disabled:cursor-wait disabled:opacity-50"
@@ -227,7 +228,8 @@ export function WatermarkSettingsCard() {
               삭제
             </button>
           )}
-        </div>
+          </div>
+        )}
       </form>
 
       {message && <p className={statusClassName(status)}>{message}</p>}
