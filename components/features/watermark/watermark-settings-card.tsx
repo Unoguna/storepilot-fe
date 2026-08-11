@@ -1,6 +1,6 @@
 "use client";
 
-import { ChangeEvent, FormEvent, useEffect, useRef, useState } from "react";
+import { ChangeEvent, CSSProperties, FormEvent, useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import { Stamp, Trash2 } from "lucide-react";
 import { ActionButton } from "@/components/ui/action-button";
@@ -184,8 +184,30 @@ export function WatermarkSettingsCard() {
         </label>
 
         {previewUrl && (
-          <div className="grid min-h-64 place-items-center rounded-lg border border-slate-200 bg-[linear-gradient(45deg,#f1f5f9_25%,transparent_25%),linear-gradient(-45deg,#f1f5f9_25%,transparent_25%),linear-gradient(45deg,transparent_75%,#f1f5f9_75%),linear-gradient(-45deg,transparent_75%,#f1f5f9_75%)] bg-[length:24px_24px] bg-[position:0_0,0_12px,12px_-12px,-12px_0px] p-6">
-            <Image alt="워터마크 미리보기" className="max-h-56 w-auto object-contain" height={224} src={previewUrl} unoptimized width={400} />
+          <div className="grid gap-2">
+            <span className="text-sm font-extrabold text-slate-700">적용 미리보기</span>
+            <div className="relative aspect-square w-full max-w-sm overflow-hidden rounded-lg border border-slate-200 bg-[radial-gradient(circle_at_35%_30%,#ffffff_0%,#e2e8f0_45%,#cbd5e1_100%)] shadow-inner">
+              <div className="absolute inset-[12%] rounded-full border-[14px] border-white/45 bg-white/20 shadow-[0_20px_50px_rgba(15,23,42,0.12)]" />
+              <span className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 text-sm font-black text-slate-500/50">
+                상품 이미지 영역
+              </span>
+              <Image
+                alt="워터마크 적용 미리보기"
+                className="absolute z-10 h-auto max-h-[96%] object-contain"
+                height={400}
+                src={previewUrl}
+                style={{
+                  ...watermarkPreviewPosition(position),
+                  opacity: opacity / 100,
+                  width: `${sizePercent}%`,
+                }}
+                unoptimized
+                width={400}
+              />
+            </div>
+            <span className="text-xs font-semibold text-slate-500">
+              실제 다운로드 이미지의 위치, 불투명도, 크기를 미리 보여줍니다.
+            </span>
           </div>
         )}
 
@@ -280,4 +302,20 @@ function formatBytes(value: number) {
     return `${value} B`;
   }
   return `${(value / 1024).toFixed(1)} KB`;
+}
+
+function watermarkPreviewPosition(position: WatermarkPosition): CSSProperties {
+  const margin = "2%";
+  switch (position) {
+    case "TOP_LEFT":
+      return { left: margin, top: margin };
+    case "TOP_RIGHT":
+      return { right: margin, top: margin };
+    case "CENTER":
+      return { left: "50%", top: "50%", transform: "translate(-50%, -50%)" };
+    case "BOTTOM_LEFT":
+      return { bottom: margin, left: margin };
+    case "BOTTOM_RIGHT":
+      return { bottom: margin, right: margin };
+  }
 }
