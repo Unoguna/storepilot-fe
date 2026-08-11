@@ -5,6 +5,7 @@ import {
   MessageResponse,
   MyCategoryMappingListResponse,
   MyCategoryMappingUploadResponse,
+  ProductImageDownloadFailure,
   ProductImageDownloadPrepareResponse,
   ProductExcelJobCreateResponse,
   ProductExcelJobStatusResponse,
@@ -23,6 +24,7 @@ const API_BASE = resolveApiBase();
 const PRODUCT_EXCEL_JOB_URL = `${API_BASE}/api/v1/product-excel-jobs`;
 const IMAGE_DOWNLOAD_PREPARE_URL = `${API_BASE}/api/v1/product-excel-jobs/images/prepare`;
 const IMAGE_DOWNLOAD_URL = `${API_BASE}/api/v1/product-excel-jobs/images/download`;
+const IMAGE_FAILURE_EXCEL_URL = `${API_BASE}/api/v1/product-excel-jobs/images/failures/excel`;
 const CATEGORY_UPLOAD_URL = `${API_BASE}/api/v1/admin/naver-categories/upload`;
 const MY_CATEGORY_MAPPING_URL = `${API_BASE}/api/v1/my-category-mappings`;
 const TRAINING_PRODUCT_UPLOAD_URL = `${API_BASE}/api/v1/admin/training-products/rebuild`;
@@ -195,6 +197,20 @@ export async function downloadProductImage(url: string) {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ url }),
+  });
+
+  if (!response.ok) {
+    throw new Error(await readErrorMessage(response));
+  }
+
+  return response;
+}
+
+export async function downloadImageFailureExcel(failures: ProductImageDownloadFailure[]) {
+  const response = await fetchWithAuth(IMAGE_FAILURE_EXCEL_URL, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ failures }),
   });
 
   if (!response.ok) {
