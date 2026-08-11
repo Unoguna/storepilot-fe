@@ -192,11 +192,11 @@ export async function prepareImageDownloads(file: File) {
   return (await response.json()) as ProductImageDownloadPrepareResponse;
 }
 
-export async function downloadProductImage(url: string) {
+export async function downloadProductImage(url: string, targetSizePercent: number) {
   const response = await fetchWithAuth(IMAGE_DOWNLOAD_URL, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ url }),
+    body: JSON.stringify({ url, targetSizePercent }),
   });
 
   if (!response.ok) {
