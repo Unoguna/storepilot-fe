@@ -14,6 +14,7 @@ import {
   LogOut,
   PackagePlus,
   SearchCheck,
+  Stamp,
   Upload,
   UserX,
   type LucideIcon,
@@ -27,6 +28,7 @@ import { QnaPage } from "@/components/features/qna/qna-page";
 import { TrainingProductAddCard } from "@/components/features/training-product/training-product-add-card";
 import { TrainingProductCategoryStatsPage } from "@/components/features/training-product/training-product-category-stats-page";
 import { TrainingProductUploadCard } from "@/components/features/training-product/training-product-upload-card";
+import { WatermarkSettingsCard } from "@/components/features/watermark/watermark-settings-card";
 import { AuthPanel } from "@/components/features/auth/auth-panel";
 import { deleteAccount, getCurrentUser, getMyCategoryMappings, logout } from "@/lib/api";
 import { AuthUser } from "@/types/store-pilot";
@@ -35,6 +37,7 @@ type HomeView =
   | "dashboard"
   | "product-excel-upload"
   | "product-image-download"
+  | "watermark-settings"
   | "naver-category-upload"
   | "my-category-upload"
   | "my-category-mappings"
@@ -173,6 +176,10 @@ export function AuthenticatedHome({ currentView = "dashboard" }: AuthenticatedHo
       return <FullWidthContent><ProductImageDownloadCard /></FullWidthContent>;
     }
 
+    if (currentView === "watermark-settings") {
+      return <FullWidthContent><WatermarkSettingsCard /></FullWidthContent>;
+    }
+
     if (currentView === "naver-category-upload") {
       return isAdmin ? <FullWidthContent><CategoryUploadCard /></FullWidthContent> : <AccessDeniedMessage />;
     }
@@ -237,6 +244,9 @@ export function AuthenticatedHome({ currentView = "dashboard" }: AuthenticatedHo
             </SidebarButton>
             <SidebarButton active={currentView === "product-image-download"} icon={ImageDown} onClick={() => moveTo("/product-images/download")}>
               상품 이미지 다운로드
+            </SidebarButton>
+            <SidebarButton active={currentView === "watermark-settings"} icon={Stamp} onClick={() => moveTo("/watermarks")}>
+              워터마크 설정
             </SidebarButton>
             <SidebarButton active={currentView === "my-category-upload"} icon={Upload} onClick={() => moveTo("/my-category-mappings/upload")}>
               마이카테고리 업로드
