@@ -14,7 +14,9 @@ import {
   saveBlobToHandle,
 } from "@/lib/file-download";
 import { labelForFile } from "@/lib/format";
-import { ProductImageDownloadFailure, RequestState } from "@/types/store-pilot";
+import { FileSystemDirectoryHandle, ProductImageDownloadFailure, RequestState } from "@/types/store-pilot";
+
+const IMAGE_DOWNLOAD_CONCURRENCY = 3;
 
 export function ProductImageDownloadCard() {
   const [productFile, setProductFile] = useState<File | null>(null);
@@ -68,25 +70,35 @@ export function ProductImageDownloadCard() {
       const { images } = prepareBody.data;
       const failures: ProductImageDownloadFailure[] = [...prepareBody.data.failures];
       let savedCount = 0;
+      let completedCount = 0;
+      let nextIndex = 0;
 
-      for (let index = 0; index < images.length; index++) {
-        const image = images[index];
-        setImageMessage(`이미지 저장 중: ${index + 1} / ${images.length}`);
-        try {
-          const response = await downloadProductImage(image.url, targetSizePercent);
-          const blob = await response.blob();
-          await saveBlobToDirectory(blob, directoryHandle, image.filename);
-          savedCount++;
-        } catch (error) {
-          failures.push({
-            rowNumber: image.rowNumber,
-            name: image.name,
-            url: image.url,
-            reason: error instanceof Error ? error.message : "이미지를 저장하지 못했습니다.",
-          });
+      async function downloadWorker(saveDirectoryHandle: FileSystemDirectoryHandle) {
+        while (nextIndex < images.length) {
+          const image = images[nextIndex++];
+          try {
+            const response = await downloadProductImage(image.url, targetSizePercent);
+            const blob = await response.blob();
+            await saveBlobToDirectory(blob, saveDirectoryHandle, image.filename);
+            savedCount++;
+          } catch (error) {
+            failures.push({
+              rowNumber: image.rowNumber,
+              name: image.name,
+              url: image.url,
+              reason: error instanceof Error ? error.message : "이미지를 저장하지 못했습니다.",
+            });
+          } finally {
+            completedCount++;
+            setImageMessage(`이미지 저장 중: ${completedCount} / ${images.length}`);
+          }
         }
       }
 
+      const workerCount = Math.min(IMAGE_DOWNLOAD_CONCURRENCY, images.length);
+      await Promise.all(Array.from({ length: workerCount }, () => downloadWorker(directoryHandle)));
+
+      failures.sort((first, second) => first.rowNumber - second.rowNumber);
       setImageFailures(failures);
       setImageStatus("success");
       setImageMessage(`이미지 다운로드 완료: 성공 ${savedCount.toLocaleString()}개, 실패/건너뜀 ${failures.length.toLocaleString()}개`);
