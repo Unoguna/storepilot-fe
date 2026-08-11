@@ -1,10 +1,11 @@
 "use client";
 
-import { ChangeEvent, FormEvent, useMemo, useState } from "react";
+import { ChangeEvent, FormEvent, useEffect, useMemo, useState } from "react";
+import Link from "next/link";
 import { ImageDown } from "lucide-react";
 import { ActionButton } from "@/components/ui/action-button";
 import { UploadCard } from "@/components/ui/upload-card";
-import { downloadImageFailureExcel, downloadProductImage, prepareImageDownloads } from "@/lib/api";
+import { downloadImageFailureExcel, downloadProductImage, getMyWatermark, prepareImageDownloads } from "@/lib/api";
 import {
   chooseDirectoryHandle,
   chooseSaveHandle,
@@ -25,8 +26,41 @@ export function ProductImageDownloadCard() {
   const [imageFailures, setImageFailures] = useState<ProductImageDownloadFailure[]>([]);
   const [failureExcelSaving, setFailureExcelSaving] = useState(false);
   const [targetSizePercent, setTargetSizePercent] = useState(70);
+  const [watermarkExists, setWatermarkExists] = useState(false);
+  const [applyWatermark, setApplyWatermark] = useState(false);
+  const [watermarkLoading, setWatermarkLoading] = useState(true);
 
   const productFileLabel = useMemo(() => labelForFile(productFile), [productFile]);
+
+  useEffect(() => {
+    let active = true;
+
+    async function loadWatermark() {
+      try {
+        const body = await getMyWatermark();
+        if (!active) {
+          return;
+        }
+        const exists = body.data?.exists ?? false;
+        setWatermarkExists(exists);
+        setApplyWatermark(exists);
+      } catch {
+        if (active) {
+          setWatermarkExists(false);
+          setApplyWatermark(false);
+        }
+      } finally {
+        if (active) {
+          setWatermarkLoading(false);
+        }
+      }
+    }
+
+    loadWatermark();
+    return () => {
+      active = false;
+    };
+  }, []);
 
   function handleProductFileChange(event: ChangeEvent<HTMLInputElement>) {
     const selectedFile = event.target.files?.[0] ?? null;
@@ -77,7 +111,7 @@ export function ProductImageDownloadCard() {
         while (nextIndex < images.length) {
           const image = images[nextIndex++];
           try {
-            const response = await downloadProductImage(image.url, targetSizePercent);
+            const response = await downloadProductImage(image.url, targetSizePercent, applyWatermark);
             const blob = await response.blob();
             await saveBlobToDirectory(blob, saveDirectoryHandle, image.filename);
             savedCount++;
@@ -147,6 +181,29 @@ export function ProductImageDownloadCard() {
     >
       {productFile && (
         <form className="grid gap-2" onSubmit={handleImageSubmit}>
+          <div className="grid gap-2 rounded-md border border-slate-200 bg-slate-50 px-3 py-3 text-sm text-slate-700">
+            <label className="flex items-center gap-2 font-extrabold">
+              <input
+                checked={applyWatermark}
+                className="size-4 accent-teal-700"
+                disabled={imageStatus === "uploading" || watermarkLoading || !watermarkExists}
+                onChange={(event) => setApplyWatermark(event.target.checked)}
+                type="checkbox"
+              />
+              내 워터마크 적용
+            </label>
+            <p className="text-xs font-semibold text-slate-500">
+              {watermarkLoading
+                ? "워터마크 설정을 확인하는 중입니다..."
+                : watermarkExists
+                  ? "저장된 워터마크를 모든 다운로드 이미지에 적용할 수 있습니다."
+                  : "등록된 워터마크가 없습니다."}
+              {" "}
+              <Link className="font-extrabold text-teal-700 underline underline-offset-2" href="/watermarks">
+                워터마크 설정
+              </Link>
+            </p>
+          </div>
           <label className="grid gap-2 rounded-md border border-slate-200 bg-slate-50 px-3 py-3 text-sm font-semibold text-slate-700">
             <span className="flex items-center justify-between gap-3">
               <span>목표 이미지 용량</span>

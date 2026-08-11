@@ -17,6 +17,8 @@ import {
   QnaQuestionListResponse,
   QnaQuestionResponse,
   TrainingProductUploadResponse,
+  UserWatermarkResponse,
+  WatermarkPosition,
 } from "@/types/store-pilot";
 
 const API_BASE = resolveApiBase();
@@ -25,6 +27,7 @@ const PRODUCT_EXCEL_JOB_URL = `${API_BASE}/api/v1/product-excel-jobs`;
 const IMAGE_DOWNLOAD_PREPARE_URL = `${API_BASE}/api/v1/product-excel-jobs/images/prepare`;
 const IMAGE_DOWNLOAD_URL = `${API_BASE}/api/v1/product-excel-jobs/images/download`;
 const IMAGE_FAILURE_EXCEL_URL = `${API_BASE}/api/v1/product-excel-jobs/images/failures/excel`;
+const USER_WATERMARK_URL = `${API_BASE}/api/v1/users/me/watermark`;
 const CATEGORY_UPLOAD_URL = `${API_BASE}/api/v1/admin/naver-categories/upload`;
 const MY_CATEGORY_MAPPING_URL = `${API_BASE}/api/v1/my-category-mappings`;
 const TRAINING_PRODUCT_UPLOAD_URL = `${API_BASE}/api/v1/admin/training-products/rebuild`;
@@ -192,11 +195,11 @@ export async function prepareImageDownloads(file: File) {
   return (await response.json()) as ProductImageDownloadPrepareResponse;
 }
 
-export async function downloadProductImage(url: string, targetSizePercent: number) {
+export async function downloadProductImage(url: string, targetSizePercent: number, applyWatermark: boolean) {
   const response = await fetchWithAuth(IMAGE_DOWNLOAD_URL, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ url, targetSizePercent }),
+    body: JSON.stringify({ url, targetSizePercent, applyWatermark }),
   });
 
   if (!response.ok) {
@@ -204,6 +207,59 @@ export async function downloadProductImage(url: string, targetSizePercent: numbe
   }
 
   return response;
+}
+
+export async function getMyWatermark() {
+  const response = await fetchWithAuth(USER_WATERMARK_URL, {
+    cache: "no-store",
+  });
+  if (!response.ok) {
+    throw new Error(await readErrorMessage(response));
+  }
+  return (await response.json()) as UserWatermarkResponse;
+}
+
+export async function getMyWatermarkImage() {
+  const response = await fetchWithAuth(`${USER_WATERMARK_URL}/image`, {
+    cache: "no-store",
+  });
+  if (!response.ok) {
+    throw new Error(await readErrorMessage(response));
+  }
+  return response;
+}
+
+export async function saveMyWatermark(
+  file: File | null,
+  position: WatermarkPosition,
+  opacity: number,
+  sizePercent: number,
+) {
+  const formData = new FormData();
+  if (file) {
+    formData.append("file", file);
+  }
+  formData.append("position", position);
+  formData.append("opacity", String(opacity));
+  formData.append("sizePercent", String(sizePercent));
+
+  const response = await fetchWithAuth(USER_WATERMARK_URL, {
+    method: "PUT",
+    body: formData,
+  });
+  if (!response.ok) {
+    throw new Error(await readErrorMessage(response));
+  }
+  return (await response.json()) as UserWatermarkResponse;
+}
+
+export async function deleteMyWatermark() {
+  const response = await fetchWithAuth(USER_WATERMARK_URL, {
+    method: "DELETE",
+  });
+  if (!response.ok) {
+    throw new Error(await readErrorMessage(response));
+  }
 }
 
 export async function downloadImageFailureExcel(failures: ProductImageDownloadFailure[]) {

@@ -170,6 +170,25 @@ export type TrainingProductUploadResponse = {
   code?: string;
 };
 
+export type WatermarkPosition = "TOP_LEFT" | "TOP_RIGHT" | "CENTER" | "BOTTOM_LEFT" | "BOTTOM_RIGHT";
+
+export type UserWatermark = {
+  exists: boolean;
+  originalFilename: string | null;
+  fileSize: number;
+  position: WatermarkPosition;
+  opacity: number;
+  sizePercent: number;
+  updatedAt: string | null;
+};
+
+export type UserWatermarkResponse = {
+  success: boolean;
+  data?: UserWatermark;
+  message?: string;
+  code?: string;
+};
+
 export type ProductCategoryStatItem = {
   naverCategoryId: number;
   naverCategoryCode: string;
