@@ -4,8 +4,15 @@ import { ChangeEvent, FormEvent, useMemo, useState } from "react";
 import { ImageDown } from "lucide-react";
 import { ActionButton } from "@/components/ui/action-button";
 import { UploadCard } from "@/components/ui/upload-card";
-import { downloadProductImage, prepareImageDownloads } from "@/lib/api";
-import { chooseDirectoryHandle, saveBlobToDirectory } from "@/lib/file-download";
+import { downloadImageFailureExcel, downloadProductImage, prepareImageDownloads } from "@/lib/api";
+import {
+  chooseDirectoryHandle,
+  chooseSaveHandle,
+  downloadBlob,
+  parseFilename,
+  saveBlobToDirectory,
+  saveBlobToHandle,
+} from "@/lib/file-download";
 import { labelForFile } from "@/lib/format";
 import { ProductImageDownloadFailure, RequestState } from "@/types/store-pilot";
 
@@ -14,6 +21,7 @@ export function ProductImageDownloadCard() {
   const [imageStatus, setImageStatus] = useState<RequestState>("idle");
   const [imageMessage, setImageMessage] = useState("");
   const [imageFailures, setImageFailures] = useState<ProductImageDownloadFailure[]>([]);
+  const [failureExcelSaving, setFailureExcelSaving] = useState(false);
 
   const productFileLabel = useMemo(() => labelForFile(productFile), [productFile]);
 
@@ -87,6 +95,34 @@ export function ProductImageDownloadCard() {
     }
   }
 
+  async function handleFailureExcelDownload() {
+    const fallbackFilename = "image_download_failures.xlsx";
+    const saveHandle = await chooseSaveHandle(fallbackFilename, "Excel workbook", {
+      "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet": [".xlsx"],
+    });
+    if (saveHandle === "cancelled") {
+      return;
+    }
+
+    setFailureExcelSaving(true);
+    try {
+      const response = await downloadImageFailureExcel(imageFailures);
+      const blob = await response.blob();
+      const filename = parseFilename(response.headers.get("Content-Disposition")) ?? fallbackFilename;
+
+      if (saveHandle) {
+        await saveBlobToHandle(blob, saveHandle);
+      } else {
+        downloadBlob(blob, filename);
+      }
+      setImageMessage(`실패 목록 엑셀을 저장했습니다: ${imageFailures.length.toLocaleString()}건`);
+    } catch (error) {
+      setImageMessage(error instanceof Error ? error.message : "실패 목록 엑셀을 저장하지 못했습니다.");
+    } finally {
+      setFailureExcelSaving(false);
+    }
+  }
+
   return (
     <UploadCard
       title="상품 이미지 다운로드"
@@ -102,25 +138,35 @@ export function ProductImageDownloadCard() {
             {imageStatus === "uploading" ? "이미지 저장 중..." : "이미지 폴더 저장"}
           </ActionButton>
           {imageFailures.length > 0 && (
-            <div className="max-h-56 overflow-auto rounded-md border border-rose-200 bg-rose-50">
-              <table className="min-w-full border-collapse text-left text-xs">
-                <thead className="sticky top-0 bg-rose-100 text-rose-900">
-                  <tr>
-                    <th className="whitespace-nowrap px-3 py-2 font-bold">행</th>
-                    <th className="whitespace-nowrap px-3 py-2 font-bold">파일명</th>
-                    <th className="whitespace-nowrap px-3 py-2 font-bold">이유</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-rose-100 text-rose-950">
-                  {imageFailures.map((failure) => (
-                    <tr key={`${failure.rowNumber}-${failure.name}-${failure.url}`}>
-                      <td className="whitespace-nowrap px-3 py-2 font-semibold">{failure.rowNumber}</td>
-                      <td className="min-w-24 px-3 py-2">{failure.name || "-"}</td>
-                      <td className="min-w-48 px-3 py-2">{failure.reason || "이미지를 저장하지 못했습니다."}</td>
+            <div className="grid gap-2">
+              <div className="max-h-56 overflow-auto rounded-md border border-rose-200 bg-rose-50">
+                <table className="min-w-full border-collapse text-left text-xs">
+                  <thead className="sticky top-0 bg-rose-100 text-rose-900">
+                    <tr>
+                      <th className="whitespace-nowrap px-3 py-2 font-bold">행</th>
+                      <th className="whitespace-nowrap px-3 py-2 font-bold">파일명</th>
+                      <th className="whitespace-nowrap px-3 py-2 font-bold">이유</th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
+                  </thead>
+                  <tbody className="divide-y divide-rose-100 text-rose-950">
+                    {imageFailures.map((failure) => (
+                      <tr key={`${failure.rowNumber}-${failure.name}-${failure.url}`}>
+                        <td className="whitespace-nowrap px-3 py-2 font-semibold">{failure.rowNumber}</td>
+                        <td className="min-w-24 px-3 py-2">{failure.name || "-"}</td>
+                        <td className="min-w-48 px-3 py-2">{failure.reason || "이미지를 저장하지 못했습니다."}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+              <ActionButton
+                disabled={failureExcelSaving || imageStatus === "uploading"}
+                loading={failureExcelSaving}
+                onClick={handleFailureExcelDownload}
+                type="button"
+              >
+                {failureExcelSaving ? "실패 목록 저장 중..." : "실패 목록 엑셀 저장"}
+              </ActionButton>
             </div>
           )}
         </form>
