@@ -30,7 +30,8 @@ import { TrainingProductCategoryStatsPage } from "@/components/features/training
 import { TrainingProductUploadCard } from "@/components/features/training-product/training-product-upload-card";
 import { WatermarkSettingsCard } from "@/components/features/watermark/watermark-settings-card";
 import { AuthPanel } from "@/components/features/auth/auth-panel";
-import { deleteAccount, getCurrentUser, getMyCategoryMappings, logout } from "@/lib/api";
+import { useAuthSession } from "@/components/features/auth/auth-session-provider";
+import { deleteAccount, getMyCategoryMappings, logout } from "@/lib/api";
 import { AuthUser } from "@/types/store-pilot";
 
 type HomeView =
@@ -52,27 +53,17 @@ type AuthenticatedHomeProps = {
 
 export function AuthenticatedHome({ currentView = "dashboard" }: AuthenticatedHomeProps) {
   const router = useRouter();
-  const [user, setUser] = useState<AuthUser | null>(null);
-  const [loading, setLoading] = useState(true);
+  const { user, loading, setUser } = useAuthSession();
   const [accountMenuOpen, setAccountMenuOpen] = useState(false);
   const [myCategoryRedirectNotified, setMyCategoryRedirectNotified] = useState(false);
   const accountMenuRef = useRef<HTMLDivElement | null>(null);
   const myCategoryRedirectRef = useRef(false);
 
   useEffect(() => {
-    async function restoreSession() {
-      try {
-        const body = await getCurrentUser();
-        setUser(body.data ?? null);
-      } catch {
-        setUser(null);
-      } finally {
-        setLoading(false);
-      }
+    if (!loading && !user && currentView !== "dashboard") {
+      router.replace("/");
     }
-
-    restoreSession();
-  }, []);
+  }, [currentView, loading, router, user]);
 
   useEffect(() => {
     if (!user || currentView !== "product-excel-upload" || myCategoryRedirectNotified || myCategoryRedirectRef.current) {
@@ -132,8 +123,12 @@ export function AuthenticatedHome({ currentView = "dashboard" }: AuthenticatedHo
     } finally {
       setAccountMenuOpen(false);
       setUser(null);
-      router.push("/");
+      router.replace("/");
     }
+  }
+
+  function handleAuthenticated(authenticatedUser: AuthUser) {
+    setUser(authenticatedUser);
   }
 
   async function handleDeleteAccount() {
@@ -146,22 +141,20 @@ export function AuthenticatedHome({ currentView = "dashboard" }: AuthenticatedHo
       await deleteAccount();
       setAccountMenuOpen(false);
       setUser(null);
-      window.location.assign("/");
+      router.replace("/");
     } catch (error) {
       window.alert(error instanceof Error ? error.message : "회원 탈퇴 중 오류가 발생했습니다.");
     }
   }
 
   if (loading) {
-    return (
-      <main className="grid min-h-screen place-items-center bg-[#f5f7f6] px-4 text-[#172126]">
-        <p className="text-sm font-extrabold text-slate-600">로그인 상태를 확인하는 중입니다...</p>
-      </main>
-    );
+    return <AppLoadingShell />;
   }
 
   if (!user) {
-    return <AuthPanel onAuthenticated={setUser} />;
+    return currentView === "dashboard"
+      ? <AuthPanel onAuthenticated={handleAuthenticated} />
+      : <AppLoadingShell />;
   }
 
   const authenticatedUser = user;
@@ -221,7 +214,7 @@ export function AuthenticatedHome({ currentView = "dashboard" }: AuthenticatedHo
         <aside className="flex h-full min-h-0 flex-col overflow-hidden border-b border-slate-200 bg-white px-4 py-4 shadow-sm lg:border-b-0 lg:border-r">
           <button
             className="mb-5 flex h-11 cursor-pointer items-center gap-2 rounded-md px-3 text-left text-xl font-black tracking-normal text-slate-950"
-            onClick={() => window.location.assign("/")}
+            onClick={() => router.push("/")}
             type="button"
           >
             <Image
@@ -236,7 +229,7 @@ export function AuthenticatedHome({ currentView = "dashboard" }: AuthenticatedHo
           </button>
 
           <nav className="grid gap-1" aria-label="주요 메뉴">
-            <SidebarButton active={currentView === "dashboard"} icon={Home} onClick={() => window.location.assign("/")}>
+            <SidebarButton active={currentView === "dashboard"} icon={Home} onClick={() => moveTo("/")}>
               홈
             </SidebarButton>
             <SidebarButton active={currentView === "product-excel-upload"} icon={SearchCheck} onClick={() => moveTo("/product-excel-jobs/upload")}>
@@ -361,5 +354,41 @@ function AccessDeniedMessage() {
     <section className="rounded-md border border-red-100 bg-white p-6 text-sm font-bold text-red-700 shadow-sm lg:col-span-2">
       접근 권한이 없습니다.
     </section>
+  );
+}
+
+function AppLoadingShell() {
+  return (
+    <main
+      aria-label="페이지를 준비하는 중"
+      aria-live="polite"
+      className="h-screen overflow-hidden bg-[#f5f7f6] text-[#172126]"
+    >
+      <div className="grid h-full min-h-0 lg:grid-cols-[280px_1fr]">
+        <aside className="hidden h-full border-r border-slate-200 bg-white px-4 py-4 shadow-sm lg:block">
+          <div className="mb-6 flex h-11 items-center gap-2 px-3">
+            <div className="size-8 animate-pulse rounded-full bg-teal-100" />
+            <div className="h-5 w-28 animate-pulse rounded bg-slate-200" />
+          </div>
+          <div className="grid gap-2 px-3">
+            {Array.from({ length: 7 }, (_, index) => (
+              <div className="flex h-10 items-center gap-3" key={index}>
+                <div className="size-4 animate-pulse rounded bg-slate-200" />
+                <div className="h-3 w-36 animate-pulse rounded bg-slate-200" />
+              </div>
+            ))}
+          </div>
+        </aside>
+        <section className="px-4 py-6 sm:px-6 lg:px-8 lg:py-8">
+          <div className="grid gap-5 rounded-lg border border-slate-200 bg-white p-6 shadow-[0_14px_40px_rgba(23,33,38,0.08)]">
+            <div className="h-6 w-52 animate-pulse rounded bg-slate-200" />
+            <div className="h-4 w-full max-w-xl animate-pulse rounded bg-slate-100" />
+            <div className="h-36 animate-pulse rounded-lg border border-slate-100 bg-slate-50" />
+            <div className="h-12 w-36 animate-pulse rounded-md bg-teal-100" />
+          </div>
+        </section>
+      </div>
+      <span className="sr-only">페이지를 준비하고 있습니다.</span>
+    </main>
   );
 }
