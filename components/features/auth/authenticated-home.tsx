@@ -25,6 +25,8 @@ import { MyCategoryMappingListPage } from "@/components/features/my-category/my-
 import { ProductExcelCard } from "@/components/features/product/product-excel-card";
 import { ProductImageDownloadCard } from "@/components/features/product/product-image-download-card";
 import { QnaPage } from "@/components/features/qna/qna-page";
+import { QnaFaqDetailPage } from "@/components/features/qna/qna-faq-detail-page";
+import { QnaQuestionDetailPage } from "@/components/features/qna/qna-question-detail-page";
 import { TrainingProductAddCard } from "@/components/features/training-product/training-product-add-card";
 import { TrainingProductCategoryStatsPage } from "@/components/features/training-product/training-product-category-stats-page";
 import { TrainingProductUploadCard } from "@/components/features/training-product/training-product-upload-card";
@@ -43,15 +45,19 @@ type HomeView =
   | "my-category-upload"
   | "my-category-mappings"
   | "qna"
+  | "qna-faq-detail"
+  | "qna-question-detail"
   | "training-product-upload"
   | "training-product-add"
   | "training-product-category-stats";
 
 type AuthenticatedHomeProps = {
   currentView?: HomeView;
+  faqId?: number;
+  questionId?: number;
 };
 
-export function AuthenticatedHome({ currentView = "dashboard" }: AuthenticatedHomeProps) {
+export function AuthenticatedHome({ currentView = "dashboard", faqId, questionId }: AuthenticatedHomeProps) {
   const router = useRouter();
   const { user, loading, setUser } = useAuthSession();
   const [accountMenuOpen, setAccountMenuOpen] = useState(false);
@@ -189,6 +195,14 @@ export function AuthenticatedHome({ currentView = "dashboard" }: AuthenticatedHo
       return <QnaPage user={authenticatedUser} />;
     }
 
+    if (currentView === "qna-faq-detail" && faqId !== undefined) {
+      return <QnaFaqDetailPage faqId={faqId} user={authenticatedUser} />;
+    }
+
+    if (currentView === "qna-question-detail" && questionId !== undefined) {
+      return <QnaQuestionDetailPage questionId={questionId} user={authenticatedUser} />;
+    }
+
     if (currentView === "training-product-upload") {
       return isAdmin ? <FullWidthContent><TrainingProductUploadCard /></FullWidthContent> : <AccessDeniedMessage />;
     }
@@ -247,7 +261,7 @@ export function AuthenticatedHome({ currentView = "dashboard" }: AuthenticatedHo
             <SidebarButton active={currentView === "my-category-mappings"} icon={ListTree} onClick={() => moveTo("/my-category-mappings")}>
               마이카테고리 조회
             </SidebarButton>
-            <SidebarButton active={currentView === "qna"} icon={CircleHelp} onClick={() => moveTo("/qna")}>
+            <SidebarButton active={currentView === "qna" || currentView === "qna-faq-detail" || currentView === "qna-question-detail"} icon={CircleHelp} onClick={() => moveTo("/qna")}>
               QnA
             </SidebarButton>
           </nav>

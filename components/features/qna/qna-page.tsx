@@ -1,10 +1,10 @@
 "use client";
 
 import { FormEvent, useEffect, useMemo, useState } from "react";
+import Link from "next/link";
 import { CircleHelp, MessageCircleQuestion, Pencil, Send, Trash2 } from "lucide-react";
 import { ActionButton } from "@/components/ui/action-button";
 import {
-  answerQnaQuestion,
   createQnaFaq,
   createQnaQuestion,
   deleteQnaQuestion,
@@ -42,7 +42,6 @@ export function QnaPage({ user }: QnaPageProps) {
   const [faqQuestion, setFaqQuestion] = useState("");
   const [faqAnswer, setFaqAnswer] = useState("");
   const [faqSortOrder, setFaqSortOrder] = useState("0");
-  const [answerDrafts, setAnswerDrafts] = useState<Record<number, string>>({});
   const [deletingQuestionId, setDeletingQuestionId] = useState<number | null>(null);
   const [loading, setLoading] = useState(true);
   const [status, setStatus] = useState<RequestState>("idle");
@@ -153,23 +152,6 @@ export function QnaPage({ user }: QnaPageProps) {
     setFaqQuestion("");
     setFaqAnswer("");
     setFaqSortOrder("0");
-  }
-
-  async function handleAnswerSubmit(questionId: number) {
-    const answer = answerDrafts[questionId] ?? "";
-    setStatus("uploading");
-    setMessage("답변을 등록하는 중입니다...");
-
-    try {
-      await answerQnaQuestion(questionId, answer);
-      setAnswerDrafts((drafts) => ({ ...drafts, [questionId]: "" }));
-      setStatus("success");
-      setMessage("답변이 등록되었습니다.");
-      await loadQna();
-    } catch (error) {
-      setStatus("error");
-      setMessage(error instanceof Error ? error.message : "답변 등록 중 오류가 발생했습니다.");
-    }
   }
 
   async function handleQuestionDelete(question: QnaQuestion) {
@@ -286,11 +268,17 @@ export function QnaPage({ user }: QnaPageProps) {
 
           <div className="rounded-lg border border-slate-200 bg-white p-6 shadow-sm">
             <div className="flex items-center gap-2">
-              <CircleHelp className="size-5 shrink-0 text-teal-700" aria-hidden="true" />
-              <h3 className="text-lg font-black text-slate-950">자주 묻는 질문</h3>
+              <MessageCircleQuestion className="size-5 shrink-0 text-teal-700" aria-hidden="true" />
+              <h3 className="text-lg font-black text-slate-950">{isAdmin ? "문의 관리" : "문의 내역"}</h3>
             </div>
 
-            <div className="mt-4 grid gap-2">
+            <section className="mt-5">
+              <div className="flex items-center gap-2">
+                <CircleHelp className="size-4 shrink-0 text-teal-700" aria-hidden="true" />
+                <h4 className="text-sm font-black text-slate-800">자주 묻는 질문</h4>
+              </div>
+
+              <div className="mt-3 grid gap-2">
               {loading && <p className="text-sm font-bold text-slate-500">불러오는 중입니다...</p>}
               {!loading && faqs.length === 0 && (
                 <p className="rounded-md bg-slate-50 p-4 text-sm font-bold text-slate-500">
@@ -298,18 +286,27 @@ export function QnaPage({ user }: QnaPageProps) {
                 </p>
               )}
               {faqs.map((faq) => (
-                <details key={faq.id} className="group rounded-md border border-slate-200 bg-slate-50 px-4 py-3">
-                  <summary className="cursor-pointer list-none text-sm font-extrabold text-slate-800">
-                    <span className={!faq.active ? "text-slate-400" : ""}>{faq.question}</span>
+                <article
+                  key={faq.id}
+                  className="flex flex-wrap items-center justify-between gap-2 rounded-md border border-slate-200 bg-slate-50 px-4 py-3"
+                >
+                  <div className="min-w-0">
+                    <Link
+                      className={`break-words text-sm font-extrabold transition hover:text-teal-700 hover:underline ${
+                        faq.active ? "text-slate-800" : "text-slate-400"
+                      }`}
+                      href={`/qna/faqs/${faq.id}`}
+                    >
+                      {faq.question}
+                    </Link>
                     {isAdmin && !faq.active && (
                       <span className="ml-2 rounded-full bg-slate-200 px-2 py-0.5 text-xs font-black text-slate-500">
                         숨김
                       </span>
                     )}
-                  </summary>
-                  <p className="mt-3 whitespace-pre-wrap text-sm leading-6 text-slate-600">{faq.answer}</p>
+                  </div>
                   {isAdmin && (
-                    <div className="mt-3 flex flex-wrap gap-2 border-t border-slate-200 pt-3">
+                    <div className="flex flex-wrap gap-2">
                       <button
                         className="h-9 cursor-pointer rounded-md border border-slate-200 px-3 text-xs font-extrabold text-slate-700 transition hover:bg-white"
                         onClick={() => startFaqEdit(faq)}
@@ -326,18 +323,15 @@ export function QnaPage({ user }: QnaPageProps) {
                       </button>
                     </div>
                   )}
-                </details>
+                </article>
               ))}
-            </div>
-          </div>
+              </div>
+            </section>
 
-          <div className="rounded-lg border border-slate-200 bg-white p-6 shadow-sm">
-            <div className="flex items-center gap-2">
-              <MessageCircleQuestion className="size-5 shrink-0 text-teal-700" aria-hidden="true" />
-              <h3 className="text-lg font-black text-slate-950">{isAdmin ? "전체 문의" : "내 문의"}</h3>
-            </div>
+            <section className="mt-6 border-t border-slate-200 pt-6">
+              <h4 className="text-sm font-black text-slate-800">{isAdmin ? "전체 문의" : "내 문의"}</h4>
 
-            <div className="mt-4 grid gap-3">
+              <div className="mt-3 grid gap-3">
               {loading && <p className="text-sm font-bold text-slate-500">불러오는 중입니다...</p>}
               {!loading && questions.length === 0 && (
                 <p className="rounded-md bg-slate-50 p-4 text-sm font-bold text-slate-500">
@@ -348,7 +342,12 @@ export function QnaPage({ user }: QnaPageProps) {
                 <article key={question.id} className="grid gap-3 rounded-md border border-slate-200 p-4">
                   <div className="flex flex-wrap items-start justify-between gap-2">
                     <div className="min-w-0">
-                      <h4 className="break-words text-sm font-black text-slate-950">{question.title}</h4>
+                      <Link
+                        className="break-words text-sm font-black text-slate-950 transition hover:text-teal-700 hover:underline"
+                        href={`/qna/questions/${question.id}`}
+                      >
+                        {question.title}
+                      </Link>
                       <p className="mt-1 text-xs font-bold text-slate-400">
                         {formatDate(question.createdAt)}
                         {isAdmin && ` · 사용자 #${question.userId}`}
@@ -380,45 +379,10 @@ export function QnaPage({ user }: QnaPageProps) {
                     </div>
                   </div>
 
-                  <p className="whitespace-pre-wrap rounded-md bg-slate-50 p-3 text-sm leading-6 text-slate-700">
-                    {question.content}
-                  </p>
-
-                  {question.answer && (
-                    <div className="rounded-md bg-teal-50 p-3">
-                      <p className="text-xs font-black text-teal-700">답변 {formatDate(question.answeredAt)}</p>
-                      <p className="mt-2 whitespace-pre-wrap text-sm leading-6 text-teal-950">{question.answer}</p>
-                    </div>
-                  )}
-
-                  {isAdmin && (
-                    <form
-                      className="grid gap-2 border-t border-slate-100 pt-3"
-                      onSubmit={(event) => {
-                        event.preventDefault();
-                        handleAnswerSubmit(question.id);
-                      }}
-                    >
-                      <textarea
-                        className="min-h-24 resize-y rounded-md border border-slate-200 px-3 py-2 text-sm font-semibold text-slate-800 outline-none transition placeholder:text-slate-400 focus:border-teal-700 focus:ring-2 focus:ring-teal-100"
-                        onChange={(event) =>
-                          setAnswerDrafts((drafts) => ({ ...drafts, [question.id]: event.target.value }))
-                        }
-                        placeholder="답변 내용을 입력하세요."
-                        value={answerDrafts[question.id] ?? ""}
-                      />
-                      <button
-                        className="h-10 w-fit cursor-pointer rounded-md bg-teal-700 px-4 text-sm font-extrabold text-white transition hover:bg-teal-800 disabled:cursor-wait disabled:bg-slate-400"
-                        disabled={status === "uploading"}
-                        type="submit"
-                      >
-                        답변 등록
-                      </button>
-                    </form>
-                  )}
                 </article>
               ))}
-            </div>
+              </div>
+            </section>
           </div>
         </section>
 
