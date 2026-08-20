@@ -454,6 +454,15 @@ export async function createQnaQuestion(title: string, content: string) {
   return (await response.json()) as QnaQuestionResponse;
 }
 
+export async function deleteQnaQuestion(questionId: number) {
+  const response = await fetchWithAuth(`${QNA_URL}/questions/${questionId}`, {
+    method: "DELETE",
+  });
+  if (!response.ok) {
+    throw new Error(await readErrorMessage(response));
+  }
+}
+
 export async function getAdminQnaQuestions() {
   const response = await fetchWithAuth(`${ADMIN_QNA_URL}/questions`, {
     cache: "no-store",

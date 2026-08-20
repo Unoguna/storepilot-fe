@@ -1,12 +1,13 @@
 "use client";
 
 import { FormEvent, useEffect, useMemo, useState } from "react";
-import { CircleHelp, MessageCircleQuestion, Pencil, Send } from "lucide-react";
+import { CircleHelp, MessageCircleQuestion, Pencil, Send, Trash2 } from "lucide-react";
 import { ActionButton } from "@/components/ui/action-button";
 import {
   answerQnaQuestion,
   createQnaFaq,
   createQnaQuestion,
+  deleteQnaQuestion,
   getAdminQnaFaqs,
   getAdminQnaQuestions,
   getMyQnaQuestions,
@@ -42,6 +43,7 @@ export function QnaPage({ user }: QnaPageProps) {
   const [faqAnswer, setFaqAnswer] = useState("");
   const [faqSortOrder, setFaqSortOrder] = useState("0");
   const [answerDrafts, setAnswerDrafts] = useState<Record<number, string>>({});
+  const [deletingQuestionId, setDeletingQuestionId] = useState<number | null>(null);
   const [loading, setLoading] = useState(true);
   const [status, setStatus] = useState<RequestState>("idle");
   const [message, setMessage] = useState("");
@@ -157,6 +159,30 @@ export function QnaPage({ user }: QnaPageProps) {
     } catch (error) {
       setStatus("error");
       setMessage(error instanceof Error ? error.message : "답변 등록 중 오류가 발생했습니다.");
+    }
+  }
+
+  async function handleQuestionDelete(question: QnaQuestion) {
+    if (!window.confirm(`'${question.title}' 문의를 삭제하시겠습니까?`)) {
+      return;
+    }
+
+    setDeletingQuestionId(question.id);
+    setStatus("uploading");
+    setMessage("문의를 삭제하는 중입니다...");
+
+    try {
+      await deleteQnaQuestion(question.id);
+      setQuestions((currentQuestions) =>
+        currentQuestions.filter((currentQuestion) => currentQuestion.id !== question.id),
+      );
+      setStatus("success");
+      setMessage("문의가 삭제되었습니다.");
+    } catch (error) {
+      setStatus("error");
+      setMessage(error instanceof Error ? error.message : "문의 삭제 중 오류가 발생했습니다.");
+    } finally {
+      setDeletingQuestionId(null);
     }
   }
 
@@ -318,16 +344,30 @@ export function QnaPage({ user }: QnaPageProps) {
                         {isAdmin && ` · 사용자 #${question.userId}`}
                       </p>
                     </div>
-                    <span
-                      className={[
-                        "rounded-full px-2.5 py-1 text-xs font-black",
-                        question.status === "ANSWERED"
-                          ? "bg-teal-50 text-teal-800"
-                          : "bg-amber-50 text-amber-700",
-                      ].join(" ")}
-                    >
-                      {question.status === "ANSWERED" ? "답변 완료" : "답변 대기"}
-                    </span>
+                    <div className="flex items-center gap-2">
+                      <span
+                        className={[
+                          "rounded-full px-2.5 py-1 text-xs font-black",
+                          question.status === "ANSWERED"
+                            ? "bg-teal-50 text-teal-800"
+                            : "bg-amber-50 text-amber-700",
+                        ].join(" ")}
+                      >
+                        {question.status === "ANSWERED" ? "답변 완료" : "답변 대기"}
+                      </span>
+                      {!isAdmin && (
+                        <button
+                          aria-label={`${question.title} 문의 삭제`}
+                          className="inline-flex h-8 cursor-pointer items-center gap-1 rounded-md border border-red-200 px-2.5 text-xs font-extrabold text-red-600 transition hover:bg-red-50 disabled:cursor-wait disabled:opacity-60"
+                          disabled={deletingQuestionId === question.id}
+                          onClick={() => handleQuestionDelete(question)}
+                          type="button"
+                        >
+                          <Trash2 className="size-3.5" aria-hidden="true" />
+                          {deletingQuestionId === question.id ? "삭제 중..." : "삭제"}
+                        </button>
+                      )}
+                    </div>
                   </div>
 
                   <p className="whitespace-pre-wrap rounded-md bg-slate-50 p-3 text-sm leading-6 text-slate-700">
