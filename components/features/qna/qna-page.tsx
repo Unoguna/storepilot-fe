@@ -2,11 +2,10 @@
 
 import { FormEvent, useEffect, useMemo, useState } from "react";
 import Link from "next/link";
-import { CircleHelp, MessageCircleQuestion, Pencil, Send, Trash2 } from "lucide-react";
+import { CircleHelp, MessageCircleQuestion, Pencil, Plus, Trash2 } from "lucide-react";
 import { ActionButton } from "@/components/ui/action-button";
 import {
   createQnaFaq,
-  createQnaQuestion,
   deleteQnaQuestion,
   getAdminQnaFaqs,
   getAdminQnaQuestions,
@@ -36,8 +35,6 @@ export function QnaPage({ user }: QnaPageProps) {
   const isAdmin = user.role === "ADMIN";
   const [faqs, setFaqs] = useState<QnaFaq[]>([]);
   const [questions, setQuestions] = useState<QnaQuestion[]>([]);
-  const [title, setTitle] = useState("");
-  const [content, setContent] = useState("");
   const [faqId, setFaqId] = useState<number | null>(null);
   const [faqQuestion, setFaqQuestion] = useState("");
   const [faqAnswer, setFaqAnswer] = useState("");
@@ -71,24 +68,6 @@ export function QnaPage({ user }: QnaPageProps) {
       setMessage(error instanceof Error ? error.message : "QnA 정보를 불러오지 못했습니다.");
     } finally {
       setLoading(false);
-    }
-  }
-
-  async function handleQuestionSubmit(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-    setStatus("uploading");
-    setMessage("문의를 등록하는 중입니다...");
-
-    try {
-      await createQnaQuestion(title, content);
-      setTitle("");
-      setContent("");
-      setStatus("success");
-      setMessage("문의가 등록되었습니다.");
-      await loadQna();
-    } catch (error) {
-      setStatus("error");
-      setMessage(error instanceof Error ? error.message : "문의 등록 중 오류가 발생했습니다.");
     }
   }
 
@@ -208,7 +187,7 @@ export function QnaPage({ user }: QnaPageProps) {
         )}
       </div>
 
-      <div className="grid gap-5 xl:grid-cols-[minmax(0,1fr)_minmax(360px,420px)]">
+      <div className="grid gap-5">
         <section className="grid gap-5">
           {isAdmin && (
             <div className="rounded-lg border border-slate-200 bg-white p-6 shadow-sm">
@@ -385,40 +364,19 @@ export function QnaPage({ user }: QnaPageProps) {
               ))}
               </div>
             </section>
-          </div>
-        </section>
 
-        <section className="rounded-lg border border-slate-200 bg-white p-6 shadow-sm">
-          <div className="flex items-center gap-2">
-            <Send className="size-5 shrink-0 text-teal-700" aria-hidden="true" />
-            <h3 className="text-lg font-black text-slate-950">문의하기</h3>
+            {!isAdmin && (
+              <div className="mt-6 flex justify-end pt-5">
+                <Link
+                  className="inline-flex h-11 items-center gap-2 rounded-md bg-teal-700 px-5 text-sm font-extrabold text-white transition hover:bg-teal-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-600 focus-visible:ring-offset-2"
+                  href="/qna/new"
+                >
+                  <Plus className="size-4" aria-hidden="true" />
+                  문의 등록
+                </Link>
+              </div>
+            )}
           </div>
-
-          <form className="mt-4 grid gap-3" onSubmit={handleQuestionSubmit}>
-            <label className="grid gap-1 text-sm font-extrabold text-slate-700">
-              제목
-              <input
-                className="h-11 rounded-md border border-slate-200 px-3 text-sm font-semibold text-slate-800 outline-none transition placeholder:text-slate-400 focus:border-teal-700 focus:ring-2 focus:ring-teal-100"
-                maxLength={200}
-                onChange={(event) => setTitle(event.target.value)}
-                placeholder="문의 제목"
-                value={title}
-              />
-            </label>
-            <label className="grid gap-1 text-sm font-extrabold text-slate-700">
-              내용
-              <textarea
-                className="min-h-48 resize-y rounded-md border border-slate-200 px-3 py-2 text-sm font-semibold text-slate-800 outline-none transition placeholder:text-slate-400 focus:border-teal-700 focus:ring-2 focus:ring-teal-100"
-                maxLength={5000}
-                onChange={(event) => setContent(event.target.value)}
-                placeholder="문의 내용을 입력하세요."
-                value={content}
-              />
-            </label>
-            <ActionButton disabled={status === "uploading"} loading={status === "uploading"}>
-              {status === "uploading" ? "등록 중..." : "문의 등록"}
-            </ActionButton>
-          </form>
         </section>
       </div>
     </section>
