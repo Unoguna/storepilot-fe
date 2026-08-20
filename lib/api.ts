@@ -388,6 +388,16 @@ export async function getQnaFaqs() {
   return (await response.json()) as QnaFaqListResponse;
 }
 
+export async function getQnaFaq(faqId: number) {
+  const response = await fetchWithAuth(`${QNA_URL}/faqs/${faqId}`, {
+    cache: "no-store",
+  });
+  if (!response.ok) {
+    throw new Error(await readErrorMessage(response));
+  }
+  return (await response.json()) as QnaFaqResponse;
+}
+
 export async function getAdminQnaFaqs() {
   const response = await fetchWithAuth(`${ADMIN_QNA_URL}/faqs`, {
     cache: "no-store",
@@ -396,6 +406,16 @@ export async function getAdminQnaFaqs() {
     throw new Error(await readErrorMessage(response));
   }
   return (await response.json()) as QnaFaqListResponse;
+}
+
+export async function getAdminQnaFaq(faqId: number) {
+  const response = await fetchWithAuth(`${ADMIN_QNA_URL}/faqs/${faqId}`, {
+    cache: "no-store",
+  });
+  if (!response.ok) {
+    throw new Error(await readErrorMessage(response));
+  }
+  return (await response.json()) as QnaFaqResponse;
 }
 
 export async function createQnaFaq(question: string, answer: string, sortOrder: number) {
@@ -442,6 +462,16 @@ export async function getMyQnaQuestions() {
   return (await response.json()) as QnaQuestionListResponse;
 }
 
+export async function getMyQnaQuestion(questionId: number) {
+  const response = await fetchWithAuth(`${QNA_URL}/questions/${questionId}`, {
+    cache: "no-store",
+  });
+  if (!response.ok) {
+    throw new Error(await readErrorMessage(response));
+  }
+  return (await response.json()) as QnaQuestionResponse;
+}
+
 export async function createQnaQuestion(title: string, content: string) {
   const response = await fetchWithAuth(`${QNA_URL}/questions`, {
     method: "POST",
@@ -454,6 +484,15 @@ export async function createQnaQuestion(title: string, content: string) {
   return (await response.json()) as QnaQuestionResponse;
 }
 
+export async function deleteQnaQuestion(questionId: number) {
+  const response = await fetchWithAuth(`${QNA_URL}/questions/${questionId}`, {
+    method: "DELETE",
+  });
+  if (!response.ok) {
+    throw new Error(await readErrorMessage(response));
+  }
+}
+
 export async function getAdminQnaQuestions() {
   const response = await fetchWithAuth(`${ADMIN_QNA_URL}/questions`, {
     cache: "no-store",
@@ -462,6 +501,16 @@ export async function getAdminQnaQuestions() {
     throw new Error(await readErrorMessage(response));
   }
   return (await response.json()) as QnaQuestionListResponse;
+}
+
+export async function getAdminQnaQuestion(questionId: number) {
+  const response = await fetchWithAuth(`${ADMIN_QNA_URL}/questions/${questionId}`, {
+    cache: "no-store",
+  });
+  if (!response.ok) {
+    throw new Error(await readErrorMessage(response));
+  }
+  return (await response.json()) as QnaQuestionResponse;
 }
 
 export async function answerQnaQuestion(questionId: number, answer: string) {
