@@ -288,25 +288,27 @@ export function QnaPage({ user }: QnaPageProps) {
               {faqs.map((faq) => (
                 <article
                   key={faq.id}
-                  className="flex flex-wrap items-center justify-between gap-2 rounded-md border border-slate-200 bg-slate-50 px-4 py-3"
+                  className="flex items-center rounded-md border border-slate-200 bg-slate-50 transition hover:border-teal-300 hover:bg-teal-50/50"
                 >
-                  <div className="min-w-0">
-                    <Link
-                      className={`break-words text-sm font-extrabold transition hover:text-teal-700 hover:underline ${
+                  <Link
+                    className="flex min-w-0 flex-1 items-center self-stretch rounded-md px-4 py-3 outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-teal-600"
+                    href={`/qna/faqs/${faq.id}`}
+                  >
+                    <span
+                      className={`break-words text-sm font-extrabold ${
                         faq.active ? "text-slate-800" : "text-slate-400"
                       }`}
-                      href={`/qna/faqs/${faq.id}`}
                     >
                       {faq.question}
-                    </Link>
+                    </span>
                     {isAdmin && !faq.active && (
                       <span className="ml-2 rounded-full bg-slate-200 px-2 py-0.5 text-xs font-black text-slate-500">
                         숨김
                       </span>
                     )}
-                  </div>
+                  </Link>
                   {isAdmin && (
-                    <div className="flex flex-wrap gap-2">
+                    <div className="mr-3 flex flex-wrap gap-2 py-2">
                       <button
                         className="h-9 cursor-pointer rounded-md border border-slate-200 px-3 text-xs font-extrabold text-slate-700 transition hover:bg-white"
                         onClick={() => startFaqEdit(faq)}
@@ -339,46 +341,46 @@ export function QnaPage({ user }: QnaPageProps) {
                 </p>
               )}
               {questions.map((question) => (
-                <article key={question.id} className="grid gap-3 rounded-md border border-slate-200 p-4">
-                  <div className="flex flex-wrap items-start justify-between gap-2">
+                <article
+                  key={question.id}
+                  className="flex items-center rounded-md border border-slate-200 transition hover:border-teal-300 hover:bg-teal-50/50"
+                >
+                  <Link
+                    className="flex min-w-0 flex-1 flex-wrap items-start justify-between gap-2 self-stretch rounded-md p-4 outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-teal-600"
+                    href={`/qna/questions/${question.id}`}
+                  >
                     <div className="min-w-0">
-                      <Link
-                        className="break-words text-sm font-black text-slate-950 transition hover:text-teal-700 hover:underline"
-                        href={`/qna/questions/${question.id}`}
-                      >
+                      <p className="break-words text-sm font-black text-slate-950">
                         {question.title}
-                      </Link>
+                      </p>
                       <p className="mt-1 text-xs font-bold text-slate-400">
                         {formatDate(question.createdAt)}
                         {isAdmin && ` · 사용자 #${question.userId}`}
                       </p>
                     </div>
-                    <div className="flex items-center gap-2">
-                      <span
-                        className={[
-                          "rounded-full px-2.5 py-1 text-xs font-black",
-                          question.status === "ANSWERED"
-                            ? "bg-teal-50 text-teal-800"
-                            : "bg-amber-50 text-amber-700",
-                        ].join(" ")}
-                      >
-                        {question.status === "ANSWERED" ? "답변 완료" : "답변 대기"}
-                      </span>
-                      {!isAdmin && (
-                        <button
-                          aria-label={`${question.title} 문의 삭제`}
-                          className="inline-flex h-8 cursor-pointer items-center gap-1 rounded-md border border-red-200 px-2.5 text-xs font-extrabold text-red-600 transition hover:bg-red-50 disabled:cursor-wait disabled:opacity-60"
-                          disabled={deletingQuestionId === question.id}
-                          onClick={() => handleQuestionDelete(question)}
-                          type="button"
-                        >
-                          <Trash2 className="size-3.5" aria-hidden="true" />
-                          {deletingQuestionId === question.id ? "삭제 중..." : "삭제"}
-                        </button>
-                      )}
-                    </div>
-                  </div>
-
+                    <span
+                      className={[
+                        "rounded-full px-2.5 py-1 text-xs font-black",
+                        question.status === "ANSWERED"
+                          ? "bg-teal-50 text-teal-800"
+                          : "bg-amber-50 text-amber-700",
+                      ].join(" ")}
+                    >
+                      {question.status === "ANSWERED" ? "답변 완료" : "답변 대기"}
+                    </span>
+                  </Link>
+                  {!isAdmin && (
+                    <button
+                      aria-label={`${question.title} 문의 삭제`}
+                      className="mr-4 inline-flex h-8 shrink-0 cursor-pointer items-center gap-1 rounded-md border border-red-200 px-2.5 text-xs font-extrabold text-red-600 transition hover:bg-red-50 disabled:cursor-wait disabled:opacity-60"
+                      disabled={deletingQuestionId === question.id}
+                      onClick={() => handleQuestionDelete(question)}
+                      type="button"
+                    >
+                      <Trash2 className="size-3.5" aria-hidden="true" />
+                      {deletingQuestionId === question.id ? "삭제 중..." : "삭제"}
+                    </button>
+                  )}
                 </article>
               ))}
               </div>
