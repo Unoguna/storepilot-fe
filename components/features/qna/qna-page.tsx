@@ -97,37 +97,47 @@ export function QnaPage({ user }: QnaPageProps) {
     event.preventDefault();
     const sortOrder = Number.parseInt(faqSortOrder, 10);
     setStatus("uploading");
-    setMessage(faqId === null ? "FAQ를 등록하는 중입니다..." : "FAQ를 수정하는 중입니다...");
+    setMessage(faqId === null ? "자주 묻는 질문을 등록하는 중입니다..." : "자주 묻는 질문을 수정하는 중입니다...");
 
     try {
       if (faqId === null) {
         await createQnaFaq(faqQuestion, faqAnswer, Number.isNaN(sortOrder) ? 0 : sortOrder);
-        setMessage("FAQ가 등록되었습니다.");
+        setMessage("자주 묻는 질문이 등록되었습니다.");
       } else {
         await updateQnaFaq(faqId, faqQuestion, faqAnswer, Number.isNaN(sortOrder) ? 0 : sortOrder);
-        setMessage("FAQ가 수정되었습니다.");
+        setMessage("자주 묻는 질문이 수정되었습니다.");
       }
       resetFaqForm();
       setStatus("success");
       await loadQna();
     } catch (error) {
       setStatus("error");
-      setMessage(error instanceof Error ? error.message : "FAQ 저장 중 오류가 발생했습니다.");
+      setMessage(error instanceof Error ? error.message : "자주 묻는 질문 저장 중 오류가 발생했습니다.");
     }
   }
 
   async function handleFaqActiveToggle(faq: QnaFaq) {
     setStatus("uploading");
-    setMessage(faq.active ? "FAQ를 숨김 처리하는 중입니다..." : "FAQ를 노출 처리하는 중입니다...");
+    setMessage(
+      faq.active
+        ? "자주 묻는 질문을 숨김 처리하는 중입니다..."
+        : "자주 묻는 질문을 노출 처리하는 중입니다...",
+    );
 
     try {
       await setQnaFaqActive(faq.id, !faq.active);
       setStatus("success");
-      setMessage(faq.active ? "FAQ가 숨김 처리되었습니다." : "FAQ가 노출 처리되었습니다.");
+      setMessage(
+        faq.active
+          ? "자주 묻는 질문이 숨김 처리되었습니다."
+          : "자주 묻는 질문이 노출 처리되었습니다.",
+      );
       await loadQna();
     } catch (error) {
       setStatus("error");
-      setMessage(error instanceof Error ? error.message : "FAQ 상태 변경 중 오류가 발생했습니다.");
+      setMessage(
+        error instanceof Error ? error.message : "자주 묻는 질문 상태 변경 중 오류가 발생했습니다.",
+      );
     }
   }
 
@@ -196,7 +206,7 @@ export function QnaPage({ user }: QnaPageProps) {
               <h2 className="text-xl font-black tracking-normal text-slate-950">QnA</h2>
             </div>
             <p className="mt-1 text-sm font-bold text-slate-500">
-              FAQ를 확인하고 1:1 문의를 남길 수 있습니다.
+              자주 묻는 질문을 확인하고 1:1 문의를 남길 수 있습니다.
             </p>
           </div>
           <div className="rounded-md bg-teal-50 px-3 py-2 text-xs font-black text-teal-900">
@@ -222,7 +232,7 @@ export function QnaPage({ user }: QnaPageProps) {
             <div className="rounded-lg border border-slate-200 bg-white p-6 shadow-sm">
               <div className="flex items-center gap-2">
                 <Pencil className="size-5 shrink-0 text-teal-700" aria-hidden="true" />
-                <h3 className="text-lg font-black text-slate-950">FAQ 관리</h3>
+                <h3 className="text-lg font-black text-slate-950">자주 묻는 질문 관리</h3>
               </div>
 
               <form className="mt-4 grid gap-3" onSubmit={handleFaqSubmit}>
@@ -232,7 +242,7 @@ export function QnaPage({ user }: QnaPageProps) {
                     className="h-11 rounded-md border border-slate-200 px-3 text-sm font-semibold text-slate-800 outline-none transition placeholder:text-slate-400 focus:border-teal-700 focus:ring-2 focus:ring-teal-100"
                     maxLength={300}
                     onChange={(event) => setFaqQuestion(event.target.value)}
-                    placeholder="FAQ 질문"
+                    placeholder="자주 묻는 질문"
                     value={faqQuestion}
                   />
                 </label>
@@ -242,7 +252,7 @@ export function QnaPage({ user }: QnaPageProps) {
                     className="min-h-32 resize-y rounded-md border border-slate-200 px-3 py-2 text-sm font-semibold text-slate-800 outline-none transition placeholder:text-slate-400 focus:border-teal-700 focus:ring-2 focus:ring-teal-100"
                     maxLength={5000}
                     onChange={(event) => setFaqAnswer(event.target.value)}
-                    placeholder="FAQ 답변"
+                    placeholder="답변"
                     value={faqAnswer}
                   />
                 </label>
@@ -258,7 +268,7 @@ export function QnaPage({ user }: QnaPageProps) {
                 </label>
                 <div className="flex flex-wrap gap-2">
                   <ActionButton disabled={status === "uploading"} loading={status === "uploading"}>
-                    {faqId === null ? "FAQ 등록" : "FAQ 수정"}
+                    {faqId === null ? "질문 등록" : "질문 수정"}
                   </ActionButton>
                   {faqId !== null && (
                     <button
@@ -277,14 +287,14 @@ export function QnaPage({ user }: QnaPageProps) {
           <div className="rounded-lg border border-slate-200 bg-white p-6 shadow-sm">
             <div className="flex items-center gap-2">
               <CircleHelp className="size-5 shrink-0 text-teal-700" aria-hidden="true" />
-              <h3 className="text-lg font-black text-slate-950">FAQ</h3>
+              <h3 className="text-lg font-black text-slate-950">자주 묻는 질문</h3>
             </div>
 
             <div className="mt-4 grid gap-2">
               {loading && <p className="text-sm font-bold text-slate-500">불러오는 중입니다...</p>}
               {!loading && faqs.length === 0 && (
                 <p className="rounded-md bg-slate-50 p-4 text-sm font-bold text-slate-500">
-                  등록된 FAQ가 없습니다.
+                  등록된 자주 묻는 질문이 없습니다.
                 </p>
               )}
               {faqs.map((faq) => (
