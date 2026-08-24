@@ -32,6 +32,7 @@ import { TrainingProductAddCard } from "@/components/features/training-product/t
 import { TrainingProductCategoryStatsPage } from "@/components/features/training-product/training-product-category-stats-page";
 import { TrainingProductUploadCard } from "@/components/features/training-product/training-product-upload-card";
 import { WatermarkSettingsCard } from "@/components/features/watermark/watermark-settings-card";
+import { HomeDashboard } from "@/components/features/home/home-dashboard";
 import { AuthPanel } from "@/components/features/auth/auth-panel";
 import { useAuthSession } from "@/components/features/auth/auth-session-provider";
 import { deleteAccount, getMyCategoryMappings, logout } from "@/lib/api";
@@ -169,6 +170,10 @@ export function AuthenticatedHome({ currentView = "dashboard", faqId, questionId
   const isAdmin = authenticatedUser.role === "ADMIN";
 
   function renderContent() {
+    if (currentView === "dashboard") {
+      return <FullWidthContent><HomeDashboard isAdmin={isAdmin} onNavigate={moveTo} /></FullWidthContent>;
+    }
+
     if (currentView === "product-excel-upload") {
       return <FullWidthContent><ProductExcelCard /></FullWidthContent>;
     }
