@@ -1,7 +1,7 @@
 "use client";
 
 import { ChangeEvent, FormEvent, useMemo, useState } from "react";
-import { Upload } from "lucide-react";
+import { Download, Upload } from "lucide-react";
 import { ActionButton } from "@/components/ui/action-button";
 import { ResultRow } from "@/components/ui/result-row";
 import { UploadCard } from "@/components/ui/upload-card";
@@ -49,10 +49,36 @@ export function MyCategoryMappingCard() {
     }
   }
 
+  const uploadGuide = (
+    <div className="grid gap-3 rounded-lg border border-slate-200 bg-slate-50 p-4">
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <div>
+          <h3 className="font-extrabold text-slate-900">작성 방법</h3>
+          <p className="mt-1 text-sm text-slate-600">
+            유키에 업로드하는 마이카테고리 파일을 업로드해주세요.
+          </p>
+        </div>
+        <a
+          className="inline-flex h-10 items-center gap-2 rounded-md border border-teal-700 bg-white px-4 text-sm font-extrabold text-teal-700 transition hover:bg-teal-50"
+          download
+          href="/templates/my-category-mapping-example.xlsx"
+        >
+          <Download className="size-4" aria-hidden="true" />
+          예시 파일 다운로드
+        </a>
+      </div>
+
+      <p className="text-xs leading-5 text-slate-500">
+        1행에 있는 &apos;마이카테&apos;, &apos;네이버카테&apos;, &apos;마이카테명&apos; 열의 이름을 변경하지 마세요.
+      </p>
+    </div>
+  );
+
   return (
     <UploadCard
       title="마이카테고리 업로드"
       icon={Upload}
+      guide={uploadGuide}
       fileLabel={mappingFileLabel}
       status={mappingStatus}
       message={mappingMessage}

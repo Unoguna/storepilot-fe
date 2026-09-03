@@ -2,7 +2,7 @@
 
 import { ChangeEvent, FormEvent, useEffect, useMemo, useState } from "react";
 import Link from "next/link";
-import { ImageDown } from "lucide-react";
+import { Download, ImageDown } from "lucide-react";
 import { ActionButton } from "@/components/ui/action-button";
 import { UploadCard } from "@/components/ui/upload-card";
 import { downloadImageFailureExcel, downloadProductImage, getMyWatermark, prepareImageDownloads } from "@/lib/api";
@@ -170,10 +170,36 @@ export function ProductImageDownloadCard() {
     }
   }
 
+  const uploadGuide = (
+    <div className="grid gap-3 rounded-lg border border-slate-200 bg-slate-50 p-4">
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <div>
+          <h3 className="font-extrabold text-slate-900">작성 방법</h3>
+          <p className="mt-1 text-sm text-slate-600">
+            유키 플랫폼에서 다운로드한 엑셀 파일을 업로드해주세요.
+          </p>
+        </div>
+        <a
+          className="inline-flex h-10 items-center gap-2 rounded-md border border-teal-700 bg-white px-4 text-sm font-extrabold text-teal-700 transition hover:bg-teal-50"
+          download
+          href="/templates/product-excel-job-example.xlsx"
+        >
+          <Download className="size-4" aria-hidden="true" />
+          예시 파일 다운로드
+        </a>
+      </div>
+
+      <p className="text-xs leading-5 text-slate-500">
+        1행의 &apos;목록이미지1&apos; 열에서 이미지 주소를 읽으므로 &apos;목록이미지1&apos;이라는 열 이름을 수정하면 안 됩니다.
+      </p>
+    </div>
+  );
+
   return (
     <UploadCard
       title="상품 이미지 다운로드"
       icon={ImageDown}
+      guide={uploadGuide}
       fileLabel={productFileLabel}
       status={imageStatus}
       message={imageMessage}
