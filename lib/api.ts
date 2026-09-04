@@ -17,6 +17,8 @@ import {
   QnaQuestionListResponse,
   QnaQuestionResponse,
   TrainingProductUploadResponse,
+  TrainingProductRequestListResponse,
+  TrainingProductRequestResponse,
   UserWatermarkResponse,
   WatermarkPosition,
 } from "@/types/store-pilot";
@@ -34,6 +36,7 @@ const TRAINING_PRODUCT_UPLOAD_URL = `${API_BASE}/api/v1/admin/training-products/
 const TRAINING_PRODUCT_APPEND_URL = `${API_BASE}/api/v1/admin/training-products/append`;
 const TRAINING_PRODUCT_CATEGORY_STATS_URL = `${API_BASE}/api/v1/admin/training-products/category-stats`;
 const TRAINING_PRODUCT_FEEDBACK_URL = `${API_BASE}/api/v1/admin/training-products/feedback`;
+const TRAINING_PRODUCT_REQUEST_URL = `${API_BASE}/api/v1/training-product-requests`;
 const AUTH_URL = `${API_BASE}/api/v1/auth`;
 const QNA_URL = `${API_BASE}/api/v1/qna`;
 const ADMIN_QNA_URL = `${API_BASE}/api/v1/admin/qna`;
@@ -376,6 +379,30 @@ export async function addTrainingProduct(productName: string, myCategoryCode: st
   }
 
   return (await response.json()) as ProductCategoryFeedbackResponse;
+}
+
+export async function submitTrainingProductRequest(file: File) {
+  const formData = new FormData();
+  formData.append("file", file);
+
+  const response = await fetchWithAuth(TRAINING_PRODUCT_REQUEST_URL, {
+    method: "POST",
+    body: formData,
+  });
+  if (!response.ok) {
+    throw new Error(await readErrorMessage(response));
+  }
+  return (await response.json()) as TrainingProductRequestResponse;
+}
+
+export async function getMyTrainingProductRequests() {
+  const response = await fetchWithAuth(TRAINING_PRODUCT_REQUEST_URL, {
+    cache: "no-store",
+  });
+  if (!response.ok) {
+    throw new Error(await readErrorMessage(response));
+  }
+  return (await response.json()) as TrainingProductRequestListResponse;
 }
 
 export async function getQnaFaqs() {

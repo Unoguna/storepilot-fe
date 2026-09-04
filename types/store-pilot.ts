@@ -245,6 +245,33 @@ export type ProductIndexAppendResponse = {
   code?: string;
 };
 
+export type TrainingProductRequest = {
+  id: number;
+  userId: number;
+  userEmail: string;
+  originalFilename: string;
+  fileSize: number;
+  productCount: number;
+  createdAt: string;
+};
+
+export type TrainingProductRequestResponse = {
+  success: boolean;
+  data?: TrainingProductRequest;
+  message?: string;
+  code?: string;
+};
+
+export type TrainingProductRequestListResponse = {
+  success: boolean;
+  data?: {
+    requestCount: number;
+    requests: TrainingProductRequest[];
+  };
+  message?: string;
+  code?: string;
+};
+
 export type QnaQuestionStatus = "WAITING" | "ANSWERED";
 
 export type QnaFaq = {

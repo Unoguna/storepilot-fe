@@ -5,6 +5,7 @@ import Image from "next/image";
 import { useRouter } from "next/navigation";
 import {
   BarChart3,
+  BookOpenCheck,
   CircleHelp,
   Database,
   FolderUp,
@@ -31,6 +32,7 @@ import { QnaQuestionDetailPage } from "@/components/features/qna/qna-question-de
 import { TrainingProductAddCard } from "@/components/features/training-product/training-product-add-card";
 import { TrainingProductCategoryStatsPage } from "@/components/features/training-product/training-product-category-stats-page";
 import { TrainingProductUploadCard } from "@/components/features/training-product/training-product-upload-card";
+import { TrainingProductRequestCard } from "@/components/features/training-product/training-product-request-card";
 import { WatermarkSettingsCard } from "@/components/features/watermark/watermark-settings-card";
 import { HomeDashboard } from "@/components/features/home/home-dashboard";
 import { AuthPanel } from "@/components/features/auth/auth-panel";
@@ -52,7 +54,8 @@ type HomeView =
   | "qna-question-detail"
   | "training-product-upload"
   | "training-product-add"
-  | "training-product-category-stats";
+  | "training-product-category-stats"
+  | "category-learning";
 
 type AuthenticatedHomeProps = {
   currentView?: HomeView;
@@ -198,6 +201,10 @@ export function AuthenticatedHome({ currentView = "dashboard", faqId, questionId
       return <MyCategoryMappingListPage />;
     }
 
+    if (currentView === "category-learning") {
+      return <FullWidthContent><TrainingProductRequestCard /></FullWidthContent>;
+    }
+
     if (currentView === "qna") {
       return <QnaPage user={authenticatedUser} />;
     }
@@ -271,6 +278,9 @@ export function AuthenticatedHome({ currentView = "dashboard", faqId, questionId
             </SidebarButton>
             <SidebarButton active={currentView === "my-category-mappings"} icon={ListTree} onClick={() => moveTo("/my-category-mappings")}>
               마이카테고리 조회
+            </SidebarButton>
+            <SidebarButton active={currentView === "category-learning"} icon={BookOpenCheck} onClick={() => moveTo("/category-learning")}>
+              카테고리 학습
             </SidebarButton>
             <SidebarButton active={currentView === "qna" || currentView === "qna-faq-detail" || currentView === "qna-question-create" || currentView === "qna-question-detail"} icon={CircleHelp} onClick={() => moveTo("/qna")}>
               QnA
