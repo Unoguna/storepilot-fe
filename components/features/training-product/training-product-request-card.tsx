@@ -73,11 +73,13 @@ export function TrainingProductRequestCard() {
         accept=".xlsx"
         onFileChange={handleFileChange}
       >
-        <form className="grid gap-5" onSubmit={handleSubmit}>
-          <ActionButton disabled={!file || status === "uploading"} loading={status === "uploading"}>
-            {status === "uploading" ? "접수 중..." : "학습 요청하기"}
-          </ActionButton>
-        </form>
+        {file && (
+          <form className="grid gap-5" onSubmit={handleSubmit}>
+            <ActionButton disabled={status === "uploading"} loading={status === "uploading"}>
+              {status === "uploading" ? "접수 중..." : "학습 요청하기"}
+            </ActionButton>
+          </form>
+        )}
       </UploadCard>
 
       <section className="rounded-lg border border-slate-200 bg-white p-6 shadow-[0_14px_40px_rgba(23,33,38,0.08)]">
