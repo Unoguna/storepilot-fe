@@ -245,6 +245,8 @@ export type ProductIndexAppendResponse = {
   code?: string;
 };
 
+export type TrainingProductRequestStatus = "RECEIVED" | "REVIEWING" | "COMPLETED" | "REJECTED";
+
 export type TrainingProductRequest = {
   id: number;
   userId: number;
@@ -252,6 +254,8 @@ export type TrainingProductRequest = {
   originalFilename: string;
   fileSize: number;
   productCount: number;
+  status: TrainingProductRequestStatus;
+  fileAvailable: boolean;
   createdAt: string;
 };
 

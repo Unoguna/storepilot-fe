@@ -19,6 +19,7 @@ import {
   TrainingProductUploadResponse,
   TrainingProductRequestListResponse,
   TrainingProductRequestResponse,
+  TrainingProductRequestStatus,
   UserWatermarkResponse,
   WatermarkPosition,
 } from "@/types/store-pilot";
@@ -422,6 +423,31 @@ export async function downloadTrainingProductRequest(requestId: number) {
     throw new Error(await readErrorMessage(response));
   }
   return response;
+}
+
+export async function updateTrainingProductRequestStatus(
+  requestId: number,
+  status: TrainingProductRequestStatus,
+) {
+  const response = await fetchWithAuth(`${ADMIN_TRAINING_PRODUCT_REQUEST_URL}/${requestId}/status`, {
+    method: "PATCH",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ status }),
+  });
+  if (!response.ok) {
+    throw new Error(await readErrorMessage(response));
+  }
+  return (await response.json()) as TrainingProductRequestResponse;
+}
+
+export async function deleteTrainingProductRequest(requestId: number) {
+  const response = await fetchWithAuth(`${ADMIN_TRAINING_PRODUCT_REQUEST_URL}/${requestId}`, {
+    method: "DELETE",
+  });
+  if (!response.ok) {
+    throw new Error(await readErrorMessage(response));
+  }
+  return (await response.json()) as TrainingProductRequestResponse;
 }
 
 export async function getQnaFaqs() {

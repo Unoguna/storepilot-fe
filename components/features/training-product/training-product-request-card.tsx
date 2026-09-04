@@ -6,7 +6,7 @@ import { ActionButton } from "@/components/ui/action-button";
 import { UploadCard } from "@/components/ui/upload-card";
 import { getMyTrainingProductRequests, submitTrainingProductRequest } from "@/lib/api";
 import { formatBytes, labelForFile } from "@/lib/format";
-import { RequestState, TrainingProductRequest } from "@/types/store-pilot";
+import { RequestState, TrainingProductRequest, TrainingProductRequestStatus } from "@/types/store-pilot";
 
 export function TrainingProductRequestCard() {
   const [file, setFile] = useState<File | null>(null);
@@ -96,7 +96,9 @@ export function TrainingProductRequestCard() {
                     상품 {request.productCount.toLocaleString()}개 · {formatBytes(request.fileSize)} · {formatDate(request.createdAt)}
                   </p>
                 </div>
-                <span className="w-fit rounded-full bg-teal-50 px-3 py-1 text-xs font-extrabold text-teal-800">접수 완료</span>
+                <span className={`w-fit rounded-full px-3 py-1 text-xs font-extrabold ${statusClass(request.status)}`}>
+                  {statusLabel(request.status)}
+                </span>
               </div>
             ))}
           </div>
@@ -114,4 +116,22 @@ function formatDate(value: string) {
     hour: "2-digit",
     minute: "2-digit",
   }).format(new Date(value));
+}
+
+function statusLabel(status: TrainingProductRequestStatus) {
+  return {
+    RECEIVED: "접수 완료",
+    REVIEWING: "검토 중",
+    COMPLETED: "학습 완료",
+    REJECTED: "반려",
+  }[status];
+}
+
+function statusClass(status: TrainingProductRequestStatus) {
+  return {
+    RECEIVED: "bg-slate-100 text-slate-700",
+    REVIEWING: "bg-amber-50 text-amber-700",
+    COMPLETED: "bg-teal-50 text-teal-800",
+    REJECTED: "bg-red-50 text-red-700",
+  }[status];
 }
