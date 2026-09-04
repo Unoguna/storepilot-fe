@@ -175,7 +175,7 @@ export function AuthenticatedHome({ currentView = "dashboard", faqId, questionId
     }
 
     if (currentView === "product-excel-upload") {
-      return <FullWidthContent><ProductExcelCard /></FullWidthContent>;
+      return <FullWidthContent><ProductExcelCard isAdmin={isAdmin} /></FullWidthContent>;
     }
 
     if (currentView === "product-image-download") {

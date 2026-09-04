@@ -176,7 +176,7 @@ export function ProductImageDownloadCard() {
         <div>
           <h3 className="font-extrabold text-slate-900">작성 방법</h3>
           <p className="mt-1 text-sm text-slate-600">
-            유키 플랫폼에서 다운로드한 엑셀 파일을 업로드해주세요.
+            유플렛에서 다운받은 신상품 엑셀 파일을 그대로 올리시면 목록이미지1의 이미지를 다운받습니다.
           </p>
         </div>
         <a
