@@ -36,7 +36,7 @@ function formatElapsedTime(milliseconds: number | null) {
   return `${minutes}분 ${remainingSeconds}초`;
 }
 
-export function ProductExcelCard() {
+export function ProductExcelCard({ isAdmin }: { isAdmin: boolean }) {
   const [productFile, setProductFile] = useState<File | null>(null);
   const [excelStatus, setExcelStatus] = useState<RequestState>("idle");
   const [excelMessage, setExcelMessage] = useState("");
@@ -77,7 +77,7 @@ export function ProductExcelCard() {
     setExcelMessage("카테고리 찾기 작업을 등록하는 중입니다...");
 
     try {
-      const createBody = await createProductExcelJob(productFile, includeSelectionDetails);
+      const createBody = await createProductExcelJob(productFile, isAdmin && includeSelectionDetails);
       if (!createBody.data) {
         throw new Error(createBody.message ?? "카테고리 찾기 작업을 등록하지 못했습니다.");
       }
@@ -126,7 +126,7 @@ export function ProductExcelCard() {
         <div>
           <h3 className="font-extrabold text-slate-900">작성 방법</h3>
           <p className="mt-1 text-sm text-slate-600">
-            유키 플랫폼에서 다운로드한 엑셀 파일을 업로드해주세요.
+            유플렛에서 다운받은 신상품 엑셀 파일을 그대로 올리시면 마이카테를 찾아드립니다.
           </p>
         </div>
         <a
@@ -158,21 +158,23 @@ export function ProductExcelCard() {
       {productFile && (
         <div className="grid gap-3">
           <form className="grid gap-2" onSubmit={handleExcelSubmit}>
-            <label className="flex items-start gap-3 rounded-md border border-slate-200 bg-slate-50 px-3 py-2 text-sm font-semibold text-slate-700">
-              <input
-                checked={includeSelectionDetails}
-                className="mt-1 h-4 w-4 accent-teal-700"
-                disabled={excelStatus === "uploading"}
-                onChange={(event) => setIncludeSelectionDetails(event.target.checked)}
-                type="checkbox"
-              />
-              <span className="grid gap-0.5">
-                <span>선택 과정 확인용 열 포함</span>
-                <span className="text-xs font-medium text-slate-500">
-                  유사상품, 선택카테고리, LLM상태, 카테고리검색 열을 결과 엑셀에 표시합니다.
+            {isAdmin && (
+              <label className="flex items-start gap-3 rounded-md border border-slate-200 bg-slate-50 px-3 py-2 text-sm font-semibold text-slate-700">
+                <input
+                  checked={includeSelectionDetails}
+                  className="mt-1 h-4 w-4 accent-teal-700"
+                  disabled={excelStatus === "uploading"}
+                  onChange={(event) => setIncludeSelectionDetails(event.target.checked)}
+                  type="checkbox"
+                />
+                <span className="grid gap-0.5">
+                  <span>선택 과정 확인용 열 포함</span>
+                  <span className="text-xs font-medium text-slate-500">
+                    유사상품, 선택카테고리, LLM상태, 카테고리검색 열을 결과 엑셀에 표시합니다.
+                  </span>
                 </span>
-              </span>
-            </label>
+              </label>
+            )}
             <ActionButton disabled={excelStatus === "uploading"} loading={excelStatus === "uploading"}>
               {excelStatus === "uploading" ? "카테고리 찾는 중..." : "결과 엑셀 저장"}
             </ActionButton>

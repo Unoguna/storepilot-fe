@@ -55,7 +55,7 @@ export function MyCategoryMappingCard() {
         <div>
           <h3 className="font-extrabold text-slate-900">작성 방법</h3>
           <p className="mt-1 text-sm text-slate-600">
-            유키에 업로드하는 마이카테고리 파일을 업로드해주세요.
+            셀포터 → 유플렛 → 마이카테관리 → (좌측 하단) 전체건 엑셀다운로드를 통해 다운받은 파일을 업로드해주세요.
           </p>
         </div>
         <a
