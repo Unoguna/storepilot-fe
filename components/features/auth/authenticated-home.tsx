@@ -11,6 +11,7 @@ import {
   FolderUp,
   Home,
   ImageDown,
+  Inbox,
   ListTree,
   LogOut,
   PackagePlus,
@@ -30,6 +31,7 @@ import { QnaFaqDetailPage } from "@/components/features/qna/qna-faq-detail-page"
 import { QnaQuestionCreatePage } from "@/components/features/qna/qna-question-create-page";
 import { QnaQuestionDetailPage } from "@/components/features/qna/qna-question-detail-page";
 import { TrainingProductAddCard } from "@/components/features/training-product/training-product-add-card";
+import { AdminTrainingProductRequestPage } from "@/components/features/training-product/admin-training-product-request-page";
 import { TrainingProductCategoryStatsPage } from "@/components/features/training-product/training-product-category-stats-page";
 import { TrainingProductUploadCard } from "@/components/features/training-product/training-product-upload-card";
 import { TrainingProductRequestCard } from "@/components/features/training-product/training-product-request-card";
@@ -55,7 +57,8 @@ type HomeView =
   | "training-product-upload"
   | "training-product-add"
   | "training-product-category-stats"
-  | "category-learning";
+  | "category-learning"
+  | "admin-training-product-requests";
 
 type AuthenticatedHomeProps = {
   currentView?: HomeView;
@@ -233,6 +236,10 @@ export function AuthenticatedHome({ currentView = "dashboard", faqId, questionId
       return isAdmin ? <TrainingProductCategoryStatsPage /> : <AccessDeniedMessage />;
     }
 
+    if (currentView === "admin-training-product-requests") {
+      return isAdmin ? <AdminTrainingProductRequestPage /> : <AccessDeniedMessage />;
+    }
+
     return null;
   }
 
@@ -301,6 +308,9 @@ export function AuthenticatedHome({ currentView = "dashboard", faqId, questionId
               </SidebarButton>
               <SidebarButton active={currentView === "training-product-category-stats"} icon={BarChart3} onClick={() => moveTo("/training-products/category-stats")}>
                 기존 상품 카테고리 통계
+              </SidebarButton>
+              <SidebarButton active={currentView === "admin-training-product-requests"} icon={Inbox} onClick={() => moveTo("/admin/training-product-requests")}>
+                카테고리 학습 요청 관리
               </SidebarButton>
             </nav>
           )}

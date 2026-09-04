@@ -37,6 +37,7 @@ const TRAINING_PRODUCT_APPEND_URL = `${API_BASE}/api/v1/admin/training-products/
 const TRAINING_PRODUCT_CATEGORY_STATS_URL = `${API_BASE}/api/v1/admin/training-products/category-stats`;
 const TRAINING_PRODUCT_FEEDBACK_URL = `${API_BASE}/api/v1/admin/training-products/feedback`;
 const TRAINING_PRODUCT_REQUEST_URL = `${API_BASE}/api/v1/training-product-requests`;
+const ADMIN_TRAINING_PRODUCT_REQUEST_URL = `${API_BASE}/api/v1/admin/training-product-requests`;
 const AUTH_URL = `${API_BASE}/api/v1/auth`;
 const QNA_URL = `${API_BASE}/api/v1/qna`;
 const ADMIN_QNA_URL = `${API_BASE}/api/v1/admin/qna`;
@@ -403,6 +404,24 @@ export async function getMyTrainingProductRequests() {
     throw new Error(await readErrorMessage(response));
   }
   return (await response.json()) as TrainingProductRequestListResponse;
+}
+
+export async function getAdminTrainingProductRequests() {
+  const response = await fetchWithAuth(ADMIN_TRAINING_PRODUCT_REQUEST_URL, {
+    cache: "no-store",
+  });
+  if (!response.ok) {
+    throw new Error(await readErrorMessage(response));
+  }
+  return (await response.json()) as TrainingProductRequestListResponse;
+}
+
+export async function downloadTrainingProductRequest(requestId: number) {
+  const response = await fetchWithAuth(`${ADMIN_TRAINING_PRODUCT_REQUEST_URL}/${requestId}/download`);
+  if (!response.ok) {
+    throw new Error(await readErrorMessage(response));
+  }
+  return response;
 }
 
 export async function getQnaFaqs() {
