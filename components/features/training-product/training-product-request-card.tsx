@@ -61,6 +61,7 @@ export function TrainingProductRequestCard() {
           <div className="rounded-md border-l-4 border-teal-700 bg-teal-50 px-5 py-4 text-sm leading-6 text-slate-800">
             <p className="font-black text-teal-950">파일을 보내기 전에 확인해 주세요</p>
             <p className="mt-1 font-semibold">1행의 상품명과 마이카테 열 이름을 변경하지 않은 .xlsx 파일을 올려주세요.</p>
+            <p className="mt-1 font-semibold">파일 용량은 최대 20MB까지 업로드할 수 있습니다.</p>
             <p className="mt-2 rounded-md bg-white px-3 py-2 font-bold text-slate-700">
               제출한 원본 파일은 관리자 확인을 위해 보관되며, 업로드만으로 자동 학습되지는 않습니다.
             </p>
