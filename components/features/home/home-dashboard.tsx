@@ -1,6 +1,7 @@
 import {
   ArrowRight,
   Database,
+  ExternalLink,
   FileSearch,
   ImageDown,
   ListTree,
@@ -75,14 +76,15 @@ export function HomeDashboard({ isAdmin, onNavigate }: HomeDashboardProps) {
         <p className="mt-3 max-w-2xl text-sm font-semibold leading-6 text-teal-50 sm:text-base">
           상품 엑셀을 기반으로 네이버 카테고리와 키워드를 찾고, 상품 이미지 다운로드와 워터마크 적용까지 한 곳에서 처리할 수 있습니다.
         </p>
-        <button
+        <a
           className="mt-6 inline-flex min-h-11 cursor-pointer items-center gap-2 rounded-md bg-white px-5 py-2.5 text-sm font-black text-teal-800 transition hover:bg-teal-50"
-          onClick={() => onNavigate("/product-excel-jobs/upload")}
-          type="button"
+          href="https://literate-marquis-4cc.notion.site/StorePilot-3d2c3b070b418090809ad8e419b2df0e"
+          rel="noreferrer"
+          target="_blank"
         >
-          카테고리 및 키워드 찾기
-          <ArrowRight className="size-4" aria-hidden="true" />
-        </button>
+          StorePilot 사용법
+          <ExternalLink className="size-4" aria-hidden="true" />
+        </a>
       </section>
 
       <CategoryLearningCallout />
