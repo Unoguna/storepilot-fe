@@ -1,3 +1,6 @@
+"use client";
+
+import { useEffect, useState } from "react";
 import {
   ArrowRight,
   Database,
@@ -10,12 +13,16 @@ import {
   Upload,
   type LucideIcon,
 } from "lucide-react";
+import { StorePilotGuideModal } from "@/components/features/home/store-pilot-guide-modal";
 import { CategoryLearningCallout } from "@/components/features/training-product/category-learning-callout";
 
 type HomeDashboardProps = {
   isAdmin: boolean;
   onNavigate: (path: string) => void;
 };
+
+const GUIDE_HIDDEN_UNTIL_KEY = "storepilot-guide-hidden-until";
+const ONE_DAY_MS = 24 * 60 * 60 * 1000;
 
 const steps = [
   {
@@ -66,6 +73,29 @@ const features = [
 ] satisfies Array<GuideItem>;
 
 export function HomeDashboard({ isAdmin, onNavigate }: HomeDashboardProps) {
+  const [guideOpen, setGuideOpen] = useState(false);
+
+  useEffect(() => {
+    const timer = window.setTimeout(() => {
+      try {
+        const hiddenUntil = Number.parseInt(window.localStorage.getItem(GUIDE_HIDDEN_UNTIL_KEY) ?? "0", 10);
+        setGuideOpen(!Number.isFinite(hiddenUntil) || hiddenUntil <= Date.now());
+      } catch {
+        setGuideOpen(true);
+      }
+    }, 0);
+    return () => window.clearTimeout(timer);
+  }, []);
+
+  function hideGuideForDay() {
+    try {
+      window.localStorage.setItem(GUIDE_HIDDEN_UNTIL_KEY, String(Date.now() + ONE_DAY_MS));
+    } catch {
+      // 저장소를 사용할 수 없는 브라우저에서도 팝업은 닫을 수 있어야 합니다.
+    }
+    setGuideOpen(false);
+  }
+
   return (
     <div className="grid gap-6">
       <section className="overflow-hidden rounded-xl bg-gradient-to-br from-teal-700 to-emerald-600 px-6 py-8 text-white shadow-[0_16px_40px_rgba(13,148,136,0.18)] sm:px-8 sm:py-10">
@@ -134,6 +164,13 @@ export function HomeDashboard({ isAdmin, onNavigate }: HomeDashboardProps) {
             <ArrowRight className="size-4" aria-hidden="true" />
           </button>
         </section>
+      )}
+
+      {guideOpen && (
+        <StorePilotGuideModal
+          onClose={() => setGuideOpen(false)}
+          onHideForDay={hideGuideForDay}
+        />
       )}
     </div>
   );
