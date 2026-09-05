@@ -81,7 +81,8 @@ export function AuthenticatedHome({ currentView = "dashboard", faqId, questionId
   }, [currentView, loading, router, user]);
 
   useEffect(() => {
-    if (!user || currentView !== "product-excel-upload" || myCategoryRedirectNotified || myCategoryRedirectRef.current) {
+    const requiresMyCategory = currentView === "product-excel-upload" || currentView === "category-learning";
+    if (!user || !requiresMyCategory || myCategoryRedirectNotified || myCategoryRedirectRef.current) {
       return;
     }
 

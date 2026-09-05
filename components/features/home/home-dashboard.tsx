@@ -9,6 +9,7 @@ import {
   Upload,
   type LucideIcon,
 } from "lucide-react";
+import { CategoryLearningCallout } from "@/components/features/training-product/category-learning-callout";
 
 type HomeDashboardProps = {
   isAdmin: boolean;
@@ -83,6 +84,8 @@ export function HomeDashboard({ isAdmin, onNavigate }: HomeDashboardProps) {
           <ArrowRight className="size-4" aria-hidden="true" />
         </button>
       </section>
+
+      <CategoryLearningCallout />
 
       <section className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6">
         <div>
