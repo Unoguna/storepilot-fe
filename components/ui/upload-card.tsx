@@ -8,6 +8,7 @@ export function UploadCard({
   icon: Icon,
   description,
   guide,
+  fileInputLabel = "엑셀 파일",
   fileLabel,
   status,
   message,
@@ -20,6 +21,7 @@ export function UploadCard({
   icon?: LucideIcon;
   description?: string;
   guide?: React.ReactNode;
+  fileInputLabel?: string;
   fileLabel: string;
   status: RequestState;
   message: string;
@@ -41,7 +43,7 @@ export function UploadCard({
       {guide}
 
       <label className="grid cursor-pointer gap-3 rounded-lg border border-dashed border-slate-300 bg-slate-50 p-5 transition hover:border-teal-700 hover:bg-teal-50/40">
-        <span className="text-sm font-extrabold text-slate-700">엑셀 파일</span>
+        <span className="text-sm font-extrabold text-slate-700">{fileInputLabel}</span>
         <span className="min-h-6 break-all text-sm text-slate-600">{fileLabel}</span>
         <input className="sr-only" type="file" accept={accept} multiple={multiple} onChange={onFileChange} />
       </label>

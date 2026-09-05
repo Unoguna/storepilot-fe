@@ -325,9 +325,10 @@ export async function getMyCategoryMappings() {
   return (await response.json()) as MyCategoryMappingListResponse;
 }
 
-export async function uploadTrainingProductFiles(files: File[]) {
+export async function uploadTrainingProductFiles(files: File[], myCategoryFile: File) {
   const formData = new FormData();
   files.forEach((file) => formData.append("files", file));
+  formData.append("myCategoryFile", myCategoryFile);
 
   const response = await fetchWithAuth(TRAINING_PRODUCT_UPLOAD_URL, {
     method: "POST",
@@ -341,9 +342,10 @@ export async function uploadTrainingProductFiles(files: File[]) {
   return (await response.json()) as TrainingProductUploadResponse;
 }
 
-export async function appendTrainingProductFiles(files: File[]) {
+export async function appendTrainingProductFiles(files: File[], myCategoryFile: File) {
   const formData = new FormData();
   files.forEach((file) => formData.append("files", file));
+  formData.append("myCategoryFile", myCategoryFile);
 
   const response = await fetchWithAuth(TRAINING_PRODUCT_APPEND_URL, {
     method: "POST",
@@ -419,6 +421,16 @@ export async function getAdminTrainingProductRequests() {
 
 export async function downloadTrainingProductRequest(requestId: number) {
   const response = await fetchWithAuth(`${ADMIN_TRAINING_PRODUCT_REQUEST_URL}/${requestId}/download`);
+  if (!response.ok) {
+    throw new Error(await readErrorMessage(response));
+  }
+  return response;
+}
+
+export async function downloadTrainingProductRequestMyCategoryMappings(requestId: number) {
+  const response = await fetchWithAuth(
+    `${ADMIN_TRAINING_PRODUCT_REQUEST_URL}/${requestId}/my-category-mappings/download`,
+  );
   if (!response.ok) {
     throw new Error(await readErrorMessage(response));
   }

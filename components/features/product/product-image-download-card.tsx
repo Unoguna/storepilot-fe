@@ -179,7 +179,7 @@ export function ProductImageDownloadCard() {
         </p>
       </div>
       <p className="rounded-md border border-teal-100 bg-white px-3 py-2 text-sm font-semibold leading-6 text-slate-700">
-        1행의 &apos;목록이미지1&apos; 열에서 이미지 주소를 읽으므로 &apos;목록이미지1&apos;이라는 열 이름을 수정하면 안 됩니다.
+        1행의 &apos;목록이미지1&apos; 열을 기준으로 이미지 주소를 추출합니다. 정확한 데이터 처리를 위해 열 이름(컬럼명)을 변경하지 않고 업로드해 주시기 바랍니다.
       </p>
     </div>
   );

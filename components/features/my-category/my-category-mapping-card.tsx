@@ -58,7 +58,7 @@ export function MyCategoryMappingCard() {
         </p>
       </div>
       <p className="rounded-md border border-teal-100 bg-white px-3 py-2 text-sm font-semibold leading-6 text-slate-700">
-        1행에 있는 &apos;마이카테&apos;, &apos;네이버카테&apos;, &apos;마이카테명&apos; 열의 이름을 변경하지 마세요.
+        1행의 &apos;마이카테&apos;, &apos;네이버카테&apos;, &apos;마이카테명&apos; 열을 기준으로 데이터를 추출합니다. 정확한 데이터 처리를 위해 열 이름(컬럼명)을 변경하지 않고 업로드해 주시기 바랍니다.
       </p>
     </div>
   );

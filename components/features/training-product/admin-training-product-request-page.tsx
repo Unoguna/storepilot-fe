@@ -1,10 +1,11 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Download, Inbox, Trash2 } from "lucide-react";
+import { Download, Inbox, ListTree, Trash2 } from "lucide-react";
 import {
   deleteTrainingProductRequest,
   downloadTrainingProductRequest,
+  downloadTrainingProductRequestMyCategoryMappings,
   getAdminTrainingProductRequests,
   updateTrainingProductRequestStatus,
 } from "@/lib/api";
@@ -24,6 +25,7 @@ export function AdminTrainingProductRequestPage() {
   const [loading, setLoading] = useState(true);
   const [message, setMessage] = useState("");
   const [downloadingId, setDownloadingId] = useState<number | null>(null);
+  const [downloadingMappingId, setDownloadingMappingId] = useState<number | null>(null);
   const [updatingId, setUpdatingId] = useState<number | null>(null);
   const [deletingId, setDeletingId] = useState<number | null>(null);
 
@@ -59,6 +61,19 @@ export function AdminTrainingProductRequestPage() {
       setMessage(error instanceof Error ? error.message : "학습 요청 상태를 변경하지 못했습니다.");
     } finally {
       setUpdatingId(null);
+    }
+  }
+
+  async function handleMyCategoryDownload(request: TrainingProductRequest) {
+    setDownloadingMappingId(request.id);
+    setMessage("");
+    try {
+      const response = await downloadTrainingProductRequestMyCategoryMappings(request.id);
+      downloadBlob(await response.blob(), `my-category-mappings-${request.userId}.xlsx`);
+    } catch (error) {
+      setMessage(error instanceof Error ? error.message : "요청자의 마이카테고리 파일을 다운로드하지 못했습니다.");
+    } finally {
+      setDownloadingMappingId(null);
     }
   }
 
@@ -118,7 +133,7 @@ export function AdminTrainingProductRequestPage() {
                   <th className="whitespace-nowrap px-4 py-3 text-right">파일 크기</th>
                   <th className="whitespace-nowrap px-4 py-3">접수 일시</th>
                   <th className="w-36 whitespace-nowrap px-4 py-3">상태</th>
-                  <th className="w-52 px-4 py-3 text-center">관리</th>
+                  <th className="w-80 px-4 py-3 text-center">관리</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100 text-slate-800">
@@ -155,18 +170,27 @@ export function AdminTrainingProductRequestPage() {
                       <div className="flex justify-center gap-2">
                         <button
                           className="inline-flex h-9 cursor-pointer items-center gap-1.5 rounded-md bg-teal-700 px-3 text-xs font-extrabold text-white transition hover:bg-teal-800 disabled:cursor-wait disabled:bg-slate-400"
-                        disabled={!request.fileAvailable || downloadingId === request.id || deletingId === request.id}
+                          disabled={!request.fileAvailable || downloadingId === request.id || downloadingMappingId === request.id || deletingId === request.id}
                           onClick={() => handleDownload(request)}
                           type="button"
                         >
                           <Download className="size-3.5" aria-hidden="true" />
                           {!request.fileAvailable ? "삭제됨" : downloadingId === request.id ? "받는 중" : "다운로드"}
                         </button>
+                        <button
+                          className="inline-flex h-9 cursor-pointer items-center gap-1.5 rounded-md border border-teal-200 px-3 text-xs font-extrabold text-teal-700 transition hover:bg-teal-50 disabled:cursor-wait disabled:opacity-60"
+                          disabled={downloadingMappingId === request.id || downloadingId === request.id || deletingId === request.id}
+                          onClick={() => handleMyCategoryDownload(request)}
+                          type="button"
+                        >
+                          <ListTree className="size-3.5" aria-hidden="true" />
+                          {downloadingMappingId === request.id ? "받는 중" : "마이카테"}
+                        </button>
                         {request.fileAvailable && (
                           <button
                             aria-label={`${request.originalFilename} 원본 파일 삭제`}
                             className="inline-flex h-9 cursor-pointer items-center gap-1.5 rounded-md border border-red-200 px-3 text-xs font-extrabold text-red-600 transition hover:bg-red-50 disabled:cursor-wait disabled:opacity-60"
-                            disabled={deletingId === request.id || downloadingId === request.id}
+                            disabled={deletingId === request.id || downloadingId === request.id || downloadingMappingId === request.id}
                             onClick={() => handleDelete(request)}
                             type="button"
                           >
