@@ -6,16 +6,18 @@ import { ActionButton } from "@/components/ui/action-button";
 import { ResultRow } from "@/components/ui/result-row";
 import { UploadCard } from "@/components/ui/upload-card";
 import { uploadTrainingProductFiles } from "@/lib/api";
-import { labelForFiles } from "@/lib/format";
+import { labelForFile, labelForFiles } from "@/lib/format";
 import { RequestState, TrainingProductUploadResult } from "@/types/store-pilot";
 
 export function TrainingProductUploadCard() {
   const [files, setFiles] = useState<File[]>([]);
+  const [myCategoryFile, setMyCategoryFile] = useState<File | null>(null);
   const [status, setStatus] = useState<RequestState>("idle");
   const [message, setMessage] = useState("");
   const [result, setResult] = useState<TrainingProductUploadResult | null>(null);
 
   const fileLabel = useMemo(() => labelForFiles(files), [files]);
+  const myCategoryFileLabel = useMemo(() => labelForFile(myCategoryFile), [myCategoryFile]);
 
   function handleFileChange(event: ChangeEvent<HTMLInputElement>) {
     const selectedFiles = Array.from(event.target.files ?? []);
@@ -29,12 +31,20 @@ export function TrainingProductUploadCard() {
     );
   }
 
+  function handleMyCategoryFileChange(event: ChangeEvent<HTMLInputElement>) {
+    const selectedFile = event.target.files?.[0] ?? null;
+    setMyCategoryFile(selectedFile);
+    setResult(null);
+    setStatus(selectedFile ? "ready" : "idle");
+    setMessage(selectedFile ? "마이카테고리 매핑 파일이 선택되었습니다." : "마이카테고리 매핑 파일을 선택하세요.");
+  }
+
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
 
-    if (files.length === 0) {
+    if (files.length === 0 || !myCategoryFile) {
       setStatus("error");
-      setMessage("업로드할 기존 상품 엑셀 파일을 선택해주세요.");
+      setMessage("기존 상품 파일과 마이카테고리 매핑 파일을 모두 선택해주세요.");
       return;
     }
 
@@ -43,7 +53,7 @@ export function TrainingProductUploadCard() {
     setMessage("기존 상품을 임베딩하고 유사 상품 검색 인덱스를 다시 만드는 중입니다...");
 
     try {
-      const body = await uploadTrainingProductFiles(files);
+      const body = await uploadTrainingProductFiles(files, myCategoryFile);
       setResult(body.data ?? null);
       setStatus("success");
       setMessage(body.message ?? "기존 상품 검색 인덱스가 갱신되었습니다.");
@@ -57,6 +67,7 @@ export function TrainingProductUploadCard() {
     <UploadCard
       title="기존 상품 엑셀 업로드"
       icon={Database}
+      fileInputLabel="기존 상품 엑셀 파일"
       fileLabel={fileLabel}
       status={status}
       message={message}
@@ -64,11 +75,19 @@ export function TrainingProductUploadCard() {
       multiple
       onFileChange={handleFileChange}
     >
-      <form className="grid gap-5" onSubmit={handleSubmit}>
-        <ActionButton disabled={status === "uploading"} loading={status === "uploading"}>
-          {status === "uploading" ? "인덱스 생성 중..." : "기존 상품 인덱스 갱신"}
-        </ActionButton>
-      </form>
+      <label className="grid cursor-pointer gap-3 rounded-lg border border-dashed border-slate-300 bg-slate-50 p-5 transition hover:border-teal-700 hover:bg-teal-50/40">
+        <span className="text-sm font-extrabold text-slate-700">마이카테고리 매핑 파일</span>
+        <span className="min-h-6 break-all text-sm text-slate-600">{myCategoryFileLabel}</span>
+        <input className="sr-only" type="file" accept=".xlsx,.xls" onChange={handleMyCategoryFileChange} />
+      </label>
+
+      {files.length > 0 && myCategoryFile && (
+        <form className="grid gap-5" onSubmit={handleSubmit}>
+          <ActionButton disabled={status === "uploading"} loading={status === "uploading"}>
+            {status === "uploading" ? "인덱스 생성 중..." : "기존 상품 인덱스 갱신"}
+          </ActionButton>
+        </form>
+      )}
 
       {result && (
         <div className="grid gap-2 rounded-md bg-teal-50 p-4 text-sm text-teal-950">
