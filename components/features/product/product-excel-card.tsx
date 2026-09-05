@@ -5,6 +5,7 @@ import { SearchCheck } from "lucide-react";
 import { ActionButton } from "@/components/ui/action-button";
 import { UploadCard } from "@/components/ui/upload-card";
 import { statusClassName } from "@/components/ui/upload-status";
+import { CategoryLearningCallout } from "@/components/features/training-product/category-learning-callout";
 import {
   createProductExcelJob,
   downloadProductExcelJobResult,
@@ -135,7 +136,9 @@ export function ProductExcelCard({ isAdmin }: { isAdmin: boolean }) {
   );
 
   return (
-    <UploadCard
+    <div className="grid gap-5">
+      <CategoryLearningCallout compact />
+      <UploadCard
       title="카테고리 및 키워드 찾기"
       icon={SearchCheck}
       guide={uploadGuide}
@@ -210,6 +213,7 @@ export function ProductExcelCard({ isAdmin }: { isAdmin: boolean }) {
         </div>
       )}
 
-    </UploadCard>
+      </UploadCard>
+    </div>
   );
 }

@@ -76,7 +76,7 @@ export function TrainingProductRequestCard() {
       <UploadCard
         title="기존 상품으로 카테고리 학습하기"
         icon={BookOpenCheck}
-        description="기존에 등록했던 상품 파일을 업로드하면 상품명과 카테고리의 관계를 확인한 뒤 학습에 반영하여 더욱 정확한 결과를 도출합니다."
+        description="기존에 등록했던 상품 파일을 업로드하면 상품명과 카테고리의 관계를 학습하여 더욱 정확한 결과를 도출합니다."
         guide={(
           <div className="rounded-md border-l-4 border-teal-700 bg-teal-50 px-5 py-4 text-sm leading-6 text-slate-800">
             <h3 className="text-base font-black text-teal-950">업로드 방법</h3>
