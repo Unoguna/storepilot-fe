@@ -99,6 +99,9 @@ export function TrainingProductAddCard() {
           <ResultRow label="신규 추가 상품" value={`${result.insertedProductCount.toLocaleString()}개`} />
           <ResultRow label="기존 갱신 상품" value={`${result.updatedProductCount.toLocaleString()}개`} />
           <ResultRow label="현재 인덱싱 상품" value={`${result.indexedProductCount.toLocaleString()}개`} />
+          <p className="mt-2 text-xs leading-5">
+            신규·갱신 수는 공유 인덱스의 고유 상품 기준입니다. 요청 내 중복 상품은 하나로 합치므로 추가 요청 상품 수와 합계가 다를 수 있습니다.
+          </p>
         </div>
       )}
     </UploadCard>

@@ -42,11 +42,14 @@ export function TrainingProductCategoryStatsPage() {
     <section className="grid gap-5 lg:col-span-2">
       <div className="flex items-center gap-2">
         <BarChart3 className="size-5 text-teal-700" aria-hidden="true" />
-        <h2 className="text-xl font-black tracking-normal text-slate-950">기존 상품 카테고리 통계</h2>
+        <h2 className="text-xl font-black tracking-normal text-slate-950">공유 상품 인덱스 카테고리 통계</h2>
       </div>
 
+      <p className="text-sm text-slate-600">
+        실제 검색에 사용하는 공유 인덱스 기준입니다. 여러 카테고리에 연결된 상품은 각 카테고리에 포함되므로 카테고리별 합계가 전체 고유 상품 수보다 클 수 있습니다.
+      </p>
       <div className="grid gap-3 sm:grid-cols-3">
-        <SummaryCard label="총 상품 수" value={`${(statsResult?.totalProductCount ?? 0).toLocaleString()}개`} />
+        <SummaryCard label="전체 고유 상품 수" value={`${(statsResult?.totalProductCount ?? 0).toLocaleString()}개`} />
         <SummaryCard label="카테고리 종류" value={`${(statsResult?.categoryCount ?? 0).toLocaleString()}개`} />
         <SummaryCard label="최근 집계" value={updatedAtText} />
       </div>
