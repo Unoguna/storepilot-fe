@@ -267,7 +267,7 @@ export function ProductExcelCard({ isAdmin }: { isAdmin: boolean }) {
               </ActionButton>
             )}
             <p className="text-xs font-medium text-slate-500">
-              결과 파일은 작업 완료 후 24시간 동안 다운로드할 수 있습니다. 기기에 저장한 파일은 삭제되지 않습니다.
+              결과 파일은 작업 완료 후 7일 동안 다운로드할 수 있습니다. 기기에 저장한 파일은 삭제되지 않습니다.
             </p>
             <p className={statusClassName(excelStatus)}>{excelMessage}</p>
             {jobProgress && (

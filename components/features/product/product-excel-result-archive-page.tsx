@@ -74,7 +74,7 @@ export function ProductExcelResultArchivePage() {
               <h2 className="text-xl font-black text-slate-950">결과 엑셀 보관함</h2>
             </div>
             <p className="mt-2 text-sm font-semibold text-slate-600">
-              카테고리 및 키워드 찾기가 완료된 결과를 24시간 동안 다시 다운로드할 수 있습니다.
+              카테고리 및 키워드 찾기가 완료된 결과를 7일 동안 다시 다운로드할 수 있습니다.
             </p>
           </div>
           <button
