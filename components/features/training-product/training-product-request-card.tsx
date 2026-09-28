@@ -81,7 +81,7 @@ export function TrainingProductRequestCard() {
           <div className="rounded-md border-l-4 border-teal-700 bg-teal-50 px-5 py-4 text-sm leading-6 text-slate-800">
             <h3 className="text-base font-black text-teal-950">업로드 방법</h3>
             <p className="mt-1 font-semibold">
-              유플렛 → 상품수정 → 마이카테Y 선택 → 출력 항목에 상품명, 마이카테 체크 → 엑셀파일 출력 → 전체다운로드를 통해 기존에 등록했던 상품 파일을 다운받을 수 있습니다.
+              유플렛 → 상품수정 → 유플렛 → 상품수정 → 엑셀파일 다운로드 → 마이카테Y 선택 → 출력 항목에 상품명, 마이카테 체크 → 엑셀파일 출력 → 전체다운로드를 통해 기존에 등록했던 상품 파일을 다운받을 수 있습니다.
             </p>
             <p className="mt-1 font-semibold">각 파일은 최대 20MB까지 업로드할 수 있습니다.</p>
             <p className="mt-2 rounded-md bg-white px-3 py-2 font-bold text-slate-700">
