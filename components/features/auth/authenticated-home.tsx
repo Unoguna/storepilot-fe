@@ -29,6 +29,7 @@ import { MyCategoryMappingCard } from "@/components/features/my-category/my-cate
 import { MyCategoryMappingListPage } from "@/components/features/my-category/my-category-mapping-list-page";
 import { ProductExcelCard } from "@/components/features/product/product-excel-card";
 import { ProductExcelResultArchivePage } from "@/components/features/product/product-excel-result-archive-page";
+import { AdminProductExcelResultArchivePage } from "@/components/features/product/admin-product-excel-result-archive-page";
 import { ProductImageDownloadCard } from "@/components/features/product/product-image-download-card";
 import { QnaPage } from "@/components/features/qna/qna-page";
 import { QnaFaqDetailPage } from "@/components/features/qna/qna-faq-detail-page";
@@ -69,6 +70,7 @@ type HomeView =
   | "user-usage"
   | "admin-training-product-requests"
   | "admin-user-usages"
+  | "admin-product-excel-results"
   | "product-mapping-preview";
 
 type AuthenticatedHomeProps = {
@@ -267,6 +269,10 @@ export function AuthenticatedHome({ currentView = "dashboard", faqId, questionId
       return isAdmin ? <AdminUserUsagePage /> : <AccessDeniedMessage />;
     }
 
+    if (currentView === "admin-product-excel-results") {
+      return isAdmin ? <AdminProductExcelResultArchivePage /> : <AccessDeniedMessage />;
+    }
+
     return null;
   }
 
@@ -350,6 +356,9 @@ export function AuthenticatedHome({ currentView = "dashboard", faqId, questionId
               </SidebarButton>
               <SidebarButton active={currentView === "admin-user-usages"} icon={Users} onClick={() => moveTo("/admin/user-usages")}>
                 사용자 사용량
+              </SidebarButton>
+              <SidebarButton active={currentView === "admin-product-excel-results"} icon={Archive} onClick={() => moveTo("/admin/product-excel-results")}>
+                사용자 결과 엑셀
               </SidebarButton>
             </nav>
           )}

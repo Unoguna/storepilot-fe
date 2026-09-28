@@ -263,6 +263,25 @@ export type ProductExcelJobResultsResponse = {
   code?: string;
 };
 
+export type AdminProductExcelJobResult = {
+  jobId: number;
+  userId: number;
+  userEmail: string;
+  originalFilename: string;
+  filename: string;
+  productCount: number;
+  completedAt: string | null;
+  resultExpiresAt: string | null;
+  resultExpired: boolean;
+};
+
+export type AdminProductExcelJobResultsResponse = {
+  success: boolean;
+  data?: AdminProductExcelJobResult[];
+  message?: string;
+  code?: string;
+};
+
 export type TrainingProductRequestStatus = "RECEIVED" | "REVIEWING" | "COMPLETED" | "REJECTED";
 
 export type TrainingProductRequest = {

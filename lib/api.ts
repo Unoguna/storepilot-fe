@@ -1,4 +1,5 @@
 import {
+  AdminProductExcelJobResultsResponse,
   ProductMappingPreview,
   AdminUserUsageListResponse,
   AuthResponse,
@@ -46,6 +47,7 @@ export async function previewProductMappings(file: File, myCategoryFile: File): 
 }
 
 const PRODUCT_EXCEL_JOB_URL = `${API_BASE}/api/v1/product-excel-jobs`;
+const ADMIN_PRODUCT_EXCEL_JOB_URL = `${API_BASE}/api/v1/admin/product-excel-jobs`;
 const IMAGE_DOWNLOAD_PREPARE_URL = `${API_BASE}/api/v1/product-excel-jobs/images/prepare`;
 const IMAGE_DOWNLOAD_URL = `${API_BASE}/api/v1/product-excel-jobs/images/download`;
 const IMAGE_FAILURE_EXCEL_URL = `${API_BASE}/api/v1/product-excel-jobs/images/failures/excel`;
@@ -414,6 +416,24 @@ export async function addTrainingProduct(productName: string, myCategoryCode: st
   }
 
   return (await response.json()) as ProductCategoryFeedbackResponse;
+}
+
+export async function getAdminProductExcelJobResults() {
+  const response = await fetchWithAuth(`${ADMIN_PRODUCT_EXCEL_JOB_URL}/results`, {
+    cache: "no-store",
+  });
+  if (!response.ok) {
+    throw new Error(await readErrorMessage(response));
+  }
+  return (await response.json()) as AdminProductExcelJobResultsResponse;
+}
+
+export async function downloadAdminProductExcelJobResult(jobId: number) {
+  const response = await fetchWithAuth(`${ADMIN_PRODUCT_EXCEL_JOB_URL}/${jobId}/download`);
+  if (!response.ok) {
+    throw new Error(await readErrorMessage(response));
+  }
+  return response;
 }
 
 export async function submitTrainingProductRequest(file: File) {

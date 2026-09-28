@@ -50,6 +50,8 @@ API 요청은 브라우저에서 BE로 직접 전송합니다. 현재 Next.js AP
 | `/my-category-mappings/upload` | 사용자별 마이카테 매핑 업로드 |
 | `/my-category-mappings` | 등록된 마이카테 매핑 조회 |
 | `/product-excel-jobs/upload` | 카테고리·키워드 작업 등록, 진행률·사용량 확인, 결과 저장 |
+| `/product-excel-jobs/results` | 내 결과 엑셀 보관함 |
+| `/admin/product-excel-results` | 관리자 전용 선택 과정 포함 결과 엑셀 보관함 |
 | `/product-images/download` | 이미지 폴더 저장, 목표 용량·워터마크 선택, 실패 목록 저장 |
 | `/watermarks` | 워터마크 등록·미리보기·설정·삭제 |
 | `/category-learning` | 기존 상품 파일 제출 및 내 학습 요청 상태 조회 |
@@ -190,6 +192,7 @@ QnA 상세는 동적 경로의 ID를 검증한 뒤 같은 화면 틀을 사용�
 | --- | --- |
 | `/api/v1/auth/*` | 가입·인증·세션·비밀번호·회원 탈퇴 |
 | `/api/v1/product-excel-jobs` | 작업 등록 및 `/{jobId}/status`, `/{jobId}/download` |
+| `/api/v1/admin/product-excel-jobs` | 관리자용 결과 목록 및 선택 과정 포함 결과 다운로드 |
 | `/api/v1/product-excel-jobs/images/*` | `prepare`, `download`, `failures/excel` |
 | `/api/v1/users/me/watermark` | 워터마크 조회·저장·삭제 및 `/image` 조회 |
 | `/api/v1/my-category-mappings` | 내 매핑 조회 및 `/upload` |
