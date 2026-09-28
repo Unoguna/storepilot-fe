@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import {
+  Archive,
   BarChart3,
   BookOpenCheck,
   CircleHelp,
@@ -27,6 +28,7 @@ import { CategoryUploadCard } from "@/components/features/category/category-uplo
 import { MyCategoryMappingCard } from "@/components/features/my-category/my-category-mapping-card";
 import { MyCategoryMappingListPage } from "@/components/features/my-category/my-category-mapping-list-page";
 import { ProductExcelCard } from "@/components/features/product/product-excel-card";
+import { ProductExcelResultArchivePage } from "@/components/features/product/product-excel-result-archive-page";
 import { ProductImageDownloadCard } from "@/components/features/product/product-image-download-card";
 import { QnaPage } from "@/components/features/qna/qna-page";
 import { QnaFaqDetailPage } from "@/components/features/qna/qna-faq-detail-page";
@@ -50,6 +52,7 @@ import { AuthUser } from "@/types/store-pilot";
 type HomeView =
   | "dashboard"
   | "product-excel-upload"
+  | "product-excel-results"
   | "product-image-download"
   | "watermark-settings"
   | "naver-category-upload"
@@ -196,6 +199,10 @@ export function AuthenticatedHome({ currentView = "dashboard", faqId, questionId
       return <FullWidthContent><ProductExcelCard isAdmin={isAdmin} /></FullWidthContent>;
     }
 
+    if (currentView === "product-excel-results") {
+      return <ProductExcelResultArchivePage />;
+    }
+
     if (currentView === "product-image-download") {
       return <FullWidthContent><ProductImageDownloadCard /></FullWidthContent>;
     }
@@ -293,6 +300,9 @@ export function AuthenticatedHome({ currentView = "dashboard", faqId, questionId
             </SidebarButton>
             <SidebarButton active={currentView === "product-excel-upload"} icon={SearchCheck} onClick={() => moveTo("/product-excel-jobs/upload")}>
               카테고리 및 키워드 찾기
+            </SidebarButton>
+            <SidebarButton active={currentView === "product-excel-results"} icon={Archive} onClick={() => moveTo("/product-excel-jobs/results")}>
+              결과 엑셀 보관함
             </SidebarButton>
             <SidebarButton active={currentView === "product-image-download"} icon={ImageDown} onClick={() => moveTo("/product-images/download")}>
               상품 이미지 다운로드

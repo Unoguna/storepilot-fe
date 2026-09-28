@@ -11,6 +11,7 @@ import {
   ProductImageDownloadPrepareResponse,
   ProductExcelJobCreateResponse,
   ProductExcelJobStatusResponse,
+  ProductExcelJobResultsResponse,
   ProductCategoryFeedbackResponse,
   ProductCategoryStatsResponse,
   ProductIndexAppendResponse,
@@ -194,6 +195,16 @@ export async function getProductExcelJobStatus(jobId: number) {
     throw new Error(await readErrorMessage(response));
   }
   return (await response.json()) as ProductExcelJobStatusResponse;
+}
+
+export async function getProductExcelJobResults() {
+  const response = await fetchWithAuth(`${PRODUCT_EXCEL_JOB_URL}/results`, {
+    cache: "no-store",
+  });
+  if (!response.ok) {
+    throw new Error(await readErrorMessage(response));
+  }
+  return (await response.json()) as ProductExcelJobResultsResponse;
 }
 
 export async function downloadProductExcelJobResult(jobId: number) {
