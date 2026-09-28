@@ -152,6 +152,9 @@ export function ProductExcelCard({ isAdmin }: { isAdmin: boolean }) {
           throw new Error(progress.message || "카테고리 찾기 작업에 실패했습니다.");
         }
         if (progress.status === "COMPLETED") {
+          if (progress.resultExpired) {
+            throw new Error(progress.message);
+          }
           break;
         }
         await new Promise((resolve) => window.setTimeout(resolve, STATUS_POLL_INTERVAL_MS));
@@ -263,6 +266,9 @@ export function ProductExcelCard({ isAdmin }: { isAdmin: boolean }) {
                 {excelStatus === "uploading" ? "카테고리 찾는 중..." : "결과 엑셀 저장"}
               </ActionButton>
             )}
+            <p className="text-xs font-medium text-slate-500">
+              결과 파일은 작업 완료 후 7일 동안 다운로드할 수 있습니다. 기기에 저장한 파일은 삭제되지 않습니다.
+            </p>
             <p className={statusClassName(excelStatus)}>{excelMessage}</p>
             {jobProgress && (
               <div className="grid gap-2 rounded-md border border-slate-200 bg-slate-50 p-3">

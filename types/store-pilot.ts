@@ -53,6 +53,8 @@ export type ProductExcelJobProgress = {
   message: string;
   categoryElapsedMillis: number | null;
   keywordElapsedMillis: number | null;
+  resultExpiresAt: string | null;
+  resultExpired: boolean;
 };
 
 export type ProductExcelJobCreateResponse = {
@@ -241,6 +243,41 @@ export type ProductIndexAppendResult = {
 export type ProductIndexAppendResponse = {
   success: boolean;
   data?: ProductIndexAppendResult;
+  message?: string;
+  code?: string;
+};
+
+export type ProductExcelJobResult = {
+  jobId: number;
+  filename: string;
+  productCount: number;
+  completedAt: string | null;
+  resultExpiresAt: string | null;
+  resultExpired: boolean;
+};
+
+export type ProductExcelJobResultsResponse = {
+  success: boolean;
+  data?: ProductExcelJobResult[];
+  message?: string;
+  code?: string;
+};
+
+export type AdminProductExcelJobResult = {
+  jobId: number;
+  userId: number;
+  userEmail: string;
+  originalFilename: string;
+  filename: string;
+  productCount: number;
+  completedAt: string | null;
+  resultExpiresAt: string | null;
+  resultExpired: boolean;
+};
+
+export type AdminProductExcelJobResultsResponse = {
+  success: boolean;
+  data?: AdminProductExcelJobResult[];
   message?: string;
   code?: string;
 };
